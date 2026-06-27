@@ -31,6 +31,7 @@ final class PetController {
     private let toyPanel: FloatingPanel
     private var clipPanel: FloatingPanel?
     private var editorWindow: NSWindow?
+    private var skinWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var clipResignObserver: NSObjectProtocol?
 
@@ -113,6 +114,11 @@ final class PetController {
         settings.$scale.receive(on: RunLoop.main).sink { [weak self] _ in
             self?.engine.recomputeSize()
         }.store(in: &cancellables)
+
+        // Changement de skin → recalcule la taille (un skin peut avoir une grille différente).
+        SpriteStore.shared.$activeSkinId.receive(on: RunLoop.main).sink { [weak self] _ in
+            self?.engine.recomputeSize()
+        }.store(in: &cancellables)
     }
 
     // MARK: - Historique
@@ -181,5 +187,18 @@ final class PetController {
         w.center()
         w.makeKeyAndOrderFront(nil)
         editorWindow = w
+    }
+
+    func openSkinManager() {
+        NSApp.activate(ignoringOtherApps: true)
+        if let w = skinWindow { w.makeKeyAndOrderFront(nil); return }
+        let view = SkinManagerView().environmentObject(settings)
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.title = "Gestionnaire de skins — cliPet"
+        w.styleMask = [.titled, .closable, .miniaturizable]
+        w.isReleasedWhenClosed = false
+        w.center()
+        w.makeKeyAndOrderFront(nil)
+        skinWindow = w
     }
 }

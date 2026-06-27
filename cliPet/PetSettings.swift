@@ -21,20 +21,23 @@ final class PetSettings: ObservableObject {
     // MARK: - Clipboard
     @Published var maxHistory: Int    { didSet { save() } }   // nb max d'items gardés
 
+    // MARK: - Language
+    @Published var language: String   { didSet { save() } }   // BCP-47 code, e.g. "en"
+
     private var isLoading = false
 
     init() {
-        // Valeurs par défaut : chaton tabby gris/blanc (inspiré de la référence).
         bodyColor   = Color(hex: "#969BA1")
         bellyColor  = Color(hex: "#F5F5F5")
         stripeColor = Color(hex: "#3C4045")
         eyeColor    = Color(hex: "#141414")
-        noseColor   = Color(hex: "#CE2828")   // oreille rouge en cœur
+        noseColor   = Color(hex: "#CE2828")
         speed       = 1.0
         scale       = 0.5
         mischiefEnabled = true
         chaseCursor = true
         maxHistory  = 50
+        language    = "en"
         load()
     }
 
@@ -57,6 +60,31 @@ final class PetSettings: ObservableObject {
         var speed, scale: Double
         var mischief, chase: Bool
         var maxHistory: Int
+        var language: String
+
+        init(body: String, belly: String, stripe: String, eye: String, nose: String,
+             speed: Double, scale: Double, mischief: Bool, chase: Bool,
+             maxHistory: Int, language: String) {
+            self.body = body; self.belly = belly; self.stripe = stripe
+            self.eye = eye; self.nose = nose; self.speed = speed; self.scale = scale
+            self.mischief = mischief; self.chase = chase
+            self.maxHistory = maxHistory; self.language = language
+        }
+
+        init(from decoder: Decoder) throws {
+            let c = try decoder.container(keyedBy: CodingKeys.self)
+            body      = try c.decode(String.self, forKey: .body)
+            belly     = try c.decode(String.self, forKey: .belly)
+            stripe    = try c.decode(String.self, forKey: .stripe)
+            eye       = try c.decode(String.self, forKey: .eye)
+            nose      = try c.decode(String.self, forKey: .nose)
+            speed     = try c.decode(Double.self, forKey: .speed)
+            scale     = try c.decode(Double.self, forKey: .scale)
+            mischief  = try c.decode(Bool.self,   forKey: .mischief)
+            chase     = try c.decode(Bool.self,   forKey: .chase)
+            maxHistory = try c.decode(Int.self,   forKey: .maxHistory)
+            language  = (try? c.decode(String.self, forKey: .language)) ?? "en"
+        }
     }
 
     private static let key = "cliPet.settings.v1"
@@ -67,7 +95,8 @@ final class PetSettings: ObservableObject {
             body: bodyColor.hexString, belly: bellyColor.hexString,
             stripe: stripeColor.hexString, eye: eyeColor.hexString, nose: noseColor.hexString,
             speed: speed, scale: scale,
-            mischief: mischiefEnabled, chase: chaseCursor, maxHistory: maxHistory
+            mischief: mischiefEnabled, chase: chaseCursor, maxHistory: maxHistory,
+            language: language
         )
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.key)
@@ -89,6 +118,7 @@ final class PetSettings: ObservableObject {
         mischiefEnabled = p.mischief
         chaseCursor = p.chase
         maxHistory = p.maxHistory
+        language = p.language
         isLoading = false
     }
 
@@ -102,6 +132,7 @@ final class PetSettings: ObservableObject {
         noseColor = Color(hex: "#CE2828")
         speed = 1.0; scale = 0.5
         mischiefEnabled = true; chaseCursor = true; maxHistory = 50
+        language = "en"
         isLoading = false
         save()
     }

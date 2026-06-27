@@ -1,27 +1,75 @@
 import AppKit
+import SwiftUI
 import Combine
+import CryptoKit
 
-/// Un élément d'historique du presse-papiers.
+/// Type de contenu d'un élément du presse-papiers.
+enum ClipKind: String, Codable { case text, image, file, color }
+
+/// Un élément d'historique du presse-papiers (texte, image, fichier ou couleur).
 struct ClipItem: Identifiable, Equatable, Codable {
     let id: UUID
-    let text: String
+    let kind: ClipKind
+    let text: String         // texte / chemin(s) fichier / hex couleur ; libellé pour image
+    let imageFile: String?   // nom du fichier image stocké sur disque (kind == .image)
     let date: Date
 
-    init(text: String, date: Date = Date()) {
+    init(kind: ClipKind = .text, text: String = "", imageFile: String? = nil, date: Date = Date()) {
         self.id = UUID()
+        self.kind = kind
         self.text = text
+        self.imageFile = imageFile
         self.date = date
     }
 
-    /// Aperçu sur une ligne pour l'affichage.
+    /// Aperçu sur une ou deux lignes selon le type.
     var preview: String {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        let oneLine = trimmed.replacingOccurrences(of: "\n", with: " ")
-        return oneLine.count > 120 ? String(oneLine.prefix(120)) + "…" : oneLine
+        switch kind {
+        case .file:  return (text as NSString).lastPathComponent
+        case .image: return text.isEmpty ? "Image" : text
+        default:
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            let oneLine = trimmed.replacingOccurrences(of: "\n", with: " ")
+            return oneLine.count > 120 ? String(oneLine.prefix(120)) + "…" : oneLine
+        }
+    }
+
+    /// Couleur affichable (kind == .color uniquement).
+    var swatch: Color? { kind == .color ? ClipItem.parseColor(text) : nil }
+
+    // MARK: - Détection de couleur
+
+    /// Renvoie une `Color` si la chaîne est un code couleur (#RGB, #RRGGBB[AA],
+    /// hex brut, ou rgb(r,g,b)). Sinon `nil`.
+    static func parseColor(_ raw: String) -> Color? {
+        let s = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Formes hexadécimales
+        var hex = s.hasPrefix("#") ? String(s.dropFirst()) : s
+        if hex.count == 3, hex.allSatisfy(\.isHexDigit) {
+            hex = hex.map { "\($0)\($0)" }.joined()   // #RGB -> #RRGGBB
+        }
+        if (hex.count == 6 || hex.count == 8), hex.allSatisfy(\.isHexDigit) {
+            return Color(hex: "#" + hex)
+        }
+
+        // rgb(r, g, b)
+        if let c = parseRGB(s) { return c }
+        return nil
+    }
+
+    private static func parseRGB(_ s: String) -> Color? {
+        let lower = s.lowercased().replacingOccurrences(of: " ", with: "")
+        guard lower.hasPrefix("rgb(") || lower.hasPrefix("rgba(") else { return nil }
+        guard let open = lower.firstIndex(of: "("), let close = lower.firstIndex(of: ")") else { return nil }
+        let inside = lower[lower.index(after: open)..<close]
+        let parts = inside.split(separator: ",").map { Double($0) }
+        guard parts.count >= 3, let r = parts[0], let g = parts[1], let b = parts[2] else { return nil }
+        return Color(.sRGB, red: r / 255, green: g / 255, blue: b / 255, opacity: 1)
     }
 }
 
-/// Surveille NSPasteboard et garde un historique des textes copiés.
+/// Surveille NSPasteboard et garde un historique (texte, images, fichiers, couleurs).
 final class ClipboardManager: ObservableObject {
     @Published private(set) var history: [ClipItem] = []
 
@@ -52,6 +100,8 @@ final class ClipboardManager: ObservableObject {
         timer = nil
     }
 
+    // MARK: - Capture
+
     private func poll() {
         let current = pasteboard.changeCount
         guard current != lastChangeCount else { return }
@@ -62,45 +112,142 @@ final class ClipboardManager: ObservableObject {
             return
         }
 
-        guard let str = pasteboard.string(forType: .string),
-              !str.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        // 1) Fichiers (priorité — un fichier copié dans le Finder).
+        if let urls = pasteboard.readObjects(forClasses: [NSURL.self],
+                options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty {
+            let paths = urls.map(\.path).joined(separator: "\n")
+            add(ClipItem(kind: .file, text: paths))
+            return
+        }
 
-        // Dédup : si déjà en tête, on ne fait rien.
-        if history.first?.text == str { return }
-        // Retire un doublon existant plus bas dans la liste.
-        history.removeAll { $0.text == str }
-        history.insert(ClipItem(text: str), at: 0)
+        // 2) Image (capture d'écran, image copiée depuis le web…).
+        if let img = NSImage(pasteboard: pasteboard),
+           let png = Self.pngData(img), let file = saveImage(png) {
+            add(ClipItem(kind: .image, text: Self.dimensions(png), imageFile: file))
+            return
+        }
 
-        let cap = settings?.maxHistory ?? 50
-        if history.count > cap { history = Array(history.prefix(cap)) }
+        // 3) Texte — détecté comme couleur si applicable.
+        if let str = pasteboard.string(forType: .string),
+           !str.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            let kind: ClipKind = ClipItem.parseColor(str) != nil ? .color : .text
+            add(ClipItem(kind: kind, text: str))
+            return
+        }
+    }
+
+    /// Ajoute un item avec déduplication et plafonnement.
+    private func add(_ item: ClipItem) {
+        let sig = Self.signature(item)
+        if let first = history.first, Self.signature(first) == sig { return }
+        history.removeAll { existing in
+            let drop = Self.signature(existing) == sig
+            if drop, existing.kind == .image { deleteImageFile(existing.imageFile) }
+            return drop
+        }
+        history.insert(item, at: 0)
+        enforceCap()
         persist()
     }
 
-    /// Re-copie un élément dans le presse-papiers (clic sur un item de l'historique).
+    private static func signature(_ i: ClipItem) -> String {
+        i.kind == .image ? "img:\(i.imageFile ?? i.id.uuidString)" : "\(i.kind.rawValue):\(i.text)"
+    }
+
+    private func enforceCap() {
+        let cap = settings?.maxHistory ?? 50
+        guard history.count > cap else { return }
+        for dropped in history[cap...] where dropped.kind == .image {
+            deleteImageFile(dropped.imageFile)
+        }
+        history = Array(history.prefix(cap))
+    }
+
+    // MARK: - Re-copie
+
+    /// Remet un élément dans le presse-papiers (clic sur un item de l'historique).
     func copyToPasteboard(_ item: ClipItem) {
         ignoreNextChange = true
         pasteboard.clearContents()
-        pasteboard.setString(item.text, forType: .string)
+        switch item.kind {
+        case .image:
+            if let url = imageURL(for: item), let img = NSImage(contentsOf: url) {
+                pasteboard.writeObjects([img])
+            }
+        case .file:
+            let urls = item.text.split(separator: "\n").map { URL(fileURLWithPath: String($0)) as NSURL }
+            if !urls.isEmpty { pasteboard.writeObjects(urls) }
+        case .text, .color:
+            pasteboard.setString(item.text, forType: .string)
+        }
         lastChangeCount = pasteboard.changeCount
+
         // Remonte l'item en tête.
         history.removeAll { $0.id == item.id }
-        history.insert(ClipItem(text: item.text), at: 0)
+        history.insert(item, at: 0)
         persist()
     }
 
     func remove(_ item: ClipItem) {
+        if item.kind == .image { deleteImageFile(item.imageFile) }
         history.removeAll { $0.id == item.id }
         persist()
     }
 
     func clear() {
+        for item in history where item.kind == .image { deleteImageFile(item.imageFile) }
         history.removeAll()
         persist()
     }
 
-    // MARK: - Persistance légère
+    // MARK: - Stockage des images sur disque
 
-    private static let key = "cliPet.clipboard.v1"
+    private func clipImagesDir() -> URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("cliPet/clipboard", isDirectory: true)
+    }
+
+    /// URL du fichier image associé à un item (kind == .image).
+    func imageURL(for item: ClipItem) -> URL? {
+        guard item.kind == .image, let file = item.imageFile else { return nil }
+        return clipImagesDir()?.appendingPathComponent(file)
+    }
+
+    /// Sauvegarde une image PNG (nommage par hash → dédup naturelle). Renvoie le nom.
+    private func saveImage(_ data: Data) -> String? {
+        guard let dir = clipImagesDir() else { return nil }
+        try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        let name = Self.hash(data) + ".png"
+        let url = dir.appendingPathComponent(name)
+        if !FileManager.default.fileExists(atPath: url.path) {
+            try? data.write(to: url)
+        }
+        return name
+    }
+
+    private func deleteImageFile(_ file: String?) {
+        guard let file, let dir = clipImagesDir() else { return }
+        try? FileManager.default.removeItem(at: dir.appendingPathComponent(file))
+    }
+
+    private static func pngData(_ image: NSImage) -> Data? {
+        guard let tiff = image.tiffRepresentation,
+              let rep = NSBitmapImageRep(data: tiff) else { return nil }
+        return rep.representation(using: .png, properties: [:])
+    }
+
+    private static func dimensions(_ pngData: Data) -> String {
+        guard let rep = NSBitmapImageRep(data: pngData) else { return "Image" }
+        return "Image \(rep.pixelsWide)×\(rep.pixelsHigh)"
+    }
+
+    private static func hash(_ data: Data) -> String {
+        SHA256.hash(data: data).prefix(8).map { String(format: "%02x", $0) }.joined()
+    }
+
+    // MARK: - Persistance légère (métadonnées ; les images vivent sur disque)
+
+    private static let key = "cliPet.clipboard.v2"
 
     private func persist() {
         if let data = try? JSONEncoder().encode(history) {

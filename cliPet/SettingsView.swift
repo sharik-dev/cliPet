@@ -1,11 +1,16 @@
 import SwiftUI
 
-/// Fenêtre pixel-art : choix du pet (presets + couleurs) et réglages de comportement.
 struct SettingsView: View {
     @EnvironmentObject var settings: PetSettings
     @State private var tab: Tab = .pet
+    @State private var launchAtLogin = LaunchAtLogin.isEnabled
+    @State private var showLaunchHelp = false
 
     enum Tab { case pet, behavior }
+
+    private var l10n: L10n {
+        L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,7 +32,7 @@ struct SettingsView: View {
         .font(PixelTheme.font(12, .regular))
     }
 
-    // MARK: - En-tête avec aperçu animé
+    // MARK: - Header
 
     private var header: some View {
         VStack(spacing: 8) {
@@ -53,8 +58,8 @@ struct SettingsView: View {
 
     private var tabBar: some View {
         HStack(spacing: 0) {
-            tabButton("MON CHAT", .pet)
-            tabButton("RÉGLAGES", .behavior)
+            tabButton(l10n.tabMyCat, .pet)
+            tabButton(l10n.tabSettings, .behavior)
         }
         .overlay(Rectangle().fill(PixelTheme.border).frame(height: 2), alignment: .bottom)
     }
@@ -72,11 +77,11 @@ struct SettingsView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Onglet "Mon chat"
+    // MARK: - Pet tab
 
     private var petTab: some View {
         VStack(alignment: .leading, spacing: 14) {
-            PixelSectionHeader(title: "Robes")
+            PixelSectionHeader(title: l10n.sectionCoats)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
                       spacing: 8) {
                 ForEach(PetCatalog.presets) { preset in
@@ -87,32 +92,35 @@ struct SettingsView: View {
                 }
             }
 
-            PixelSectionHeader(title: "Couleurs perso")
-            colorRow("Pelage", $settings.bodyColor)
-            colorRow("Ventre / pattes", $settings.bellyColor)
-            colorRow("Rayures / contour", $settings.stripeColor)
-            colorRow("Yeux", $settings.eyeColor)
-            colorRow("Nez / oreilles", $settings.noseColor)
+            PixelSectionHeader(title: l10n.sectionCustomColors)
+            colorRow(l10n.colorFur, $settings.bodyColor)
+            colorRow(l10n.colorBelly, $settings.bellyColor)
+            colorRow(l10n.colorStripes, $settings.stripeColor)
+            colorRow(l10n.colorEyes, $settings.eyeColor)
+            colorRow(l10n.colorNose, $settings.noseColor)
 
-            PixelSectionHeader(title: "Taille")
-            sliderRow(value: $settings.scale, range: 0.5...1.8, label: "Taille")
+            PixelSectionHeader(title: l10n.sectionSize)
+            sliderRow(value: $settings.scale, range: 0.5...1.8, label: l10n.labelSize)
         }
     }
 
-    // MARK: - Onglet "Réglages"
+    // MARK: - Settings tab
 
     private var behaviorTab: some View {
         VStack(alignment: .leading, spacing: 14) {
-            PixelSectionHeader(title: "Mouvement")
-            sliderRow(value: $settings.speed, range: 0.5...2.5, label: "Vitesse")
+            PixelSectionHeader(title: l10n.sectionMovement)
+            sliderRow(value: $settings.speed, range: 0.5...2.5, label: l10n.labelSpeed)
 
-            PixelSectionHeader(title: "Comportement")
-            toggleRow("Faire des bêtises", $settings.mischiefEnabled)
-            toggleRow("Poursuivre le curseur", $settings.chaseCursor)
+            PixelSectionHeader(title: l10n.sectionBehavior)
+            toggleRow(l10n.toggleMischief, $settings.mischiefEnabled)
+            toggleRow(l10n.toggleChaseCursor, $settings.chaseCursor)
 
-            PixelSectionHeader(title: "Presse-papiers")
+            PixelSectionHeader(title: l10n.sectionStartup)
+            launchAtLoginRow
+
+            PixelSectionHeader(title: l10n.sectionClipboard)
             HStack {
-                Text("Garder \(settings.maxHistory) éléments")
+                Text(l10n.keepItems(settings.maxHistory))
                     .font(PixelTheme.font(11, .regular))
                 Spacer()
                 Stepper("", value: $settings.maxHistory, in: 5...200, step: 5)
@@ -120,13 +128,94 @@ struct SettingsView: View {
             }
             .padding(10).pixelPanel()
 
-            Button("RÉINITIALISER") { settings.resetToDefaults() }
+            PixelSectionHeader(title: l10n.sectionLanguage)
+            languagePicker
+
+            Button(l10n.buttonReset) { settings.resetToDefaults() }
                 .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.3)))
                 .padding(.top, 6)
         }
     }
 
-    // MARK: - Lignes réutilisables
+    // MARK: - Language picker
+
+    private var languagePicker: some View {
+        VStack(spacing: 4) {
+            ForEach(L10n.Language.allCases) { lang in
+                Button {
+                    settings.language = lang.rawValue
+                } label: {
+                    HStack(spacing: 10) {
+                        Text(lang.flag)
+                            .font(.system(size: 16))
+                        Text(lang.displayName)
+                            .font(PixelTheme.font(11, .regular))
+                        Spacer()
+                        if settings.language == lang.rawValue {
+                            Image(systemName: "checkmark")
+                                .font(PixelTheme.font(10))
+                                .foregroundStyle(PixelTheme.accent)
+                        }
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 8)
+                    .background(settings.language == lang.rawValue
+                        ? PixelTheme.panelHi : PixelTheme.panel)
+                }
+                .buttonStyle(.plain)
+                .overlay(Rectangle().strokeBorder(
+                    settings.language == lang.rawValue ? PixelTheme.accent : PixelTheme.border,
+                    lineWidth: 2))
+            }
+        }
+    }
+
+    // MARK: - Launch at login
+
+    private var launchAtLoginRow: some View {
+        HStack {
+            Text(l10n.toggleLaunchAtLogin).font(PixelTheme.font(11, .regular))
+            Spacer()
+            Button { showLaunchHelp = true } label: {
+                Image(systemName: "questionmark.circle")
+                    .foregroundStyle(PixelTheme.dim)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showLaunchHelp, arrowEdge: .bottom) { launchHelpPopover }
+            Toggle("", isOn: launchBinding).labelsHidden().tint(PixelTheme.accent)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 8)
+        .pixelPanel()
+    }
+
+    private var launchBinding: Binding<Bool> {
+        Binding(
+            get: { launchAtLogin },
+            set: { newValue in
+                let ok = LaunchAtLogin.setEnabled(newValue)
+                launchAtLogin = LaunchAtLogin.isEnabled  // relit l'état réel
+                if !ok { showLaunchHelp = true }         // échec → guidage manuel
+            }
+        )
+    }
+
+    private var launchHelpPopover: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(l10n.launchPromptTitle)
+                .font(PixelTheme.font(12)).foregroundStyle(PixelTheme.accent)
+            Text(l10n.launchPromptBody)
+                .font(PixelTheme.font(10, .regular))
+                .foregroundStyle(PixelTheme.text)
+                .fixedSize(horizontal: false, vertical: true)
+            Button(l10n.launchOpenSettings) { LaunchAtLogin.openLoginItemsSettings() }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+        }
+        .padding(14)
+        .frame(width: 260)
+        .background(PixelTheme.bg)
+        .foregroundStyle(PixelTheme.text)
+    }
+
+    // MARK: - Reusable rows
 
     private func colorRow(_ label: String, _ binding: Binding<Color>) -> some View {
         HStack {
@@ -141,7 +230,7 @@ struct SettingsView: View {
 
     private func sliderRow(value: Binding<Double>, range: ClosedRange<Double>, label: String) -> some View {
         HStack(spacing: 10) {
-            Text(label).font(PixelTheme.font(11, .regular)).frame(width: 60, alignment: .leading)
+            Text(label).font(PixelTheme.font(11, .regular)).frame(width: 70, alignment: .leading)
             Slider(value: value, in: range).tint(PixelTheme.accent)
         }
         .padding(.horizontal, 10).padding(.vertical, 8)

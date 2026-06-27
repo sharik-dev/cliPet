@@ -41,7 +41,6 @@ final class PetEngine: ObservableObject {
     private weak var settings: PetSettings?
     private var timer: Timer?
     private let fps: Double = 30
-    private let grid = CatSprites.size            // 18
     private let basePixelScale: CGFloat = 4
 
     private var targetX: CGFloat?
@@ -53,10 +52,16 @@ final class PetEngine: ObservableObject {
     private var vy: CGFloat = 0                 // vitesse verticale (chute)
     private let gravity: CGFloat = 1.7          // px / tick²
 
+    // Sol dynamique : remonte au-dessus du Dock s'il est visible.
+    private var currentFloor: CGFloat = 0
+    private var lastDockCheck = -100
+    private var cachedDockTop: CGFloat? = nil
+
     init(settings: PetSettings) {
         self.settings = settings
         recomputeSize()
         let area = Self.visibleFrame()
+        currentFloor = area.minY
         position = CGPoint(x: area.midX, y: area.minY)
     }
 
@@ -73,8 +78,8 @@ final class PetEngine: ObservableObject {
 
     func recomputeSize() {
         let scale = settings?.scale ?? 1.0
-        spriteSize = CGFloat(grid) * basePixelScale * scale
-        toySize = CGFloat(CatSprites.yarnSize) * basePixelScale * scale * 0.85
+        spriteSize = CGFloat(SpriteStore.shared.catSize) * basePixelScale * scale
+        toySize = CGFloat(SpriteStore.shared.yarnSize) * basePixelScale * scale * 0.85
     }
 
     // MARK: - Interaction
@@ -89,12 +94,13 @@ final class PetEngine: ObservableObject {
     func endDrag(at origin: CGPoint) {
         let area = Self.visibleFrame()
         let now = Date().timeIntervalSinceReferenceDate
-        position = CGPoint(x: clampX(origin.x, area: area), y: max(origin.y, area.minY))
+        let ground = groundY(area: area)
+        position = CGPoint(x: clampX(origin.x, area: area), y: max(origin.y, ground))
         isPaused = false
         vy = 0
-        if position.y <= area.minY + 1 {
+        if position.y <= ground + 1 {
             // déjà au sol → petit impact direct
-            position.y = area.minY
+            position.y = ground
             state = .land; stateEnd = now + 0.18
         } else {
             state = .falling; stateEnd = now + 6   // la chute se termine à l'atterrissage
@@ -110,7 +116,8 @@ final class PetEngine: ObservableObject {
         guard !isPaused else { return }
         let now = Date().timeIntervalSinceReferenceDate
         let area = Self.visibleFrame()
-        let floorY = area.minY
+        let floorY = groundY(area: area)
+        let prevX = position.x
 
         switch state {
         case .idle, .sit, .sleep:
@@ -167,6 +174,11 @@ final class PetEngine: ObservableObject {
         case .held:
             break   // la position suit le curseur (setDraggedOrigin) ; animTick anime le gigotement
         }
+
+        // Le chat regarde toujours dans le sens de son déplacement réel
+        // (jamais de marche arrière).
+        let movedX = position.x - prevX
+        if abs(movedX) > 0.3 { facing = movedX > 0 ? .right : .left }
     }
 
     // MARK: - Jouet
@@ -238,8 +250,8 @@ final class PetEngine: ObservableObject {
         let mischief = settings?.mischiefEnabled ?? true
         let chase = settings?.chaseCursor ?? true
 
-        // Pose portrait + jouets favorisés.
-        var bag: [PetState] = [.idle, .walk, .walk, .sit, .play, .play, .chaseToy]
+        // Balade, repos et jeux avec la pelote.
+        var bag: [PetState] = [.idle, .idle, .sit, .walk, .walk, .walk, .play, .play, .chaseToy]
         if mischief { bag += [.run, .pounce, .sleep, .chaseToy] }
         if mischief && chase { bag += [.chase] }
         let next = bag.randomElement() ?? .idle
@@ -299,5 +311,45 @@ final class PetEngine: ObservableObject {
 
     static func visibleFrame() -> CGRect {
         NSScreen.main?.visibleFrame ?? CGRect(x: 0, y: 0, width: 1440, height: 900)
+    }
+
+    // MARK: - Sol dynamique (au-dessus du Dock)
+
+    /// Hauteur du sol : `visibleFrame.minY`, relevée au bord supérieur du Dock
+    /// quand celui-ci est visible en bas (cas du Dock en auto-masquage révélé).
+    /// Lissé pour que le chat « monte » avec le Dock plutôt que de sauter.
+    private func groundY(area: CGRect) -> CGFloat {
+        if animTick &- lastDockCheck >= 5 {
+            cachedDockTop = Self.dockTopEdge()
+            lastDockCheck = animTick
+        }
+        var target = area.minY
+        if let d = cachedDockTop, d > target { target = d }
+        let dy = target - currentFloor
+        if abs(dy) < 0.75 { currentFloor = target } else { currentFloor += dy * 0.3 }
+        return currentFloor
+    }
+
+    /// Bord supérieur du Dock en coordonnées Cocoa s'il est visible en bas, sinon nil.
+    static func dockTopEdge() -> CGFloat? {
+        guard let screen = NSScreen.main else { return nil }
+        let H = screen.frame.height
+        let Wd = screen.frame.width
+        guard let infos = CGWindowListCopyWindowInfo(
+            [.optionOnScreenOnly], kCGNullWindowID) as? [[String: Any]] else { return nil }
+
+        var best: CGFloat? = nil
+        for w in infos {
+            guard (w[kCGWindowOwnerName as String] as? String) == "Dock",
+                  let bdAny = w[kCGWindowBounds as String],
+                  let rect = CGRect(dictionaryRepresentation: bdAny as! CFDictionary)
+            else { continue }
+            // Bande horizontale collée en bas (on ignore un Dock latéral).
+            guard rect.width >= Wd * 0.3, rect.height <= H * 0.4 else { continue }
+            guard abs(rect.maxY - H) < 4 else { continue }   // bas du Dock = bas de l'écran
+            let topCocoa = H - rect.minY                      // CG (origine haut) -> Cocoa
+            if topCocoa > 1 { best = max(best ?? 0, topCocoa) }
+        }
+        return best
     }
 }

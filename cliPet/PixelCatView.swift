@@ -5,6 +5,9 @@ struct PixelPalette {
     let body, belly, stripe, eye, nose: Color
 
     func color(for ch: Character) -> Color? {
+        if ch == "." { return nil }
+        // Couleur personnalisée (palette utilisateur) prioritaire.
+        if let custom = SpriteStore.shared.customColor(for: ch) { return custom }
         switch ch {
         case ".":  return nil
         case "X":  return stripe.darkened(0.6)   // contour
@@ -79,8 +82,7 @@ struct PixelCatView: View {
         case .sleep:
             return "sleep"
         case .play:
-            // alterne play/sit pour donner le geste de patte
-            return (tick / 8) % 2 == 0 ? "play" : "sit"
+            return "play"
         case .held:
             // gigotement pendant qu'on le tient
             return (tick / 5) % 2 == 0 ? "held1" : "held2"

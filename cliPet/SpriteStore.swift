@@ -1,64 +1,186 @@
 import Foundation
 import Combine
+import SwiftUI
 
 /// Source unique des frames de sprites utilisées par le rendu.
-/// Part des frames par défaut (CatSprites) et applique un override custom
-/// sauvegardé sur disque (édité via l'outil dev), rechargé sans rebuild.
+/// Gère le skin actif (parmi le catalogue), les retouches faites dans l'éditeur
+/// et la palette de couleurs personnalisée (pour créer ses propres pets).
+/// Tout est sauvegardé par skin sur disque, automatiquement, rechargé sans rebuild.
 final class SpriteStore: ObservableObject {
     static let shared = SpriteStore()
 
-    /// frames[nom] = lignes (ex: "idle", "walk1", "yarn1"…)
-    @Published private(set) var frames: [String: [String]]
+    @Published private(set) var activeSkinId: String
+    @Published private(set) var frames: [String: [String]] = [:]
+
+    /// Couleurs personnalisées : char -> hex. Surcharge le rendu par défaut.
+    @Published private(set) var customColors: [String: String] = [:]
+    /// Couleurs ajoutées par l'utilisateur (chars hors palette de base), dans l'ordre.
+    @Published private(set) var addedChars: [String] = []
+
+    private struct PaletteData: Codable {
+        var customColors: [String: String]
+        var addedChars: [String]
+    }
 
     private init() {
-        frames = CatSprites.all
-        if let custom = Self.loadFromDisk() {
-            // Fusionne : on garde les défauts pour les frames non éditées.
-            frames.merge(custom) { _, new in new }
+        activeSkinId = UserDefaults.standard.string(forKey: Self.skinKey)
+            ?? SkinCatalog.builtins[0].id
+        reloadFrames()
+        reloadPalette()
+    }
+
+    // MARK: - Skin actif
+
+    func setActiveSkin(_ id: String) {
+        activeSkinId = id
+        UserDefaults.standard.set(id, forKey: Self.skinKey)
+        reloadFrames()
+        reloadPalette()
+    }
+
+    private func reloadFrames() {
+        var f = SkinCatalog.skin(activeSkinId).frames
+        if let custom = loadCustom(for: activeSkinId) {
+            f.merge(custom) { _, new in new }   // retouches éditeur par-dessus
         }
+        frames = f
     }
 
-    /// Frame courante par nom (fallback sur défaut puis idle).
+    /// Frame courante par nom (fallback sur défaut du skin actif puis idle).
     func frame(_ name: String) -> [String] {
-        frames[name] ?? CatSprites.all[name] ?? CatSprites.idle
+        if let r = frames[name] { return r }
+        let skin = SkinCatalog.skin(activeSkinId)
+        return skin.frames[name] ?? skin.frames["idle1"] ?? CatSprites.idle
     }
 
-    // MARK: - Édition (outil dev)
+    var catSize: Int { frames["idle1"]?.first?.count ?? 33 }
+    var yarnSize: Int { frames["yarn1"]?.first?.count ?? 12 }
+
+    // MARK: - Édition des frames (auto-sauvegardée)
 
     func update(_ name: String, _ rows: [String]) {
         frames[name] = rows
+        scheduleSave()
+    }
+
+    // MARK: - Palette de couleurs personnalisée
+
+    /// Palette de base (rôles historiques du chat) — toujours disponible.
+    static let baseChars: [Character] = ["X", "g", "d", "w", "o", "h", "p", "r"]
+
+    /// Couleur personnalisée pour un caractère (nil si non surchargé).
+    func customColor(for ch: Character) -> Color? {
+        guard let hex = customColors[String(ch)] else { return nil }
+        return Color(hex: hex)
+    }
+
+    /// Définit / surcharge la couleur d'un caractère.
+    func setColor(_ ch: Character, _ color: Color) {
+        customColors[String(ch)] = color.hexString
+        scheduleSave()
+    }
+
+    /// Ajoute une nouvelle couleur à la palette. Renvoie le caractère alloué.
+    @discardableResult
+    func addColor(_ color: Color) -> Character {
+        let ch = nextFreeChar()
+        customColors[String(ch)] = color.hexString
+        addedChars.append(String(ch))
+        scheduleSave()
+        return ch
+    }
+
+    /// Retire une couleur ajoutée par l'utilisateur.
+    func removeColor(_ ch: Character) {
+        customColors[String(ch)] = nil
+        addedChars.removeAll { $0 == String(ch) }
+        scheduleSave()
+    }
+
+    private func nextFreeChar() -> Character {
+        let reserved = Set<Character>(Self.baseChars + ["."])
+        let pool = Array("123456789abcefijklmnqstuvyzABCDEFGHIJKLMNOPQRSTUVWYZ")
+        for c in pool where !reserved.contains(c)
+            && customColors[String(c)] == nil && !addedChars.contains(String(c)) {
+            return c
+        }
+        return "?"
+    }
+
+    // MARK: - Sauvegarde (auto, débouncée)
+
+    private var saveWork: DispatchWorkItem?
+
+    private func scheduleSave() {
+        saveWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.save() }
+        saveWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
     }
 
     func save() {
-        guard let url = Self.fileURL() else { return }
+        saveFrames()
+        savePalette()
+    }
+
+    private func saveFrames() {
+        guard let url = customURL(for: activeSkinId) else { return }
         try? FileManager.default.createDirectory(
             at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        if let data = try? JSONEncoder().encode(frames) {
-            try? data.write(to: url)
-        }
+        if let data = try? JSONEncoder().encode(frames) { try? data.write(to: url) }
+    }
+
+    private func savePalette() {
+        guard let url = paletteURL(for: activeSkinId) else { return }
+        try? FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let payload = PaletteData(customColors: customColors, addedChars: addedChars)
+        if let data = try? JSONEncoder().encode(payload) { try? data.write(to: url) }
     }
 
     func resetToDefault() {
-        frames = CatSprites.all
-        if let url = Self.fileURL() { try? FileManager.default.removeItem(at: url) }
+        if let url = customURL(for: activeSkinId) { try? FileManager.default.removeItem(at: url) }
+        if let url = paletteURL(for: activeSkinId) { try? FileManager.default.removeItem(at: url) }
+        reloadFrames()
+        reloadPalette()
     }
 
-    /// Chemin du fichier custom, exposé pour info dans l'éditeur.
-    static var savePath: String { fileURL()?.path ?? "—" }
+    var savePath: String { customURL(for: activeSkinId)?.path ?? "—" }
 
     // MARK: - Disque
 
-    private static func fileURL() -> URL? {
-        FileManager.default
-            .urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
-            .appendingPathComponent("cliPet/sprites_v2.json")
+    private static let skinKey = "cliPet.activeSkin"
+
+    private func appSupport() -> URL? {
+        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("cliPet", isDirectory: true)
     }
 
-    private static func loadFromDisk() -> [String: [String]]? {
-        guard let url = fileURL(),
+    private func customURL(for skin: String) -> URL? {
+        appSupport()?.appendingPathComponent("edits_\(skin).json")
+    }
+
+    private func paletteURL(for skin: String) -> URL? {
+        appSupport()?.appendingPathComponent("palette_\(skin).json")
+    }
+
+    private func loadCustom(for skin: String) -> [String: [String]]? {
+        guard let url = customURL(for: skin),
               let data = try? Data(contentsOf: url),
               let dict = try? JSONDecoder().decode([String: [String]].self, from: data)
         else { return nil }
         return dict
+    }
+
+    private func reloadPalette() {
+        guard let url = paletteURL(for: activeSkinId),
+              let data = try? Data(contentsOf: url),
+              let payload = try? JSONDecoder().decode(PaletteData.self, from: data) else {
+            customColors = [:]
+            addedChars = []
+            return
+        }
+        customColors = payload.customColors
+        addedChars = payload.addedChars
     }
 }

@@ -1,4 +1,4 @@
-// Genere par scripts/gen_sprites.py (chat extrait + animations derivees).
+// Genere par scripts/gen_sprites.py (canevas 40x40 ; sit = img#5).
 
 enum CatSprites {
     static let size = 33

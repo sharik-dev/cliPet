@@ -10,7 +10,10 @@ struct ClipboardHistoryView: View {
 
     private var filtered: [ClipItem] {
         guard !search.isEmpty else { return clipboard.history }
-        return clipboard.history.filter { $0.text.localizedCaseInsensitiveContains(search) }
+        return clipboard.history.filter {
+            $0.text.localizedCaseInsensitiveContains(search)
+                || $0.preview.localizedCaseInsensitiveContains(search)
+        }
     }
 
     var body: some View {
@@ -66,6 +69,7 @@ struct ClipboardHistoryView: View {
                     LazyVStack(spacing: 0) {
                         ForEach(Array(filtered.enumerated()), id: \.element.id) { idx, item in
                             ClipRow(item: item, index: idx,
+                                    imageURL: clipboard.imageURL(for: item),
                                     onPick: { onPick(item) },
                                     onDelete: { clipboard.remove(item) })
                             Rectangle().fill(PixelTheme.border.opacity(0.5)).frame(height: 1)
@@ -83,6 +87,7 @@ struct ClipboardHistoryView: View {
 private struct ClipRow: View {
     let item: ClipItem
     let index: Int
+    let imageURL: URL?
     let onPick: () -> Void
     let onDelete: () -> Void
     @State private var hover = false
@@ -92,11 +97,23 @@ private struct ClipRow: View {
             Text(String(format: "%02d", index + 1))
                 .font(PixelTheme.font(9))
                 .foregroundStyle(PixelTheme.accent2)
-            Text(item.preview)
-                .font(PixelTheme.font(11, .regular))
-                .foregroundStyle(PixelTheme.text)
-                .lineLimit(2)
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+            leading
+
+            VStack(alignment: .leading, spacing: 1) {
+                Text(item.preview)
+                    .font(PixelTheme.font(11, .regular))
+                    .foregroundStyle(PixelTheme.text)
+                    .lineLimit(2)
+                if item.kind == .file {
+                    Text(item.text)
+                        .font(PixelTheme.font(8, .regular))
+                        .foregroundStyle(PixelTheme.dim)
+                        .lineLimit(1).truncationMode(.middle)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+
             if hover {
                 Button(action: onDelete) { Image(systemName: "xmark") }
                     .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
@@ -107,5 +124,34 @@ private struct ClipRow: View {
         .contentShape(Rectangle())
         .onHover { hover = $0 }
         .onTapGesture(perform: onPick)
+    }
+
+    /// Vignette de gauche selon le type de contenu.
+    @ViewBuilder private var leading: some View {
+        switch item.kind {
+        case .color:
+            Rectangle()
+                .fill(item.swatch ?? .clear)
+                .frame(width: 18, height: 18)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+        case .image:
+            Group {
+                if let url = imageURL, let img = NSImage(contentsOf: url) {
+                    Image(nsImage: img).resizable().interpolation(.medium).scaledToFill()
+                } else {
+                    Image(systemName: "photo").foregroundStyle(PixelTheme.dim)
+                }
+            }
+            .frame(width: 26, height: 26)
+            .clipped()
+            .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+        case .file:
+            Image(systemName: "doc.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(PixelTheme.accent2)
+                .frame(width: 18)
+        case .text:
+            EmptyView()
+        }
     }
 }
