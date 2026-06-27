@@ -8,7 +8,20 @@
 
 /* Begin PBXBuildFile section */
         E5DF10AD861F220F8B45E3F3 /* cliPetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65156133E047B9F9AF0903C3 /* cliPetApp.swift */; };
-        8DEEDFB73F7A20472E1289D4 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6717293E4C46C39547A27DB5 /* ContentView.swift */; };
+        BB0000000000000000000001 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000001 /* AppDelegate.swift */; };
+        BB0000000000000000000002 /* PetSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000002 /* PetSettings.swift */; };
+        BB0000000000000000000003 /* ClipboardManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000003 /* ClipboardManager.swift */; };
+        BB0000000000000000000004 /* PetEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000004 /* PetEngine.swift */; };
+        BB0000000000000000000005 /* PetController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000005 /* PetController.swift */; };
+        BB0000000000000000000006 /* PixelCatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000006 /* PixelCatView.swift */; };
+        BB0000000000000000000007 /* PetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000007 /* PetView.swift */; };
+        BB0000000000000000000008 /* ClipboardHistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000008 /* ClipboardHistoryView.swift */; };
+        BB0000000000000000000009 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000009 /* SettingsView.swift */; };
+        BB0000000000000000000010 /* CatSprites.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000010 /* CatSprites.swift */; };
+        BB0000000000000000000011 /* PetCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000011 /* PetCatalog.swift */; };
+        BB0000000000000000000012 /* PixelUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000012 /* PixelUI.swift */; };
+        BB0000000000000000000013 /* SpriteStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000013 /* SpriteStore.swift */; };
+        BB0000000000000000000014 /* SpriteEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000014 /* SpriteEditorView.swift */; };
         DEAF279BFEDFCB8AAEAE1553 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */; };
         84D100C56611DEAF9CB019F9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FE777EC5B430A4B5FD97E478 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -16,7 +29,20 @@
 /* Begin PBXFileReference section */
         1F72C656AA4459CB3D528B5C /* cliPet.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "cliPet.app"; sourceTree = BUILT_PRODUCTS_DIR; };
         65156133E047B9F9AF0903C3 /* cliPetApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "cliPetApp.swift"; sourceTree = "<group>"; };
-        6717293E4C46C39547A27DB5 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContentView.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000001 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppDelegate.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000002 /* PetSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PetSettings.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000003 /* ClipboardManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClipboardManager.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000004 /* PetEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PetEngine.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000005 /* PetController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PetController.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000006 /* PixelCatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PixelCatView.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000007 /* PetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PetView.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000008 /* ClipboardHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClipboardHistoryView.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000009 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsView.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000010 /* CatSprites.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CatSprites.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000011 /* PetCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PetCatalog.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000012 /* PixelUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PixelUI.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000013 /* SpriteStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpriteStore.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000014 /* SpriteEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SpriteEditorView.swift"; sourceTree = "<group>"; };
         0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
         FE777EC5B430A4B5FD97E478 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -52,7 +78,20 @@
             isa = PBXGroup;
             children = (
                 65156133E047B9F9AF0903C3 /* cliPetApp.swift */,
-                6717293E4C46C39547A27DB5 /* ContentView.swift */,
+                AA0000000000000000000001 /* AppDelegate.swift */,
+                AA0000000000000000000002 /* PetSettings.swift */,
+                AA0000000000000000000003 /* ClipboardManager.swift */,
+                AA0000000000000000000004 /* PetEngine.swift */,
+                AA0000000000000000000005 /* PetController.swift */,
+                AA0000000000000000000006 /* PixelCatView.swift */,
+                AA0000000000000000000007 /* PetView.swift */,
+                AA0000000000000000000008 /* ClipboardHistoryView.swift */,
+                AA0000000000000000000009 /* SettingsView.swift */,
+                AA0000000000000000000010 /* CatSprites.swift */,
+                AA0000000000000000000011 /* PetCatalog.swift */,
+                AA0000000000000000000012 /* PixelUI.swift */,
+                AA0000000000000000000013 /* SpriteStore.swift */,
+                AA0000000000000000000014 /* SpriteEditorView.swift */,
                 0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */,
                 C4C7EB5F0BE22CA67AAC8555 /* Preview Content */,
             );
@@ -138,8 +177,21 @@
             isa = PBXSourcesBuildPhase;
             buildActionMask = 2147483647;
             files = (
-                8DEEDFB73F7A20472E1289D4 /* ContentView.swift in Sources */,
                 E5DF10AD861F220F8B45E3F3 /* cliPetApp.swift in Sources */,
+                BB0000000000000000000001 /* AppDelegate.swift in Sources */,
+                BB0000000000000000000002 /* PetSettings.swift in Sources */,
+                BB0000000000000000000003 /* ClipboardManager.swift in Sources */,
+                BB0000000000000000000004 /* PetEngine.swift in Sources */,
+                BB0000000000000000000005 /* PetController.swift in Sources */,
+                BB0000000000000000000006 /* PixelCatView.swift in Sources */,
+                BB0000000000000000000007 /* PetView.swift in Sources */,
+                BB0000000000000000000008 /* ClipboardHistoryView.swift in Sources */,
+                BB0000000000000000000009 /* SettingsView.swift in Sources */,
+                BB0000000000000000000010 /* CatSprites.swift in Sources */,
+                BB0000000000000000000011 /* PetCatalog.swift in Sources */,
+                BB0000000000000000000012 /* PixelUI.swift in Sources */,
+                BB0000000000000000000013 /* SpriteStore.swift in Sources */,
+                BB0000000000000000000014 /* SpriteEditorView.swift in Sources */,
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
@@ -198,11 +250,11 @@
                 GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
                 GCC_WARN_UNUSED_FUNCTION = YES;
                 GCC_WARN_UNUSED_VARIABLE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+                MACOSX_DEPLOYMENT_TARGET = 14.0;
                 MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
                 MTL_FAST_MATH = YES;
                 ONLY_ACTIVE_ARCH = YES;
-                SDKROOT = iphoneos;
+                SDKROOT = macosx;
                 SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
                 SWIFT_OPTIMIZATION_LEVEL = "-Onone";
             };
@@ -254,9 +306,9 @@
                 GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
                 GCC_WARN_UNUSED_FUNCTION = YES;
                 GCC_WARN_UNUSED_VARIABLE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+                MACOSX_DEPLOYMENT_TARGET = 14.0;
                 MTL_FAST_MATH = YES;
-                SDKROOT = iphoneos;
+                SDKROOT = macosx;
                 SWIFT_COMPILATION_MODE = wholemodule;
                 VALIDATE_PRODUCT = YES;
             };
@@ -272,11 +324,8 @@
                 DEVELOPMENT_ASSET_PATHS = "\"cliPet/Preview Content\"";
                 ENABLE_PREVIEWS = YES;
                 GENERATE_INFOPLIST_FILE = YES;
-                INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-                INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-                INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+                INFOPLIST_KEY_LSUIElement = YES;
+                INFOPLIST_KEY_NSHumanReadableCopyright = "";
                 LD_RUNPATH_SEARCH_PATHS = (
                     "$(inherited)",
                     "@executable_path/Frameworks",
@@ -286,7 +335,6 @@
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SWIFT_EMIT_LOC_STRINGS = YES;
                 SWIFT_VERSION = 5.0;
-                TARGETED_DEVICE_FAMILY = "1,2";
             };
             name = Debug;
         };
@@ -300,11 +348,8 @@
                 DEVELOPMENT_ASSET_PATHS = "\"cliPet/Preview Content\"";
                 ENABLE_PREVIEWS = YES;
                 GENERATE_INFOPLIST_FILE = YES;
-                INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-                INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-                INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
+                INFOPLIST_KEY_LSUIElement = YES;
+                INFOPLIST_KEY_NSHumanReadableCopyright = "";
                 LD_RUNPATH_SEARCH_PATHS = (
                     "$(inherited)",
                     "@executable_path/Frameworks",
@@ -314,7 +359,6 @@
                 PRODUCT_NAME = "$(TARGET_NAME)";
                 SWIFT_EMIT_LOC_STRINGS = YES;
                 SWIFT_VERSION = 5.0;
-                TARGETED_DEVICE_FAMILY = "1,2";
             };
             name = Release;
         };
