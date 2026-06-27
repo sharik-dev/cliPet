@@ -22,8 +22,13 @@
         <a href="#features" data-i18n="nav.features">Features</a>
         <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
         <a href="#faq" data-i18n="nav.faq">FAQ</a>
-        <button class="lang-toggle" id="langToggle" aria-label="Switch language">FR</button>
-        <a class="btn btn-primary btn-sm" href="#pricing"><span class="apple"></span> <span data-i18n="nav.download">Download</span></a>
+        <div class="lang" id="lang">
+          <button class="lang-btn" id="langBtn" aria-haspopup="listbox" aria-expanded="false" aria-label="Language">
+            <span class="globe" aria-hidden="true">🌐</span><span id="langCur">EN</span><span class="chev" aria-hidden="true">▾</span>
+          </button>
+          <ul class="lang-menu" id="langMenu" role="listbox"></ul>
+        </div>
+        <a class="btn btn-nav btn-sm" href="#pricing"><span class="apple"></span> <span data-i18n="nav.download">Download</span></a>
       </div>
     </div>
   </nav>

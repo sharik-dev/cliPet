@@ -93,10 +93,15 @@ p  { margin: 0; color: var(--text-muted); }
   position: sticky;
   top: 0;
   z-index: 50;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background .3s ease, border-color .3s ease, backdrop-filter .3s ease;
+}
+.nav.scrolled {
+  background: rgba(10, 10, 10, 0.62);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  background: rgba(10, 10, 10, 0.6);
-  border-bottom: 1px solid var(--border-soft);
+  border-bottom-color: var(--border-soft);
 }
 .nav .wrap {
   display: flex;
@@ -116,19 +121,64 @@ p  { margin: 0; color: var(--text-muted); }
 .nav-links { display: flex; align-items: center; gap: 28px; }
 .nav-links a { color: var(--text-muted); font-size: 15px; transition: color .15s; }
 .nav-links a:hover { color: var(--text); }
-.lang-toggle {
+/* Sélecteur de langue (menu déroulant, largeur fixe -> pas de décalage) */
+.lang { position: relative; }
+.lang-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--pixel);
   font-size: 12px;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid transparent;
   border-radius: 8px;
-  padding: 5px 11px;
+  padding: 6px 9px;
   cursor: inherit;
-  transition: color .15s, border-color .15s;
+  transition: color .15s, background .15s;
 }
-.lang-toggle:hover { color: var(--text); border-color: var(--ghost-border); }
+.lang-btn:hover { color: var(--text); background: rgba(255, 255, 255, 0.05); }
+.lang-btn .globe { font-size: 12px; filter: grayscale(1) opacity(0.8); }
+.lang-btn #langCur { min-width: 1.6em; text-align: center; }
+.lang-btn .chev { font-size: 10px; transition: transform .2s; }
+.lang.open .lang-btn .chev { transform: rotate(180deg); }
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 150px;
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  background: rgba(18, 18, 20, 0.96);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: opacity .18s ease, transform .18s ease, visibility .18s;
+  z-index: 60;
+}
+.lang.open .lang-menu { opacity: 1; visibility: visible; transform: none; }
+.lang-menu li {
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--text-muted);
+  padding: 9px 12px;
+  border-radius: 8px;
+  cursor: inherit;
+  transition: background .12s, color .12s;
+}
+.lang-menu li:hover { background: rgba(255, 255, 255, 0.06); color: var(--text); }
+.lang-menu li[aria-selected="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
 
 /* ============================================================
    BOUTONS
@@ -152,6 +202,15 @@ p  { margin: 0; color: var(--text-muted); }
 .btn-ghost { background: transparent; color: var(--text); border-color: var(--ghost-border); }
 .btn-ghost:hover { background: rgba(255, 255, 255, 0.05); }
 .btn-sm { padding: 9px 18px; font-size: 14px; border-radius: 9px; }
+/* Bouton nav intégré (sombre, discret) */
+.btn-nav {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.btn-nav:hover { background: rgba(255, 255, 255, 0.12); }
 .btn .apple { font-size: 16px; line-height: 1; }
 
 /* ============================================================
@@ -159,11 +218,11 @@ p  { margin: 0; color: var(--text-muted); }
    ============================================================ */
 /* Rayons de lumière depuis le haut (god rays) — plein écran, derrière le contenu */
 .page-light {
-  position: fixed;
+  position: absolute;          /* ancrée en haut -> s'efface quand on scroll */
   top: 0; left: 50%;
   transform: translateX(-50%);
   width: 170%;
-  height: 105vh;
+  height: 1050px;              /* concentré sur le hero, défile hors écran */
   pointer-events: none;
   z-index: -1;
   background:

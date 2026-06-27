@@ -201,13 +201,211 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "footer.product": "PRODUIT", "footer.legal": "LÉGAL",
       "footer.privacy": "Confidentialité", "footer.terms": "Mentions légales",
       "footer.copyright": "© 2026 cliPet · fait avec ❤ et beaucoup de pixels"
+    },
+    es: {
+      "doc.title": "cliPet — un gato pixel que vive en tu Mac",
+      "doc.desc": "cliPet: un compañero pixel-art nativo de macOS que pasea por la parte baja de tu pantalla, persigue tu cursor y guarda tu portapapeles. Ligero, local, adorable.",
+      "nav.features": "Funciones", "nav.pricing": "Precio", "nav.faq": "FAQ", "nav.download": "Descargar",
+      "hero.h1": "Un gato pixel que <span class=\"dyn\" id=\"dynWord\">camina</span><br>en tu Mac",
+      "hero.lead": "Pasea por la parte baja de tu pantalla, duerme y <strong>persigue tu cursor</strong>. Nativo, ligerísimo, 100&nbsp;% local.",
+      "hero.cta1": "Descargar gratis", "hero.cta2": "Mira lo que sabe hacer",
+      "stage.title": "cliPet — en directo en tu escritorio",
+      "menu.file": "Archivo", "menu.edit": "Edición", "menu.window": "Ventana", "menu.help": "Ayuda",
+      "notch.status": "ronronea · de buen humor", "notch.online": "en línea",
+      "notch.clipboard": "Portapapeles", "notch.copied": "copiado · 2m",
+      "notch.skin": "Skin activo", "notch.skins": "3 disponibles",
+      "notch.sounds": "Sonidos retro", "notch.onstate": "on",
+      "stage.hint": "↑ <span class=\"accent\">mueve el ratón</span> dentro del marco — te sigue de verdad",
+      "features.eyebrow": "Funciones", "features.h2": "Pequeño, pero muy vivo",
+      "features.sub": "Todo lo que un compañero de escritorio debe hacer — y nada que te frene.",
+      "f1.t": "En la barra de menús", "f1.d": "Sin ventanas, siempre ahí, nunca en medio. Un clic para ajustarlo todo.",
+      "f2.t": "Animaciones pixel", "f2.d": "Camina, corre, se sienta, duerme, salta y parpadea. Hecho a mano, fotograma a fotograma.",
+      "f3.t": "Persigue tu cursor", "f3.d": "Suelta el ovillo: lo persigue por la pantalla y se abalanza sobre él.",
+      "f4.t": "Gestor de portapapeles", "f4.d": "Historial del portapapeles integrado, a un clic. Útil cada día.",
+      "f5.t": "Skins personalizables", "f5.d": "Cambia el pelaje y el estilo del gato. Varios skins incluidos, y más en camino.",
+      "f6.t": "Editor de sprites", "f6.d": "Dibuja tus propias animaciones pixel dentro de la app. Tu gato, tus reglas.",
+      "f7.t": "Sonidos retro", "f7.d": "Pequeños sonidos de 8 bits para cada acción. Siléncialos cuando quieras calma.",
+      "f8.t": "100&nbsp;% nativo", "f8.d": "Swift y AppKit. Sin Electron, menos de 50&nbsp;MB de RAM. Rápido y discreto.",
+      "f9.t": "Todo en local", "f9.d": "Sin nube, sin cuenta, sin telemetría. Lo que pasa en tu Mac se queda ahí.",
+      "pricing.eyebrow": "Precio", "pricing.h2": "Adóptalo hoy",
+      "pricing.sub": "Una sola compra, tuyo para siempre. Actualizaciones incluidas.",
+      "price.value": "Gratis", "price.sub": "durante el lanzamiento — pronto de pago",
+      "check1": "El compañero pixel completo (pasear, dormir, perseguir)",
+      "check2": "Gestor de portapapeles integrado",
+      "check3": "Skins y editor de sprites",
+      "check4": "Sonidos retro de 8 bits",
+      "check5": "Swift nativo — menos de 50&nbsp;MB de RAM",
+      "price.btn": "Descargar para macOS", "price.note": "¿Algún problema? <a href=\"#\">Escríbenos</a>",
+      "faq.eyebrow": "FAQ", "faq.h2": "Preguntas frecuentes",
+      "q1": "¿cliPet ralentiza mi Mac?", "a1": "No. Es una app nativa en Swift que usa menos de 50&nbsp;MB de RAM y una CPU insignificante. Sin Electron, sin navegador oculto.",
+      "q2": "¿Mis datos van a algún sitio?", "a2": "Nunca. Todo se queda en tu equipo: sin nube, sin cuenta, sin telemetría. El historial del portapapeles no sale de tu Mac.",
+      "q3": "¿Funciona en Macs Intel?", "a3": "Sí. cliPet funciona tanto en Apple Silicon (M1 y posteriores) como en Macs Intel, desde macOS&nbsp;13.",
+      "q4": "¿El gato molesta mientras trabajo?", "a4": "Vive en la parte baja de la pantalla y no intercepta tus clics. Puedes pausarlo u ocultarlo con un clic desde la barra de menús.",
+      "q5": "¿Cómo lo desinstalo?", "a5": "Solo arrastra la app a la papelera. Sin archivos de sistema, sin restos.",
+      "final.h2": "¿Listo para adoptar tu gato?", "final.p": "Ya te espera en la parte baja de tu pantalla.",
+      "footer.tagline": "Un gato pixel que vive en tu Mac.",
+      "footer.product": "PRODUCTO", "footer.legal": "LEGAL",
+      "footer.privacy": "Privacidad", "footer.terms": "Aviso legal",
+      "footer.copyright": "© 2026 cliPet · hecho con ❤ y muchos píxeles"
+    },
+    de: {
+      "doc.title": "cliPet — eine Pixel-Katze, die auf deinem Mac lebt",
+      "doc.desc": "cliPet: ein nativer macOS-Pixel-Begleiter, der am unteren Bildschirmrand spaziert, deinem Cursor nachjagt und deine Zwischenablage verwaltet. Leicht, lokal, niedlich.",
+      "nav.features": "Funktionen", "nav.pricing": "Preis", "nav.faq": "FAQ", "nav.download": "Laden",
+      "hero.h1": "Eine Pixel-Katze, die auf<br>deinem Mac <span class=\"dyn\" id=\"dynWord\">läuft</span>",
+      "hero.lead": "Sie spaziert am unteren Bildschirmrand, schläft und <strong>jagt deinem Cursor nach</strong>. Nativ, federleicht, 100&nbsp;% lokal.",
+      "hero.cta1": "Kostenlos laden", "hero.cta2": "Sieh, was sie kann",
+      "stage.title": "cliPet — live auf deinem Schreibtisch",
+      "menu.file": "Ablage", "menu.edit": "Bearbeiten", "menu.window": "Fenster", "menu.help": "Hilfe",
+      "notch.status": "schnurrt · beste Laune", "notch.online": "online",
+      "notch.clipboard": "Zwischenablage", "notch.copied": "kopiert · 2m",
+      "notch.skin": "Aktiver Skin", "notch.skins": "3 verfügbar",
+      "notch.sounds": "Retro-Sounds", "notch.onstate": "an",
+      "stage.hint": "↑ <span class=\"accent\">beweg deine Maus</span> im Rahmen — sie folgt dir wirklich",
+      "features.eyebrow": "Funktionen", "features.h2": "Klein, aber quicklebendig",
+      "features.sub": "Alles, was ein Schreibtisch-Begleiter können sollte — und nichts, was dich bremst.",
+      "f1.t": "In der Menüleiste", "f1.d": "Kein Fenster, immer da, nie im Weg. Ein Klick für alle Einstellungen.",
+      "f2.t": "Pixel-Animationen", "f2.d": "Sie läuft, rennt, sitzt, schläft, springt und blinzelt. Handgemacht, Bild für Bild.",
+      "f3.t": "Jagt deinem Cursor nach", "f3.d": "Lass das Wollknäuel los: sie jagt es über den Bildschirm und springt darauf.",
+      "f4.t": "Zwischenablage-Verlauf", "f4.d": "Integrierter Verlauf der Zwischenablage, nur einen Klick entfernt. Täglich praktisch.",
+      "f5.t": "Anpassbare Skins", "f5.d": "Ändere Fell und Stil der Katze. Mehrere Skins inklusive, weitere folgen.",
+      "f6.t": "Sprite-Editor", "f6.d": "Zeichne deine eigenen Pixel-Animationen direkt in der App. Deine Katze, deine Regeln.",
+      "f7.t": "Retro-Sounds", "f7.d": "Kleine 8-Bit-Töne für jede Aktion. Stummschaltbar, wann immer du Ruhe willst.",
+      "f8.t": "100&nbsp;% nativ", "f8.d": "Swift &amp; AppKit. Kein Electron, unter 50&nbsp;MB RAM. Schnell und unauffällig.",
+      "f9.t": "Bleibt lokal", "f9.d": "Keine Cloud, kein Konto, keine Telemetrie. Was auf deinem Mac passiert, bleibt dort.",
+      "pricing.eyebrow": "Preis", "pricing.h2": "Adoptiere sie heute",
+      "pricing.sub": "Einmal kaufen, für immer deins. Updates inklusive.",
+      "price.value": "Gratis", "price.sub": "während des Launches — bald kostenpflichtig",
+      "check1": "Der komplette Pixel-Begleiter (laufen, schlafen, jagen)",
+      "check2": "Integrierter Zwischenablage-Verlauf",
+      "check3": "Skins &amp; Sprite-Editor",
+      "check4": "Retro-8-Bit-Sounds",
+      "check5": "Nativ in Swift — unter 50&nbsp;MB RAM",
+      "price.btn": "Für macOS laden", "price.note": "Ein Problem? <a href=\"#\">Schreib uns</a>",
+      "faq.eyebrow": "FAQ", "faq.h2": "Häufige Fragen",
+      "q1": "Verlangsamt cliPet meinen Mac?", "a1": "Nein. Eine native Swift-App mit unter 50&nbsp;MB RAM und vernachlässigbarer CPU-Last. Kein Electron, kein verstecktes Browserfenster.",
+      "q2": "Gehen meine Daten irgendwohin?", "a2": "Niemals. Alles bleibt auf deinem Gerät: keine Cloud, kein Konto, keine Telemetrie. Der Verlauf der Zwischenablage verlässt deinen Mac nie.",
+      "q3": "Läuft es auf Intel-Macs?", "a3": "Ja. cliPet läuft auf Apple Silicon (M1 und neuer) ebenso wie auf Intel-Macs, ab macOS&nbsp;13.",
+      "q4": "Stört die Katze beim Arbeiten?", "a4": "Sie lebt am unteren Bildschirmrand und fängt deine Klicks nicht ab. Du kannst sie mit einem Klick aus der Menüleiste pausieren oder ausblenden.",
+      "q5": "Wie deinstalliere ich sie?", "a5": "Zieh die App einfach in den Papierkorb. Keine Systemdateien, keine Reste.",
+      "final.h2": "Bereit, deine Katze zu adoptieren?", "final.p": "Sie wartet schon am unteren Rand deines Bildschirms.",
+      "footer.tagline": "Eine Pixel-Katze, die auf deinem Mac lebt.",
+      "footer.product": "PRODUKT", "footer.legal": "RECHTLICHES",
+      "footer.privacy": "Datenschutz", "footer.terms": "Impressum",
+      "footer.copyright": "© 2026 cliPet · mit ❤ und vielen Pixeln gemacht"
+    },
+    it: {
+      "doc.title": "cliPet — un gatto pixel che vive sul tuo Mac",
+      "doc.desc": "cliPet: un compagno pixel-art nativo per macOS che passeggia in fondo allo schermo, insegue il cursore e conserva i tuoi appunti. Leggero, locale, adorabile.",
+      "nav.features": "Funzioni", "nav.pricing": "Prezzo", "nav.faq": "FAQ", "nav.download": "Scarica",
+      "hero.h1": "Un gatto pixel che <span class=\"dyn\" id=\"dynWord\">cammina</span><br>sul tuo Mac",
+      "hero.lead": "Passeggia in fondo allo schermo, dorme e <strong>insegue il cursore</strong>. Nativo, leggerissimo, 100&nbsp;% locale.",
+      "hero.cta1": "Scarica gratis", "hero.cta2": "Guarda cosa sa fare",
+      "stage.title": "cliPet — dal vivo sulla tua scrivania",
+      "menu.file": "File", "menu.edit": "Modifica", "menu.window": "Finestra", "menu.help": "Aiuto",
+      "notch.status": "fa le fusa · umore al top", "notch.online": "online",
+      "notch.clipboard": "Appunti", "notch.copied": "copiato · 2m",
+      "notch.skin": "Skin attivo", "notch.skins": "3 disponibili",
+      "notch.sounds": "Suoni retro", "notch.onstate": "on",
+      "stage.hint": "↑ <span class=\"accent\">muovi il mouse</span> nel riquadro — ti segue davvero",
+      "features.eyebrow": "Funzioni", "features.h2": "Piccolo, ma vivissimo",
+      "features.sub": "Tutto ciò che un compagno da scrivania dovrebbe fare — e niente che ti rallenti.",
+      "f1.t": "Nella barra dei menu", "f1.d": "Nessuna finestra, sempre lì, mai d'intralcio. Un clic per regolare tutto.",
+      "f2.t": "Animazioni pixel", "f2.d": "Cammina, corre, si siede, dorme, balza e sbatte le palpebre. Fatto a mano, fotogramma per fotogramma.",
+      "f3.t": "Insegue il cursore", "f3.d": "Lascia il gomitolo: lo insegue per lo schermo e ci si avventa sopra.",
+      "f4.t": "Gestore appunti", "f4.d": "Cronologia degli appunti integrata, a un clic. Comoda ogni giorno.",
+      "f5.t": "Skin personalizzabili", "f5.d": "Cambia il manto e lo stile del gatto. Diversi skin inclusi, altri in arrivo.",
+      "f6.t": "Editor di sprite", "f6.d": "Disegna le tue animazioni pixel direttamente nell'app. Il tuo gatto, le tue regole.",
+      "f7.t": "Suoni retro", "f7.d": "Piccoli suoni a 8 bit per ogni azione. Disattivabili quando vuoi silenzio.",
+      "f8.t": "100&nbsp;% nativo", "f8.d": "Swift &amp; AppKit. Niente Electron, meno di 50&nbsp;MB di RAM. Veloce e discreto.",
+      "f9.t": "Tutto in locale", "f9.d": "Niente cloud, niente account, niente telemetria. Ciò che accade sul tuo Mac resta lì.",
+      "pricing.eyebrow": "Prezzo", "pricing.h2": "Adottalo oggi",
+      "pricing.sub": "Un solo acquisto, tuo per sempre. Aggiornamenti inclusi.",
+      "price.value": "Gratis", "price.sub": "durante il lancio — presto a pagamento",
+      "check1": "Il compagno pixel completo (cammina, dorme, insegue)",
+      "check2": "Gestore appunti integrato",
+      "check3": "Skin ed editor di sprite",
+      "check4": "Suoni retro a 8 bit",
+      "check5": "Swift nativo — meno di 50&nbsp;MB di RAM",
+      "price.btn": "Scarica per macOS", "price.note": "Un problema? <a href=\"#\">Scrivici</a>",
+      "faq.eyebrow": "FAQ", "faq.h2": "Domande frequenti",
+      "q1": "cliPet rallenta il mio Mac?", "a1": "No. È un'app nativa in Swift che usa meno di 50&nbsp;MB di RAM e una CPU trascurabile. Niente Electron, nessun browser nascosto.",
+      "q2": "I miei dati vanno da qualche parte?", "a2": "Mai. Tutto resta sul tuo dispositivo: niente cloud, niente account, niente telemetria. La cronologia degli appunti non lascia il tuo Mac.",
+      "q3": "Funziona sui Mac Intel?", "a3": "Sì. cliPet gira su Apple Silicon (M1 e successivi) come sui Mac Intel, da macOS&nbsp;13 in poi.",
+      "q4": "Il gatto dà fastidio mentre lavoro?", "a4": "Vive in fondo allo schermo e non intercetta i tuoi clic. Puoi metterlo in pausa o nasconderlo con un clic dalla barra dei menu.",
+      "q5": "Come lo disinstallo?", "a5": "Trascina semplicemente l'app nel cestino. Nessun file di sistema, nessun residuo.",
+      "final.h2": "Pronto ad adottare il tuo gatto?", "final.p": "Ti aspetta già in fondo allo schermo.",
+      "footer.tagline": "Un gatto pixel che vive sul tuo Mac.",
+      "footer.product": "PRODOTTO", "footer.legal": "LEGALE",
+      "footer.privacy": "Privacy", "footer.terms": "Note legali",
+      "footer.copyright": "© 2026 cliPet · fatto con ❤ e tanti pixel"
+    },
+    pt: {
+      "doc.title": "cliPet — um gato pixel que vive no seu Mac",
+      "doc.desc": "cliPet: um companheiro pixel-art nativo do macOS que passeia na base da sua tela, persegue o cursor e guarda a sua área de transferência. Leve, local, adorável.",
+      "nav.features": "Funções", "nav.pricing": "Preço", "nav.faq": "FAQ", "nav.download": "Baixar",
+      "hero.h1": "Um gato pixel que <span class=\"dyn\" id=\"dynWord\">anda</span><br>no seu Mac",
+      "hero.lead": "Ele passeia na base da sua tela, dorme e <strong>persegue seu cursor</strong>. Nativo, leve como pluma, 100&nbsp;% local.",
+      "hero.cta1": "Baixar grátis", "hero.cta2": "Veja o que ele faz",
+      "stage.title": "cliPet — ao vivo na sua área de trabalho",
+      "menu.file": "Arquivo", "menu.edit": "Editar", "menu.window": "Janela", "menu.help": "Ajuda",
+      "notch.status": "ronronando · de bom humor", "notch.online": "online",
+      "notch.clipboard": "Transferência", "notch.copied": "copiado · 2m",
+      "notch.skin": "Skin ativo", "notch.skins": "3 disponíveis",
+      "notch.sounds": "Sons retrô", "notch.onstate": "on",
+      "stage.hint": "↑ <span class=\"accent\">mexa o mouse</span> dentro do quadro — ele segue você de verdade",
+      "features.eyebrow": "Funções", "features.h2": "Pequeno, mas bem vivo",
+      "features.sub": "Tudo o que um companheiro de mesa deve fazer — e nada que te atrase.",
+      "f1.t": "Na barra de menus", "f1.d": "Sem janelas, sempre ali, nunca no caminho. Um clique para ajustar tudo.",
+      "f2.t": "Animações pixel", "f2.d": "Ele anda, corre, senta, dorme, salta e pisca. Feito à mão, quadro a quadro.",
+      "f3.t": "Persegue seu cursor", "f3.d": "Solte o novelo: ele persegue pela tela e dá o bote.",
+      "f4.t": "Gerenciador de transferência", "f4.d": "Histórico da área de transferência integrado, a um clique. Útil todo dia.",
+      "f5.t": "Skins personalizáveis", "f5.d": "Mude a pelagem e o estilo do gato. Vários skins inclusos, e mais a caminho.",
+      "f6.t": "Editor de sprites", "f6.d": "Desenhe suas próprias animações pixel dentro do app. Seu gato, suas regras.",
+      "f7.t": "Sons retrô", "f7.d": "Pequenos sons de 8 bits para cada ação. Silencie quando quiser sossego.",
+      "f8.t": "100&nbsp;% nativo", "f8.d": "Swift &amp; AppKit. Sem Electron, menos de 50&nbsp;MB de RAM. Rápido e discreto.",
+      "f9.t": "Tudo local", "f9.d": "Sem nuvem, sem conta, sem telemetria. O que acontece no seu Mac fica lá.",
+      "pricing.eyebrow": "Preço", "pricing.h2": "Adote hoje",
+      "pricing.sub": "Uma compra só, seu para sempre. Atualizações incluídas.",
+      "price.value": "Grátis", "price.sub": "durante o lançamento — em breve pago",
+      "check1": "O companheiro pixel completo (andar, dormir, perseguir)",
+      "check2": "Gerenciador de área de transferência integrado",
+      "check3": "Skins e editor de sprites",
+      "check4": "Sons retrô de 8 bits",
+      "check5": "Swift nativo — menos de 50&nbsp;MB de RAM",
+      "price.btn": "Baixar para macOS", "price.note": "Algum problema? <a href=\"#\">Fale conosco</a>",
+      "faq.eyebrow": "FAQ", "faq.h2": "Perguntas frequentes",
+      "q1": "O cliPet deixa meu Mac lento?", "a1": "Não. É um app nativo em Swift que usa menos de 50&nbsp;MB de RAM e CPU insignificante. Sem Electron, sem navegador escondido.",
+      "q2": "Meus dados vão para algum lugar?", "a2": "Nunca. Tudo fica na sua máquina: sem nuvem, sem conta, sem telemetria. O histórico da área de transferência não sai do seu Mac.",
+      "q3": "Funciona em Macs Intel?", "a3": "Sim. O cliPet roda em Apple Silicon (M1 e superiores) e em Macs Intel, a partir do macOS&nbsp;13.",
+      "q4": "O gato atrapalha enquanto eu trabalho?", "a4": "Ele vive na base da tela e não intercepta seus cliques. Você pode pausar ou ocultar com um clique pela barra de menus.",
+      "q5": "Como desinstalo?", "a5": "Basta arrastar o app para a lixeira. Sem arquivos de sistema, sem sobras.",
+      "final.h2": "Pronto para adotar seu gato?", "final.p": "Ele já espera na base da sua tela.",
+      "footer.tagline": "Um gato pixel que vive no seu Mac.",
+      "footer.product": "PRODUTO", "footer.legal": "LEGAL",
+      "footer.privacy": "Privacidade", "footer.terms": "Aviso legal",
+      "footer.copyright": "© 2026 cliPet · feito com ❤ e muitos pixels"
     }
   };
+
+  // Langues disponibles (pour le menu déroulant)
+  var LANGS = [
+    { code: "en", label: "English" },
+    { code: "fr", label: "Français" },
+    { code: "es", label: "Español" },
+    { code: "de", label: "Deutsch" },
+    { code: "it", label: "Italiano" },
+    { code: "pt", label: "Português" }
+  ];
 
   // Verbes du titre dynamique (façon Vibe Island, par langue)
   var DYN = {
     en: ["walks", "sleeps", "purrs", "plays", "pounces", "naps"],
-    fr: ["marche", "dort", "ronronne", "joue", "bondit", "rêve"]
+    fr: ["marche", "dort", "ronronne", "joue", "bondit", "rêve"],
+    es: ["camina", "duerme", "ronronea", "juega", "salta", "descansa"],
+    de: ["läuft", "schläft", "schnurrt", "spielt", "springt", "döst"],
+    it: ["cammina", "dorme", "fa le fusa", "gioca", "salta", "sonnecchia"],
+    pt: ["anda", "dorme", "ronrona", "brinca", "salta", "cochila"]
   };
   var dynTimer = null;
   function startDynamic(lang) {
@@ -249,21 +447,64 @@ var SPRITES = {"idle":["..........................XX.....","....................
       if (dict["doc.title"]) document.title = dict["doc.title"];
       if (meta && dict["doc.desc"]) meta.content = dict["doc.desc"];
       try { localStorage.setItem("clipet-lang", lang); } catch (e) {}
-      var t = document.getElementById("langToggle");
-      if (t) t.textContent = lang === "fr" ? "EN" : "FR";
+      // met à jour le déclencheur + l'état actif du menu
+      var cur = document.getElementById("langCur");
+      if (cur) cur.textContent = lang.toUpperCase();
+      var menu = document.getElementById("langMenu");
+      if (menu) menu.querySelectorAll("li").forEach(function (li) {
+        li.setAttribute("aria-selected", li.dataset.code === lang ? "true" : "false");
+      });
       startDynamic(lang);              // relance le mot dynamique du titre
     }
 
+    // — construit le menu déroulant de langues —
+    var menu = document.getElementById("langMenu");
+    if (menu) {
+      LANGS.forEach(function (l) {
+        var li = document.createElement("li");
+        li.textContent = l.label;
+        li.dataset.code = l.code;
+        li.setAttribute("role", "option");
+        li.addEventListener("click", function () {
+          setLang(l.code);
+          closeMenu();
+        });
+        menu.appendChild(li);
+      });
+    }
+    var langWrap = document.getElementById("lang");
+    var langBtn = document.getElementById("langBtn");
+    function openMenu() { if (langWrap) { langWrap.classList.add("open"); langBtn.setAttribute("aria-expanded", "true"); } }
+    function closeMenu() { if (langWrap) { langWrap.classList.remove("open"); langBtn.setAttribute("aria-expanded", "false"); } }
+    if (langBtn) langBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      langWrap.classList.contains("open") ? closeMenu() : openMenu();
+    });
+    document.addEventListener("click", function (e) {
+      if (langWrap && !langWrap.contains(e.target)) closeMenu();
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeMenu(); });
+
+    // — détection : choix sauvegardé > langue du navigateur > anglais —
     var saved = null;
     try { saved = localStorage.getItem("clipet-lang"); } catch (e) {}
-    var nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
-    var lang = saved || (nav.indexOf("fr") === 0 ? "fr" : "en");
+    var navLang = (navigator.language || navigator.userLanguage || "en").slice(0, 2).toLowerCase();
+    var available = LANGS.map(function (l) { return l.code; });
+    var lang = (saved && available.indexOf(saved) >= 0) ? saved
+      : (available.indexOf(navLang) >= 0 ? navLang : "en");
     setLang(lang);
+  })();
 
-    var toggle = document.getElementById("langToggle");
-    if (toggle) toggle.addEventListener("click", function () {
-      setLang(document.documentElement.lang === "fr" ? "en" : "fr");
-    });
+  // ============ Navbar intégrée : fond/flou seulement au scroll ============
+  (function () {
+    var nav = document.querySelector(".nav");
+    if (!nav) return;
+    function onScroll() {
+      if (window.scrollY > 24) nav.classList.add("scrolled");
+      else nav.classList.remove("scrolled");
+    }
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
   })();
 
   // ============ Fond interactif : suit le curseur ============
