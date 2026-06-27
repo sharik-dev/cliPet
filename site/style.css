@@ -157,29 +157,29 @@ p  { margin: 0; color: var(--text-muted); }
 /* ============================================================
    HERO
    ============================================================ */
-/* Rayons de lumière depuis le haut (god rays) */
-.hero-light {
-  position: absolute;
-  top: -60px; left: 50%;
+/* Rayons de lumière depuis le haut (god rays) — plein écran, derrière le contenu */
+.page-light {
+  position: fixed;
+  top: 0; left: 50%;
   transform: translateX(-50%);
-  width: 150%;
-  height: 720px;
+  width: 170%;
+  height: 105vh;
   pointer-events: none;
-  z-index: 0;
+  z-index: -1;
   background:
-    repeating-conic-gradient(from 0deg at 50% -22%,
-      rgba(255, 255, 255, 0.055) 0deg 3deg,
-      transparent 3deg 11deg);
-  -webkit-mask-image: radial-gradient(80% 70% at 50% -8%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 78%);
-  mask-image: radial-gradient(80% 70% at 50% -8%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 78%);
-  filter: blur(7px);
-  opacity: 0.85;
+    repeating-conic-gradient(from 0deg at 50% -10%,
+      rgba(255, 255, 255, 0.11) 0deg 2.6deg,
+      transparent 2.6deg 9deg);
+  -webkit-mask-image: radial-gradient(72% 85% at 50% -3%, #000 0%, rgba(0,0,0,0.55) 48%, transparent 85%);
+  mask-image: radial-gradient(72% 85% at 50% -3%, #000 0%, rgba(0,0,0,0.55) 48%, transparent 85%);
+  filter: blur(5px);
+  opacity: 1;
 }
-.hero-light::after {                 /* halo doux au point d'origine */
+.page-light::after {                 /* halo lumineux au point d'origine */
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(50% 42% at 50% -6%, rgba(255, 255, 255, 0.12), transparent 70%);
+  background: radial-gradient(46% 40% at 50% -3%, rgba(255, 255, 255, 0.22), transparent 68%);
 }
 
 /* Fond interactif : les points s'allument autour du curseur */
@@ -213,6 +213,15 @@ p  { margin: 0; color: var(--text-muted); }
   pointer-events: none;
   z-index: -1;
 }
+/* Mot dynamique du titre (façon Vibe Island) */
+.dyn {
+  color: var(--accent);
+  display: inline-block;
+  transition: opacity .3s ease, transform .3s ease, filter .3s ease;
+  text-shadow: 0 0 28px rgba(224, 131, 63, 0.45);
+}
+.dyn.swap { opacity: 0; transform: translateY(-0.22em); filter: blur(5px); }
+
 .hero .lead {
   font-size: clamp(18px, 2.4vw, 21px);
   color: var(--text-muted);

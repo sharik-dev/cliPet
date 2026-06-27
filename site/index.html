@@ -9,7 +9,8 @@
 </head>
 <body>
 
-  <!-- Fond interactif (s'allume au curseur) -->
+  <!-- Lumière plein écran (god rays) + fond interactif -->
+  <div class="page-light" aria-hidden="true"></div>
   <div class="dot-spotlight" aria-hidden="true"></div>
   <div class="cursor-glow" aria-hidden="true"></div>
 
@@ -29,9 +30,8 @@
 
   <!-- ============ HERO ============ -->
   <header class="hero" id="top">
-    <div class="hero-light" aria-hidden="true"></div>
     <div class="wrap">
-      <h1 data-i18n="hero.h1">A pixel cat<br>that lives on your Mac</h1>
+      <h1 data-i18n="hero.h1">A pixel cat that <span class="dyn" id="dynWord">walks</span><br>on your Mac</h1>
       <p class="lead" data-i18n="hero.lead">
         It strolls along the bottom of your screen, sleeps, and <strong>chases your cursor</strong>.
         Native, feather-light, 100%&nbsp;local.

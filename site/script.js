@@ -62,7 +62,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
     var catH = SPRITES.idle.length * SC;
     var yarnFrames = [SPRITES.yarn1, SPRITES.yarn2, SPRITES.yarn3, SPRITES.yarn4];
     var walkFrames = [SPRITES.walk1, SPRITES.walk2, SPRITES.walk3, SPRITES.walk4];
-    var floorY = cv.height - catH - 14;
+    var floorY = cv.height - catH + 4;       // pattes au ras du bas de l'écran
 
     var cat = { x: cv.width * 0.28, face: 1 }; // déjà là, puis se balade
     var target = cv.width * 0.5;
@@ -92,10 +92,10 @@ var SPRITES = {"idle":["..........................XX.....","....................
     function frame(now) {
       var t = now - t0;
 
-      // auto-balade quand pas de souris
+      // auto-balade : le chat marche le long du bas de l'écran
       if (!pointerActive && t > wanderNext) {
-        target = 60 + Math.random() * (cv.width - 120);
-        wanderNext = t + 2200 + Math.random() * 2600;
+        target = 80 + Math.random() * (cv.width - 160);
+        wanderNext = t + 700 + Math.random() * 1400;
       }
 
       // déplacement du chat vers la cible
@@ -160,7 +160,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "doc.title": "cliPet — un chat pixel qui vit sur ton Mac",
       "doc.desc": "cliPet : un compagnon pixel-art natif macOS qui se balade en bas de ton écran, chasse ton curseur et garde ton presse-papier. Léger, local, adorable.",
       "nav.features": "Fonctionnalités", "nav.pricing": "Tarif", "nav.faq": "FAQ", "nav.download": "Télécharger",
-      "hero.h1": "Un chat pixel<br>qui vit sur ton Mac",
+      "hero.h1": "Un chat pixel qui <span class=\"dyn\" id=\"dynWord\">marche</span><br>sur ton Mac",
       "hero.lead": "Il se balade en bas de ton écran, dort, et <strong>chasse ton curseur</strong>. Natif, ultra-léger, 100&nbsp;% local.",
       "hero.cta1": "Télécharger gratuitement", "hero.cta2": "Voir ce qu'il sait faire",
       "stage.title": "cliPet — en direct sur ton bureau",
@@ -204,6 +204,29 @@ var SPRITES = {"idle":["..........................XX.....","....................
     }
   };
 
+  // Verbes du titre dynamique (façon Vibe Island, par langue)
+  var DYN = {
+    en: ["walks", "sleeps", "purrs", "plays", "pounces", "naps"],
+    fr: ["marche", "dort", "ronronne", "joue", "bondit", "rêve"]
+  };
+  var dynTimer = null;
+  function startDynamic(lang) {
+    var el = document.getElementById("dynWord");
+    if (!el) return;
+    if (dynTimer) clearInterval(dynTimer);
+    var words = DYN[lang] || DYN.en;
+    var i = 0;
+    el.textContent = words[0];
+    dynTimer = setInterval(function () {
+      el.classList.add("swap");
+      setTimeout(function () {
+        i = (i + 1) % words.length;
+        el.textContent = words[i];
+        el.classList.remove("swap");
+      }, 300);
+    }, 2100);
+  }
+
   (function () {
     // Snapshot EN depuis le HTML (langue principale) -> sert de base + fallback
     var EN = {};
@@ -228,6 +251,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       try { localStorage.setItem("clipet-lang", lang); } catch (e) {}
       var t = document.getElementById("langToggle");
       if (t) t.textContent = lang === "fr" ? "EN" : "FR";
+      startDynamic(lang);              // relance le mot dynamique du titre
     }
 
     var saved = null;
