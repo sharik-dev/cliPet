@@ -1,52 +1,104 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>cliPet — un chat pixel qui vit sur ton Mac</title>
-  <meta name="description" content="cliPet : un compagnon pixel-art natif macOS qui se balade en bas de ton écran, chasse ton curseur et garde ton presse-papier. Léger, local, adorable." />
+  <title>cliPet — a pixel cat that lives on your Mac</title>
+  <meta name="description" content="cliPet: a native macOS pixel-art companion that strolls along the bottom of your screen, chases your cursor and keeps your clipboard. Light, local, adorable." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+  <!-- Fond interactif (s'allume au curseur) -->
+  <div class="dot-spotlight" aria-hidden="true"></div>
+  <div class="cursor-glow" aria-hidden="true"></div>
 
   <!-- ============ NAV ============ -->
   <nav class="nav">
     <div class="wrap">
       <a class="logo" href="#top"><canvas data-sprite="sit" width="33" height="33"></canvas> CLIPET</a>
       <div class="nav-links">
-        <a href="#features">Fonctionnalités</a>
-        <a href="#pricing">Tarif</a>
-        <a href="#faq">FAQ</a>
-        <a class="btn btn-primary btn-sm" href="#pricing"><span class="apple"></span> Télécharger</a>
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
+        <a href="#faq" data-i18n="nav.faq">FAQ</a>
+        <button class="lang-toggle" id="langToggle" aria-label="Switch language">FR</button>
+        <a class="btn btn-primary btn-sm" href="#pricing"><span class="apple"></span> <span data-i18n="nav.download">Download</span></a>
       </div>
     </div>
   </nav>
 
   <!-- ============ HERO ============ -->
   <header class="hero" id="top">
+    <div class="hero-light" aria-hidden="true"></div>
     <div class="wrap">
-      <h1>Un chat pixel<br>qui vit sur ton Mac</h1>
-      <p class="lead">
-        Il se balade en bas de ton écran, dort, et <strong>chasse ton curseur</strong>.
-        Natif, ultra-léger, 100&nbsp;% local.
+      <h1 data-i18n="hero.h1">A pixel cat<br>that lives on your Mac</h1>
+      <p class="lead" data-i18n="hero.lead">
+        It strolls along the bottom of your screen, sleeps, and <strong>chases your cursor</strong>.
+        Native, feather-light, 100%&nbsp;local.
       </p>
       <div class="cta-row">
-        <a class="btn btn-primary" href="#pricing"><span class="apple"></span> Télécharger gratuitement</a>
-        <a class="btn btn-ghost" href="#features">Voir ce qu'il sait faire</a>
+        <a class="btn btn-primary" href="#pricing"><span class="apple"></span> <span data-i18n="hero.cta1">Download for free</span></a>
+        <a class="btn btn-ghost" href="#features" data-i18n="hero.cta2">See what it can do</a>
       </div>
 
-      <!-- Démo interactive : le vrai chat de l'app -->
+      <!-- Démo interactive : un vrai Mac, avec le chat de l'app -->
       <div class="stage">
         <div class="stage-bar">
           <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-          <span class="title">cliPet — vit dans ta barre de menus</span>
-          <span class="clock">Sun 12:15</span>
+          <span class="title" data-i18n="stage.title">cliPet — live on your desktop</span>
+          <span class="clock">Sun 0:36</span>
         </div>
-        <canvas id="playground" width="1840" height="520"></canvas>
-      </div>
-      <p class="stage-hint">↑ <span class="accent">bouge ta souris</span> dans le cadre — il te suit pour de vrai</p>
+        <div class="mac-screen">
+          <div class="wallpaper" aria-hidden="true"></div>
+          <canvas id="playground" width="1840" height="560"></canvas>
 
-      <p class="compat">macOS&nbsp;13+ · Apple&nbsp;Silicon&nbsp;&amp;&nbsp;Intel · &lt;&nbsp;50&nbsp;Mo&nbsp;RAM</p>
+          <!-- Barre de menus macOS -->
+          <div class="menubar">
+            <span class="mb-left">
+              <span class="apple"></span><b>cliPet</b>
+              <span data-i18n="menu.file">File</span>
+              <span data-i18n="menu.edit">Edit</span>
+              <span data-i18n="menu.window">Window</span>
+              <span data-i18n="menu.help">Help</span>
+            </span>
+            <span class="mb-right">📋&nbsp;3 &nbsp; 🔊 &nbsp; 100% &nbsp; Sun&nbsp;0:36</span>
+          </div>
+
+          <!-- Notch / Dynamic Island : statut du chat + features -->
+          <div class="notch">
+            <div class="notch-row head">
+              <canvas class="notch-cat" data-sprite="sit" width="33" height="33"></canvas>
+              <span class="ni-main">
+                <b>cliPet</b>
+                <span class="sub" data-i18n="notch.status">purring · great mood</span>
+              </span>
+              <span class="grow"></span>
+              <span class="tag on" data-i18n="notch.online">online</span>
+            </div>
+            <div class="notch-row">
+              <span class="bullet o"></span>
+              <span data-i18n="notch.clipboard">Clipboard</span>
+              <span class="muted grow">git commit -m "fix"</span>
+              <span class="tag" data-i18n="notch.copied">copied · 2m</span>
+            </div>
+            <div class="notch-row">
+              <span class="bullet b"></span>
+              <span data-i18n="notch.skin">Active skin</span>
+              <span class="muted grow">Calico</span>
+              <span class="tag" data-i18n="notch.skins">3 available</span>
+            </div>
+            <div class="notch-row">
+              <span class="bullet g"></span>
+              <span data-i18n="notch.sounds">Retro sounds</span>
+              <span class="muted grow">8-bit</span>
+              <span class="tag on" data-i18n="notch.onstate">on</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="stage-hint" data-i18n="stage.hint">↑ <span class="accent">move your mouse</span> inside the frame — it really follows you</p>
+
+      <p class="compat">macOS&nbsp;13+ · Apple&nbsp;Silicon&nbsp;&amp;&nbsp;Intel · &lt;&nbsp;50&nbsp;MB&nbsp;RAM</p>
     </div>
   </header>
 
@@ -54,20 +106,20 @@
   <section class="block" id="features">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">Fonctionnalités</div>
-        <h2>Petit, mais bien vivant</h2>
-        <p>Tout ce qu'un compagnon de bureau doit savoir faire — et rien qui te ralentisse.</p>
+        <div class="eyebrow" data-i18n="features.eyebrow">Features</div>
+        <h2 data-i18n="features.h2">Small, but very much alive</h2>
+        <p data-i18n="features.sub">Everything a desktop companion should do — and nothing that slows you down.</p>
       </div>
       <div class="features">
-        <div class="feature reveal"><div class="ico"><canvas data-icon="menubar"></canvas></div><h3>Dans la barre de menus</h3><p>Zéro fenêtre, toujours là, jamais dans le chemin. Un clic pour tout régler.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="paw"></canvas></div><h3>Animations pixel</h3><p>Il marche, court, s'assoit, dort, bondit et cligne des yeux. Fait main, image par image.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="cursor"></canvas></div><h3>Chasse le curseur</h3><p>Lâche la pelote : il la poursuit à travers l'écran et lui saute dessus.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="clipboard"></canvas></div><h3>Presse-papier</h3><p>Historique de ton clipboard intégré, accessible d'un seul clic. Pratique au quotidien.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="palette"></canvas></div><h3>Skins personnalisables</h3><p>Change la robe et le style du chat. Plusieurs skins inclus, d'autres à venir.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="pencil"></canvas></div><h3>Éditeur de sprites</h3><p>Dessine tes propres animations pixel directement dans l'app. Ton chat, tes règles.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="speaker"></canvas></div><h3>Sons rétro</h3><p>De petits bruitages 8-bit pour chaque action. Désactivables quand tu veux le calme.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="chip"></canvas></div><h3>100&nbsp;% natif</h3><p>Swift &amp; AppKit. Pas d'Electron, moins de 50&nbsp;Mo de RAM. Rapide et discret.</p></div>
-        <div class="feature reveal"><div class="ico"><canvas data-icon="lock"></canvas></div><h3>Tout reste local</h3><p>Aucun cloud, aucun compte, aucune télémétrie. Ce qui se passe sur ton Mac y reste.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="menubar"></canvas></div><h3 data-i18n="f1.t">In the menu bar</h3><p data-i18n="f1.d">No window, always there, never in the way. One click to tweak everything.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="paw"></canvas></div><h3 data-i18n="f2.t">Pixel animations</h3><p data-i18n="f2.d">It walks, runs, sits, sleeps, pounces and blinks. Hand-drawn, frame by frame.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="cursor"></canvas></div><h3 data-i18n="f3.t">Chases your cursor</h3><p data-i18n="f3.d">Drop the yarn ball: it chases it across the screen and pounces on it.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="clipboard"></canvas></div><h3 data-i18n="f4.t">Clipboard manager</h3><p data-i18n="f4.d">Built-in clipboard history, one click away. Handy every single day.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="palette"></canvas></div><h3 data-i18n="f5.t">Custom skins</h3><p data-i18n="f5.d">Change the cat's coat and style. Several skins included, more on the way.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="pencil"></canvas></div><h3 data-i18n="f6.t">Sprite editor</h3><p data-i18n="f6.d">Draw your own pixel animations right inside the app. Your cat, your rules.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="speaker"></canvas></div><h3 data-i18n="f7.t">Retro sounds</h3><p data-i18n="f7.d">Little 8-bit blips for every action. Mute them whenever you want quiet.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="chip"></canvas></div><h3 data-i18n="f8.t">100% native</h3><p data-i18n="f8.d">Swift &amp; AppKit. No Electron, under 50&nbsp;MB of RAM. Fast and discreet.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="lock"></canvas></div><h3 data-i18n="f9.t">Stays local</h3><p data-i18n="f9.d">No cloud, no account, no telemetry. What happens on your Mac stays there.</p></div>
       </div>
     </div>
   </section>
@@ -76,22 +128,22 @@
   <section class="block" id="pricing" style="background:var(--bg-soft);">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">Tarif</div>
-        <h2>Adopte-le aujourd'hui</h2>
-        <p>Un seul achat, à toi pour toujours. Mises à jour comprises.</p>
+        <div class="eyebrow" data-i18n="pricing.eyebrow">Pricing</div>
+        <h2 data-i18n="pricing.h2">Adopt it today</h2>
+        <p data-i18n="pricing.sub">One purchase, yours forever. Updates included.</p>
       </div>
       <div class="price-card reveal">
-        <div class="price">Gratuit</div>
-        <div class="price-sub">pendant le lancement — bientôt payant</div>
+        <div class="price" data-i18n="price.value">Free</div>
+        <div class="price-sub" data-i18n="price.sub">during launch — paid soon</div>
         <ul class="checks">
-          <li>Le compagnon pixel complet (marche, sommeil, chasse)</li>
-          <li>Gestionnaire de presse-papier intégré</li>
-          <li>Skins &amp; éditeur de sprites</li>
-          <li>Sons rétro 8-bit</li>
-          <li>Natif Swift — moins de 50&nbsp;Mo de RAM</li>
+          <li data-i18n="check1">The full pixel companion (walk, sleep, chase)</li>
+          <li data-i18n="check2">Built-in clipboard manager</li>
+          <li data-i18n="check3">Skins &amp; sprite editor</li>
+          <li data-i18n="check4">Retro 8-bit sounds</li>
+          <li data-i18n="check5">Native Swift — under 50&nbsp;MB of RAM</li>
         </ul>
-        <a class="btn btn-primary" href="#"><span class="apple"></span> Télécharger pour macOS</a>
-        <p class="price-note">Un souci ? <a href="#">Écris-nous</a></p>
+        <a class="btn btn-primary" href="#"><span class="apple"></span> <span data-i18n="price.btn">Download for macOS</span></a>
+        <p class="price-note" data-i18n="price.note">A problem? <a href="#">Write to us</a></p>
       </div>
     </div>
   </section>
@@ -100,15 +152,15 @@
   <section class="block" id="faq">
     <div class="wrap">
       <div class="section-head center reveal">
-        <div class="eyebrow">FAQ</div>
-        <h2>Questions fréquentes</h2>
+        <div class="eyebrow" data-i18n="faq.eyebrow">FAQ</div>
+        <h2 data-i18n="faq.h2">Frequently asked questions</h2>
       </div>
       <div class="faq reveal">
-        <details class="qa"><summary><button type="button">cliPet ralentit-il mon Mac ?<span class="plus">+</span></button></summary><div class="answer"><p>Non. C'est une app native Swift qui consomme moins de 50&nbsp;Mo de RAM et un CPU négligeable. Pas d'Electron, pas de navigateur caché.</p></div></details>
-        <details class="qa"><summary><button type="button">Mes données partent-elles quelque part ?<span class="plus">+</span></button></summary><div class="answer"><p>Jamais. Tout reste sur ta machine : aucun cloud, aucun compte, aucune télémétrie. L'historique du presse-papier ne quitte pas ton Mac.</p></div></details>
-        <details class="qa"><summary><button type="button">Compatible avec les Mac Intel ?<span class="plus">+</span></button></summary><div class="answer"><p>Oui. cliPet tourne sur Apple Silicon (M1 et +) comme sur les Mac Intel, à partir de macOS&nbsp;13.</p></div></details>
-        <details class="qa"><summary><button type="button">Le chat gêne-t-il quand je travaille ?<span class="plus">+</span></button></summary><div class="answer"><p>Il vit en bas de l'écran et ne capte pas tes clics. Tu peux le mettre en pause ou le cacher d'un clic depuis la barre de menus.</p></div></details>
-        <details class="qa"><summary><button type="button">Comment le désinstaller ?<span class="plus">+</span></button></summary><div class="answer"><p>Glisse simplement l'app dans la corbeille. Aucun fichier système, aucun résidu.</p></div></details>
+        <details class="qa"><summary><button type="button"><span data-i18n="q1">Does cliPet slow my Mac down?</span><span class="plus">+</span></button></summary><div class="answer"><p data-i18n="a1">No. It's a native Swift app using under 50&nbsp;MB of RAM and negligible CPU. No Electron, no hidden browser.</p></div></details>
+        <details class="qa"><summary><button type="button"><span data-i18n="q2">Does my data go anywhere?</span><span class="plus">+</span></button></summary><div class="answer"><p data-i18n="a2">Never. Everything stays on your machine: no cloud, no account, no telemetry. Your clipboard history never leaves your Mac.</p></div></details>
+        <details class="qa"><summary><button type="button"><span data-i18n="q3">Does it work on Intel Macs?</span><span class="plus">+</span></button></summary><div class="answer"><p data-i18n="a3">Yes. cliPet runs on Apple Silicon (M1 and up) and Intel Macs alike, from macOS&nbsp;13 onward.</p></div></details>
+        <details class="qa"><summary><button type="button"><span data-i18n="q4">Does the cat get in the way while I work?</span><span class="plus">+</span></button></summary><div class="answer"><p data-i18n="a4">It lives at the bottom of the screen and doesn't catch your clicks. You can pause or hide it in one click from the menu bar.</p></div></details>
+        <details class="qa"><summary><button type="button"><span data-i18n="q5">How do I uninstall it?</span><span class="plus">+</span></button></summary><div class="answer"><p data-i18n="a5">Just drag the app to the trash. No system files, no leftovers.</p></div></details>
       </div>
     </div>
   </section>
@@ -116,9 +168,9 @@
   <!-- ============ CTA FINAL ============ -->
   <section class="final">
     <div class="wrap">
-      <h2>Prêt à adopter ton chat&nbsp;?</h2>
-      <p>Il t'attend déjà en bas de l'écran.</p>
-      <a class="btn btn-primary" href="#"><span class="apple"></span> Télécharger gratuitement</a>
+      <h2 data-i18n="final.h2">Ready to adopt your cat?</h2>
+      <p data-i18n="final.p">It's already waiting at the bottom of your screen.</p>
+      <a class="btn btn-primary" href="#"><span class="apple"></span> <span data-i18n="hero.cta1">Download for free</span></a>
     </div>
   </section>
 
@@ -128,25 +180,25 @@
       <div class="grid">
         <div class="brand-col">
           <div class="brand">cliPet</div>
-          <p>Un chat pixel qui vit sur ton Mac.</p>
+          <p data-i18n="footer.tagline">A pixel cat that lives on your Mac.</p>
           <div class="social">
             <a href="#" aria-label="X / Twitter">𝕏</a>
             <a href="#" aria-label="GitHub">GitHub</a>
           </div>
         </div>
         <div class="col">
-          <h4>PRODUIT</h4>
-          <a href="#pricing">Télécharger</a>
-          <a href="#features">Fonctionnalités</a>
-          <a href="#faq">FAQ</a>
+          <h4 data-i18n="footer.product">PRODUCT</h4>
+          <a href="#pricing" data-i18n="nav.download">Download</a>
+          <a href="#features" data-i18n="nav.features">Features</a>
+          <a href="#faq" data-i18n="nav.faq">FAQ</a>
         </div>
         <div class="col">
-          <h4>LÉGAL</h4>
-          <a href="#">Confidentialité</a>
-          <a href="#">Mentions légales</a>
+          <h4 data-i18n="footer.legal">LEGAL</h4>
+          <a href="#" data-i18n="footer.privacy">Privacy</a>
+          <a href="#" data-i18n="footer.terms">Legal notice</a>
         </div>
       </div>
-      <div class="copyright">© 2026 cliPet · fait avec ❤ et beaucoup de pixels</div>
+      <div class="copyright" data-i18n="footer.copyright">© 2026 cliPet · made with ❤ and lots of pixels</div>
     </div>
   </footer>
 

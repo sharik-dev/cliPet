@@ -153,6 +153,110 @@ var SPRITES = {"idle":["..........................XX.....","....................
     requestAnimationFrame(frame);
   }
 
+  // ============ i18n — EN par défaut, FR auto-détecté ============
+  // (EN est dans le HTML ; on ne stocke ici que les traductions.)
+  var I18N = {
+    fr: {
+      "doc.title": "cliPet — un chat pixel qui vit sur ton Mac",
+      "doc.desc": "cliPet : un compagnon pixel-art natif macOS qui se balade en bas de ton écran, chasse ton curseur et garde ton presse-papier. Léger, local, adorable.",
+      "nav.features": "Fonctionnalités", "nav.pricing": "Tarif", "nav.faq": "FAQ", "nav.download": "Télécharger",
+      "hero.h1": "Un chat pixel<br>qui vit sur ton Mac",
+      "hero.lead": "Il se balade en bas de ton écran, dort, et <strong>chasse ton curseur</strong>. Natif, ultra-léger, 100&nbsp;% local.",
+      "hero.cta1": "Télécharger gratuitement", "hero.cta2": "Voir ce qu'il sait faire",
+      "stage.title": "cliPet — en direct sur ton bureau",
+      "menu.file": "Fichier", "menu.edit": "Édition", "menu.window": "Fenêtre", "menu.help": "Aide",
+      "notch.status": "ronronne · humeur au top", "notch.online": "en ligne",
+      "notch.clipboard": "Presse-papier", "notch.copied": "copié · 2m",
+      "notch.skin": "Skin actif", "notch.skins": "3 dispo",
+      "notch.sounds": "Sons rétro", "notch.onstate": "on",
+      "stage.hint": "↑ <span class=\"accent\">bouge ta souris</span> dans le cadre — il te suit pour de vrai",
+      "features.eyebrow": "Fonctionnalités", "features.h2": "Petit, mais bien vivant",
+      "features.sub": "Tout ce qu'un compagnon de bureau doit savoir faire — et rien qui te ralentisse.",
+      "f1.t": "Dans la barre de menus", "f1.d": "Zéro fenêtre, toujours là, jamais dans le chemin. Un clic pour tout régler.",
+      "f2.t": "Animations pixel", "f2.d": "Il marche, court, s'assoit, dort, bondit et cligne des yeux. Fait main, image par image.",
+      "f3.t": "Chasse le curseur", "f3.d": "Lâche la pelote : il la poursuit à travers l'écran et lui saute dessus.",
+      "f4.t": "Presse-papier", "f4.d": "Historique de ton clipboard intégré, accessible d'un seul clic. Pratique au quotidien.",
+      "f5.t": "Skins personnalisables", "f5.d": "Change la robe et le style du chat. Plusieurs skins inclus, d'autres à venir.",
+      "f6.t": "Éditeur de sprites", "f6.d": "Dessine tes propres animations pixel directement dans l'app. Ton chat, tes règles.",
+      "f7.t": "Sons rétro", "f7.d": "De petits bruitages 8-bit pour chaque action. Désactivables quand tu veux le calme.",
+      "f8.t": "100&nbsp;% natif", "f8.d": "Swift &amp; AppKit. Pas d'Electron, moins de 50&nbsp;Mo de RAM. Rapide et discret.",
+      "f9.t": "Tout reste local", "f9.d": "Aucun cloud, aucun compte, aucune télémétrie. Ce qui se passe sur ton Mac y reste.",
+      "pricing.eyebrow": "Tarif", "pricing.h2": "Adopte-le aujourd'hui",
+      "pricing.sub": "Un seul achat, à toi pour toujours. Mises à jour comprises.",
+      "price.value": "Gratuit", "price.sub": "pendant le lancement — bientôt payant",
+      "check1": "Le compagnon pixel complet (marche, sommeil, chasse)",
+      "check2": "Gestionnaire de presse-papier intégré",
+      "check3": "Skins &amp; éditeur de sprites",
+      "check4": "Sons rétro 8-bit",
+      "check5": "Natif Swift — moins de 50&nbsp;Mo de RAM",
+      "price.btn": "Télécharger pour macOS", "price.note": "Un souci ? <a href=\"#\">Écris-nous</a>",
+      "faq.eyebrow": "FAQ", "faq.h2": "Questions fréquentes",
+      "q1": "cliPet ralentit-il mon Mac ?", "a1": "Non. C'est une app native Swift qui consomme moins de 50&nbsp;Mo de RAM et un CPU négligeable. Pas d'Electron, pas de navigateur caché.",
+      "q2": "Mes données partent-elles quelque part ?", "a2": "Jamais. Tout reste sur ta machine : aucun cloud, aucun compte, aucune télémétrie. L'historique du presse-papier ne quitte pas ton Mac.",
+      "q3": "Compatible avec les Mac Intel ?", "a3": "Oui. cliPet tourne sur Apple Silicon (M1 et +) comme sur les Mac Intel, à partir de macOS&nbsp;13.",
+      "q4": "Le chat gêne-t-il quand je travaille ?", "a4": "Il vit en bas de l'écran et ne capte pas tes clics. Tu peux le mettre en pause ou le cacher d'un clic depuis la barre de menus.",
+      "q5": "Comment le désinstaller ?", "a5": "Glisse simplement l'app dans la corbeille. Aucun fichier système, aucun résidu.",
+      "final.h2": "Prêt à adopter ton chat ?", "final.p": "Il t'attend déjà en bas de l'écran.",
+      "footer.tagline": "Un chat pixel qui vit sur ton Mac.",
+      "footer.product": "PRODUIT", "footer.legal": "LÉGAL",
+      "footer.privacy": "Confidentialité", "footer.terms": "Mentions légales",
+      "footer.copyright": "© 2026 cliPet · fait avec ❤ et beaucoup de pixels"
+    }
+  };
+
+  (function () {
+    // Snapshot EN depuis le HTML (langue principale) -> sert de base + fallback
+    var EN = {};
+    document.querySelectorAll("[data-i18n]").forEach(function (el) {
+      EN[el.getAttribute("data-i18n")] = el.innerHTML;
+    });
+    EN["doc.title"] = document.title;
+    var meta = document.querySelector('meta[name="description"]');
+    EN["doc.desc"] = meta ? meta.content : "";
+    I18N.en = EN;
+
+    function setLang(lang) {
+      if (!I18N[lang]) lang = "en";
+      var dict = I18N[lang];
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(function (el) {
+        var k = el.getAttribute("data-i18n");
+        if (dict[k] != null) el.innerHTML = dict[k];
+      });
+      if (dict["doc.title"]) document.title = dict["doc.title"];
+      if (meta && dict["doc.desc"]) meta.content = dict["doc.desc"];
+      try { localStorage.setItem("clipet-lang", lang); } catch (e) {}
+      var t = document.getElementById("langToggle");
+      if (t) t.textContent = lang === "fr" ? "EN" : "FR";
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem("clipet-lang"); } catch (e) {}
+    var nav = (navigator.language || navigator.userLanguage || "en").toLowerCase();
+    var lang = saved || (nav.indexOf("fr") === 0 ? "fr" : "en");
+    setLang(lang);
+
+    var toggle = document.getElementById("langToggle");
+    if (toggle) toggle.addEventListener("click", function () {
+      setLang(document.documentElement.lang === "fr" ? "en" : "fr");
+    });
+  })();
+
+  // ============ Fond interactif : suit le curseur ============
+  (function () {
+    var root = document.documentElement;
+    var raf = null, mx = -500, my = -500;
+    function apply() {
+      root.style.setProperty("--mx", mx + "px");
+      root.style.setProperty("--my", my + "px");
+      raf = null;
+    }
+    window.addEventListener("pointermove", function (e) {
+      mx = e.clientX; my = e.clientY;
+      if (!raf) raf = requestAnimationFrame(apply);
+    }, { passive: true });
+  })();
+
   // ============ FAQ accordéon (un seul ouvert à la fois) ============
   var qas = document.querySelectorAll(".qa");
   qas.forEach(function (d) {

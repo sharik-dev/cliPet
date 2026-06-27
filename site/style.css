@@ -116,6 +116,19 @@ p  { margin: 0; color: var(--text-muted); }
 .nav-links { display: flex; align-items: center; gap: 28px; }
 .nav-links a { color: var(--text-muted); font-size: 15px; transition: color .15s; }
 .nav-links a:hover { color: var(--text); }
+.lang-toggle {
+  font-family: var(--pixel);
+  font-size: 12px;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 5px 11px;
+  cursor: inherit;
+  transition: color .15s, border-color .15s;
+}
+.lang-toggle:hover { color: var(--text); border-color: var(--ghost-border); }
 
 /* ============================================================
    BOUTONS
@@ -144,7 +157,54 @@ p  { margin: 0; color: var(--text-muted); }
 /* ============================================================
    HERO
    ============================================================ */
+/* Rayons de lumière depuis le haut (god rays) */
+.hero-light {
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 150%;
+  height: 720px;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    repeating-conic-gradient(from 0deg at 50% -22%,
+      rgba(255, 255, 255, 0.055) 0deg 3deg,
+      transparent 3deg 11deg);
+  -webkit-mask-image: radial-gradient(80% 70% at 50% -8%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 78%);
+  mask-image: radial-gradient(80% 70% at 50% -8%, #000 0%, rgba(0,0,0,0.5) 45%, transparent 78%);
+  filter: blur(7px);
+  opacity: 0.85;
+}
+.hero-light::after {                 /* halo doux au point d'origine */
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(50% 42% at 50% -6%, rgba(255, 255, 255, 0.12), transparent 70%);
+}
+
+/* Fond interactif : les points s'allument autour du curseur */
+.dot-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(224, 131, 63, 0.55) 1px, transparent 1px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(circle 170px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 72%);
+  mask-image: radial-gradient(circle 170px at var(--mx, -500px) var(--my, -500px), #000 0%, transparent 72%);
+  opacity: 0.7;
+  transition: opacity 0.4s ease;
+}
+.cursor-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(circle 260px at var(--mx, -500px) var(--my, -500px), rgba(224, 131, 63, 0.10), transparent 70%);
+}
+
 .hero { position: relative; padding: 86px 0 40px; text-align: center; }
+.hero > .wrap { position: relative; z-index: 1; }
 .hero::before {
   content: "";
   position: absolute;
@@ -196,14 +256,96 @@ p  { margin: 0; color: var(--text-muted); }
 .stage-bar .dot.g { background: #28c840; }
 .stage-bar .title { margin-left: 10px; }
 .stage-bar .clock { margin-left: auto; }
+/* — Écran Mac simulé à l'intérieur de la fenêtre — */
+.mac-screen {
+  position: relative;
+  overflow: hidden;
+  cursor: none;                 /* la pelote remplace le curseur */
+}
+.wallpaper {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* faux fond de bureau macOS (Sonoma-like) */
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(255, 220, 170, 0.35), transparent 55%),
+    linear-gradient(180deg, #2f2b4d 0%, #4a3f63 30%, #8a5d6a 58%, #c47a4f 80%, #e8a866 100%);
+}
 #playground {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
-  cursor: none;                 /* la pelote remplace le curseur */
-  /* faux fond de bureau macOS pour faire ressortir le pixel-art */
-  background:
-    linear-gradient(180deg, #3a3358 0%, #5b4a6e 38%, #b9744f 72%, #e0a062 100%);
+  background: transparent;      /* seul le chat est dessiné dessus */
 }
+
+/* Barre de menus macOS */
+.menubar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 3;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(20, 18, 26, 0.34);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.menubar .mb-left { display: flex; align-items: center; gap: 16px; }
+.menubar .mb-left .apple { font-size: 13px; }
+.menubar .mb-left b { font-weight: 700; }
+.menubar .mb-left span:not(.apple) { color: rgba(255, 255, 255, 0.8); }
+.menubar .mb-right { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.88); }
+
+/* Notch / Dynamic-Island cliPet */
+.notch {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  width: min(58%, 540px);
+  background: #0b0b0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+  border-radius: 0 0 20px 20px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+.notch-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 4px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.92);
+}
+.notch-row + .notch-row { border-top: 1px solid rgba(255, 255, 255, 0.05); }
+.notch-row .muted { color: var(--text-muted); }
+.notch-row .grow { flex: 1; }
+.notch-row.head { padding-bottom: 11px; }
+.notch-cat { width: 26px; height: 26px; image-rendering: pixelated; }
+.notch-row.head .ni-main { display: flex; flex-direction: column; line-height: 1.25; }
+.notch-row.head .ni-main .sub { font-size: 11px; color: var(--text-muted); }
+.notch .bullet { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.notch .bullet.o { background: var(--accent); }
+.notch .bullet.b { background: #5b9dff; }
+.notch .bullet.g { background: var(--success); }
+.notch .tag {
+  font-family: var(--pixel);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+.notch .tag.on { background: var(--accent-soft); color: var(--accent); }
 .stage-hint {
   font-family: var(--pixel);
   font-size: 13px;
