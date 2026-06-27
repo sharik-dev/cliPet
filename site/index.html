@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cliPet — un chat pixel qui vit sur ton Mac</title>
+  <meta name="description" content="cliPet : un compagnon pixel-art natif macOS qui se balade en bas de ton écran, chasse ton curseur et garde ton presse-papier. Léger, local, adorable." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ============ NAV ============ -->
+  <nav class="nav">
+    <div class="wrap">
+      <a class="logo" href="#top"><canvas data-sprite="sit" width="33" height="33"></canvas> CLIPET</a>
+      <div class="nav-links">
+        <a href="#features">Fonctionnalités</a>
+        <a href="#pricing">Tarif</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-primary btn-sm" href="#pricing"><span class="apple"></span> Télécharger</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ============ HERO ============ -->
+  <header class="hero" id="top">
+    <div class="wrap">
+      <h1>Un chat pixel<br>qui vit sur ton Mac</h1>
+      <p class="lead">
+        Il se balade en bas de ton écran, dort, et <strong>chasse ton curseur</strong>.
+        Natif, ultra-léger, 100&nbsp;% local.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#pricing"><span class="apple"></span> Télécharger gratuitement</a>
+        <a class="btn btn-ghost" href="#features">Voir ce qu'il sait faire</a>
+      </div>
+
+      <!-- Démo interactive : le vrai chat de l'app -->
+      <div class="stage">
+        <div class="stage-bar">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="title">cliPet — vit dans ta barre de menus</span>
+          <span class="clock">Sun 12:15</span>
+        </div>
+        <canvas id="playground" width="1840" height="520"></canvas>
+      </div>
+      <p class="stage-hint">↑ <span class="accent">bouge ta souris</span> dans le cadre — il te suit pour de vrai</p>
+
+      <p class="compat">macOS&nbsp;13+ · Apple&nbsp;Silicon&nbsp;&amp;&nbsp;Intel · &lt;&nbsp;50&nbsp;Mo&nbsp;RAM</p>
+    </div>
+  </header>
+
+  <!-- ============ FEATURES ============ -->
+  <section class="block" id="features">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <div class="eyebrow">Fonctionnalités</div>
+        <h2>Petit, mais bien vivant</h2>
+        <p>Tout ce qu'un compagnon de bureau doit savoir faire — et rien qui te ralentisse.</p>
+      </div>
+      <div class="features">
+        <div class="feature reveal"><div class="ico"><canvas data-icon="menubar"></canvas></div><h3>Dans la barre de menus</h3><p>Zéro fenêtre, toujours là, jamais dans le chemin. Un clic pour tout régler.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="paw"></canvas></div><h3>Animations pixel</h3><p>Il marche, court, s'assoit, dort, bondit et cligne des yeux. Fait main, image par image.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="cursor"></canvas></div><h3>Chasse le curseur</h3><p>Lâche la pelote : il la poursuit à travers l'écran et lui saute dessus.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="clipboard"></canvas></div><h3>Presse-papier</h3><p>Historique de ton clipboard intégré, accessible d'un seul clic. Pratique au quotidien.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="palette"></canvas></div><h3>Skins personnalisables</h3><p>Change la robe et le style du chat. Plusieurs skins inclus, d'autres à venir.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="pencil"></canvas></div><h3>Éditeur de sprites</h3><p>Dessine tes propres animations pixel directement dans l'app. Ton chat, tes règles.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="speaker"></canvas></div><h3>Sons rétro</h3><p>De petits bruitages 8-bit pour chaque action. Désactivables quand tu veux le calme.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="chip"></canvas></div><h3>100&nbsp;% natif</h3><p>Swift &amp; AppKit. Pas d'Electron, moins de 50&nbsp;Mo de RAM. Rapide et discret.</p></div>
+        <div class="feature reveal"><div class="ico"><canvas data-icon="lock"></canvas></div><h3>Tout reste local</h3><p>Aucun cloud, aucun compte, aucune télémétrie. Ce qui se passe sur ton Mac y reste.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section class="block" id="pricing" style="background:var(--bg-soft);">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <div class="eyebrow">Tarif</div>
+        <h2>Adopte-le aujourd'hui</h2>
+        <p>Un seul achat, à toi pour toujours. Mises à jour comprises.</p>
+      </div>
+      <div class="price-card reveal">
+        <div class="price">Gratuit</div>
+        <div class="price-sub">pendant le lancement — bientôt payant</div>
+        <ul class="checks">
+          <li>Le compagnon pixel complet (marche, sommeil, chasse)</li>
+          <li>Gestionnaire de presse-papier intégré</li>
+          <li>Skins &amp; éditeur de sprites</li>
+          <li>Sons rétro 8-bit</li>
+          <li>Natif Swift — moins de 50&nbsp;Mo de RAM</li>
+        </ul>
+        <a class="btn btn-primary" href="#"><span class="apple"></span> Télécharger pour macOS</a>
+        <p class="price-note">Un souci ? <a href="#">Écris-nous</a></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section class="block" id="faq">
+    <div class="wrap">
+      <div class="section-head center reveal">
+        <div class="eyebrow">FAQ</div>
+        <h2>Questions fréquentes</h2>
+      </div>
+      <div class="faq reveal">
+        <details class="qa"><summary><button type="button">cliPet ralentit-il mon Mac ?<span class="plus">+</span></button></summary><div class="answer"><p>Non. C'est une app native Swift qui consomme moins de 50&nbsp;Mo de RAM et un CPU négligeable. Pas d'Electron, pas de navigateur caché.</p></div></details>
+        <details class="qa"><summary><button type="button">Mes données partent-elles quelque part ?<span class="plus">+</span></button></summary><div class="answer"><p>Jamais. Tout reste sur ta machine : aucun cloud, aucun compte, aucune télémétrie. L'historique du presse-papier ne quitte pas ton Mac.</p></div></details>
+        <details class="qa"><summary><button type="button">Compatible avec les Mac Intel ?<span class="plus">+</span></button></summary><div class="answer"><p>Oui. cliPet tourne sur Apple Silicon (M1 et +) comme sur les Mac Intel, à partir de macOS&nbsp;13.</p></div></details>
+        <details class="qa"><summary><button type="button">Le chat gêne-t-il quand je travaille ?<span class="plus">+</span></button></summary><div class="answer"><p>Il vit en bas de l'écran et ne capte pas tes clics. Tu peux le mettre en pause ou le cacher d'un clic depuis la barre de menus.</p></div></details>
+        <details class="qa"><summary><button type="button">Comment le désinstaller ?<span class="plus">+</span></button></summary><div class="answer"><p>Glisse simplement l'app dans la corbeille. Aucun fichier système, aucun résidu.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA FINAL ============ -->
+  <section class="final">
+    <div class="wrap">
+      <h2>Prêt à adopter ton chat&nbsp;?</h2>
+      <p>Il t'attend déjà en bas de l'écran.</p>
+      <a class="btn btn-primary" href="#"><span class="apple"></span> Télécharger gratuitement</a>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="footer">
+    <div class="wrap">
+      <div class="grid">
+        <div class="brand-col">
+          <div class="brand">cliPet</div>
+          <p>Un chat pixel qui vit sur ton Mac.</p>
+          <div class="social">
+            <a href="#" aria-label="X / Twitter">𝕏</a>
+            <a href="#" aria-label="GitHub">GitHub</a>
+          </div>
+        </div>
+        <div class="col">
+          <h4>PRODUIT</h4>
+          <a href="#pricing">Télécharger</a>
+          <a href="#features">Fonctionnalités</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="col">
+          <h4>LÉGAL</h4>
+          <a href="#">Confidentialité</a>
+          <a href="#">Mentions légales</a>
+        </div>
+      </div>
+      <div class="copyright">© 2026 cliPet · fait avec ❤ et beaucoup de pixels</div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
