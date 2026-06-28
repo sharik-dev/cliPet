@@ -37,6 +37,23 @@
     .report .pn { color:var(--accent2); }
     .report .rs { color:var(--text); }
     .report .dt { color:var(--dim); font-size:11px; }
+    .kpis { display:flex; gap:14px; margin-bottom:20px; flex-wrap:wrap; }
+    .kpi { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:14px 20px; min-width:130px; }
+    .kpi .v { font-size:24px; font-weight:700; color:var(--accent2); }
+    .kpi .l { font-size:11px; color:var(--dim); }
+    .funnels { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+    @media (max-width:720px){ .funnels{ grid-template-columns:1fr; } }
+    .funnel h3 { font-size:13px; margin-bottom:12px; color:var(--text); letter-spacing:1px; }
+    .step { margin-bottom:10px; }
+    .step .row { display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; }
+    .step .row .cv { color:var(--accent2); }
+    .bar { height:22px; background:#0a0c0f; border:1px solid var(--border); border-radius:5px; overflow:hidden; }
+    .bar > span { display:block; height:100%; background:linear-gradient(90deg,var(--accent2),#2d6e6e); }
+    .drop { font-size:10px; color:var(--accent); margin-top:2px; }
+    .evlist { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; }
+    .ev { display:flex; justify-content:space-between; background:var(--panel); border:1px solid var(--border); border-radius:6px; padding:8px 12px; font-size:12px; }
+    .ev .n { color:var(--dim); } .ev .c { color:var(--text); font-weight:600; }
+    .sec-h { font-size:12px; color:var(--dim); letter-spacing:1px; margin:18px 0 10px; text-transform:uppercase; }
     .lang { display:flex; gap:6px; }
     .lang button { background:var(--panel); border:1px solid var(--border); color:var(--dim); font:inherit; font-size:12px; padding:4px 10px; border-radius:4px; cursor:pointer; }
     .lang button.on { color:var(--accent2); border-color:var(--accent2); }
@@ -52,7 +69,8 @@
       </div>
     </header>
     <div class="tabs">
-      <button data-tab="live" class="on" data-i18n="tabLive">Live</button>
+      <button data-tab="analytics" class="on" data-i18n="tabAnalytics">Analytics</button>
+      <button data-tab="live" data-i18n="tabLive">Live</button>
       <button data-tab="removed" data-i18n="tabRemoved">Removed</button>
       <button data-tab="reports" data-i18n="tabReports">Reports</button>
     </div>
@@ -62,12 +80,16 @@
 
   <script>
     const I18N = {
-      en: { title:"cliPet Moderation", tabLive:"Live", tabRemoved:"Removed", tabReports:"Reports",
+      en: { title:"cliPet Moderation", tabAnalytics:"Analytics", tabLive:"Live", tabRemoved:"Removed", tabReports:"Reports",
             remove:"Remove", restore:"Restore", downloads:"downloads", reports:"reports",
-            empty:"Nothing here.", loaded:"%n pet(s)", loadedR:"%n report(s)" },
-      fr: { title:"Modération cliPet", tabLive:"En ligne", tabRemoved:"Retirés", tabReports:"Signalements",
+            empty:"Nothing here.", loaded:"%n pet(s)", loadedR:"%n report(s)",
+            funnelSite:"Site funnel", funnelApp:"App funnel", topEvents:"Top events",
+            visitors:"Visitors", eventsKpi:"Events", last:"last %n days", ofPrev:"of previous" },
+      fr: { title:"Modération cliPet", tabAnalytics:"Analytics", tabLive:"En ligne", tabRemoved:"Retirés", tabReports:"Signalements",
             remove:"Retirer", restore:"Republier", downloads:"téléch.", reports:"signal.",
-            empty:"Rien ici.", loaded:"%n pet(s)", loadedR:"%n signalement(s)" },
+            empty:"Rien ici.", loaded:"%n pet(s)", loadedR:"%n signalement(s)",
+            funnelSite:"Tunnel site", funnelApp:"Tunnel app", topEvents:"Événements",
+            visitors:"Visiteurs", eventsKpi:"Événements", last:"%n derniers jours", ofPrev:"du précédent" },
     };
     let lang = localStorage.getItem("clipet.mod.lang") || (navigator.language.startsWith("fr") ? "fr" : "en");
     let tab = "live";
@@ -133,6 +155,7 @@
       const content = document.getElementById("content");
       const meta = document.getElementById("meta");
       content.innerHTML = "";
+      if (tab === "analytics") { await loadAnalytics(content, meta); return; }
       if (tab === "reports") {
         const reports = await api("/api/admin/reports");
         meta.textContent = T("loadedR").replace("%n", reports.length);
@@ -156,6 +179,40 @@
       content.appendChild(grid);
     }
 
+    function funnelHTML(titleKey, steps) {
+      const first = (steps[0] && steps[0].count) || 0;
+      let rows = "";
+      steps.forEach((s, i) => {
+        const w = first ? Math.round((s.count / first) * 100) : 0;
+        const prev = i > 0 ? steps[i-1].count : null;
+        const conv = (prev && prev > 0) ? Math.round((s.count / prev) * 100) : null;
+        const drop = (prev && prev > 0 && s.count < prev) ? (prev - s.count) : 0;
+        rows +=
+          `<div class="step"><div class="row"><span>${esc(s.label)}</span>` +
+          `<span><b>${s.count}</b>${conv!==null?` <span class="cv">${conv}% ${T("ofPrev")}</span>`:``}</span></div>` +
+          `<div class="bar"><span style="width:${w}%"></span></div>` +
+          (drop>0?`<div class="drop">↓ ${drop} dropped</div>`:``) + `</div>`;
+      });
+      return `<div class="funnel"><h3>${T(titleKey)}</h3>${rows}</div>`;
+    }
+
+    async function loadAnalytics(content, meta) {
+      const d = await api("/api/admin/analytics/overview?days=30");
+      meta.textContent = T("last").replace("%n", d.days);
+      let html = `<div class="kpis">` +
+        `<div class="kpi"><div class="v">${d.totals.visitors||0}</div><div class="l">${T("visitors")}</div></div>` +
+        `<div class="kpi"><div class="v">${d.totals.events||0}</div><div class="l">${T("eventsKpi")}</div></div>` +
+        `</div>`;
+      html += `<div class="funnels">` + funnelHTML("funnelSite", d.funnels.site) +
+              funnelHTML("funnelApp", d.funnels.app) + `</div>`;
+      html += `<div class="sec-h">${T("topEvents")}</div><div class="evlist">`;
+      (d.events||[]).forEach(e => {
+        html += `<div class="ev"><span class="n">${esc(e.name)}</span><span class="c">${e.count}</span></div>`;
+      });
+      html += `</div>`;
+      content.innerHTML = html;
+    }
+
     document.addEventListener("click", async (e) => {
       const b = e.target.closest("button[data-act]");
       if (!b) return;
@@ -173,7 +230,8 @@
       lang=l; localStorage.setItem("clipet.mod.lang",l);
       document.documentElement.lang=l;
       document.querySelectorAll("[data-i18n]").forEach(el=>{ const k=el.getAttribute("data-i18n"); if(I18N[l][k]) el.textContent=I18N[l][k]; });
-      document.querySelectorAll(".tabs button").forEach(b=>{ const k=b.dataset.tab==="live"?"tabLive":b.dataset.tab==="removed"?"tabRemoved":"tabReports"; b.textContent=I18N[l][k]; });
+      const tabKey={analytics:"tabAnalytics",live:"tabLive",removed:"tabRemoved",reports:"tabReports"};
+      document.querySelectorAll(".tabs button").forEach(b=>{ b.textContent=I18N[l][tabKey[b.dataset.tab]]; });
       document.querySelectorAll(".lang button").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));
       load();
     }

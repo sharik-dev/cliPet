@@ -48,7 +48,30 @@ db.exec(`
     created_at TEXT NOT NULL
   );
   CREATE INDEX IF NOT EXISTS idx_pets_status ON pets(status, created_at DESC);
+  CREATE TABLE IF NOT EXISTS events (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT NOT NULL,            -- ex. site_visit, app_paywall_shown
+    source     TEXT NOT NULL DEFAULT 'app',  -- site | app
+    anon_id    TEXT,                     -- identifiant anonyme stable (pas de PII)
+    props      TEXT,                     -- JSON libre
+    created_at TEXT NOT NULL
+  );
+  CREATE INDEX IF NOT EXISTS idx_events_name ON events(name, created_at DESC);
+  CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at DESC);
 `);
+
+// Étapes du tunnel de vente (compte de visiteurs anonymes distincts par étape).
+const SITE_FUNNEL = [
+  { event: 'site_visit',          label: 'Visit' },
+  { event: 'site_pricing_view',   label: 'Viewed pricing' },
+  { event: 'site_download_click', label: 'Clicked download' },
+];
+const APP_FUNNEL = [
+  { event: 'app_first_launch',  label: 'First launch' },
+  { event: 'app_paywall_shown', label: 'Saw paywall' },
+  { event: 'app_buy_click',     label: 'Clicked buy' },
+  { event: 'app_activated',     label: 'Activated licence' },
+];
 
 const app = express();
 app.use(cors());
@@ -185,6 +208,70 @@ app.post('/api/admin/pets/:id/remove', (req, res) => {
 app.post('/api/admin/pets/:id/restore', (req, res) => {
   db.prepare(`UPDATE pets SET status='live' WHERE id=?`).run(req.params.id);
   res.json({ ok: true });
+});
+
+// ===================== ANALYTICS =====================
+
+// Ingestion publique (site + app). Accepte un event ou un lot {events:[...]}.
+const insertEvent = db.prepare(
+  `INSERT INTO events (name, source, anon_id, props, created_at) VALUES (?, ?, ?, ?, ?)`
+);
+app.post('/api/events', (req, res) => {
+  if (!rateLimit('ev:' + ipOf(req), 600, 3600_000))
+    return res.status(429).json({ error: 'rate limited' });
+  const now = new Date().toISOString();
+  const batch = Array.isArray(req.body && req.body.events) ? req.body.events : [req.body];
+  const tx = db.transaction((items) => {
+    for (const e of items) {
+      if (!e || typeof e.name !== 'string') continue;
+      const name = e.name.slice(0, 60);
+      const source = (e.source === 'site' || e.source === 'app') ? e.source : 'app';
+      const anon = e.anonId ? String(e.anonId).slice(0, 64) : null;
+      const props = e.props ? JSON.stringify(e.props).slice(0, 2000) : null;
+      insertEvent.run(name, source, anon, props, now);
+    }
+  });
+  try { tx(batch); res.json({ ok: true }); }
+  catch { res.status(400).json({ error: 'bad payload' }); }
+});
+
+// ----- Admin (protégé par nginx auth_request → SSO) -----
+
+function funnelCounts(steps, since) {
+  const q = db.prepare(
+    `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events WHERE name=? AND created_at>=?`
+  );
+  return steps.map(s => ({ ...s, count: q.get(s.event, since).c }));
+}
+
+app.get('/api/admin/analytics/overview', (req, res) => {
+  const days = Math.min(parseInt(req.query.days) || 30, 365);
+  const since = new Date(Date.now() - days * 86400_000).toISOString();
+
+  const events = db.prepare(
+    `SELECT name, COUNT(*) AS count FROM events WHERE created_at>=?
+       GROUP BY name ORDER BY count DESC LIMIT 50`
+  ).all(since);
+
+  const daily = db.prepare(
+    `SELECT substr(created_at,1,10) AS date, COUNT(*) AS count FROM events
+       WHERE created_at>=? GROUP BY date ORDER BY date`
+  ).all(since);
+
+  const totals = db.prepare(
+    `SELECT COUNT(*) AS events, COUNT(DISTINCT anon_id) AS visitors FROM events WHERE created_at>=?`
+  ).get(since);
+
+  res.json({
+    days,
+    totals,
+    funnels: {
+      site: funnelCounts(SITE_FUNNEL, since),
+      app:  funnelCounts(APP_FUNNEL, since),
+    },
+    events,
+    daily,
+  });
 });
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
