@@ -32,6 +32,9 @@
 		BB0000000000000000000021 /* UpdaterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000021 /* UpdaterController.swift */; };
 		BB0000000000000000000022 /* LicenseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000022 /* LicenseManager.swift */; };
 		BB0000000000000000000023 /* LicenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000023 /* LicenseView.swift */; };
+		BB0000000000000000000024 /* MarketplaceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000024 /* MarketplaceClient.swift */; };
+		BB0000000000000000000025 /* MarketplaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000025 /* MarketplaceView.swift */; };
+		BB0000000000000000000026 /* PetPackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000026 /* PetPackage.swift */; };
 		DEAF279BFEDFCB8AAEAE1553 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */; };
 		E5DF10AD861F220F8B45E3F3 /* cliPetApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65156133E047B9F9AF0903C3 /* cliPetApp.swift */; };
 /* End PBXBuildFile section */
@@ -63,6 +66,9 @@
 		AA0000000000000000000021 /* UpdaterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterController.swift; sourceTree = "<group>"; };
 		AA0000000000000000000022 /* LicenseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseManager.swift; sourceTree = "<group>"; };
 		AA0000000000000000000023 /* LicenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LicenseView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000024 /* MarketplaceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketplaceClient.swift; sourceTree = "<group>"; };
+		AA0000000000000000000025 /* MarketplaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketplaceView.swift; sourceTree = "<group>"; };
+		AA0000000000000000000026 /* PetPackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetPackage.swift; sourceTree = "<group>"; };
 		FE777EC5B430A4B5FD97E478 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -121,6 +127,9 @@
 				AA0000000000000000000021 /* UpdaterController.swift */,
 				AA0000000000000000000022 /* LicenseManager.swift */,
 				AA0000000000000000000023 /* LicenseView.swift */,
+				AA0000000000000000000024 /* MarketplaceClient.swift */,
+				AA0000000000000000000025 /* MarketplaceView.swift */,
+				AA0000000000000000000026 /* PetPackage.swift */,
 				0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */,
 				C4C7EB5F0BE22CA67AAC8555 /* Preview Content */,
 			);
@@ -232,6 +241,9 @@
 				BB0000000000000000000021 /* UpdaterController.swift in Sources */,
 				BB0000000000000000000022 /* LicenseManager.swift in Sources */,
 				BB0000000000000000000023 /* LicenseView.swift in Sources */,
+				BB0000000000000000000024 /* MarketplaceClient.swift in Sources */,
+				BB0000000000000000000025 /* MarketplaceView.swift in Sources */,
+				BB0000000000000000000026 /* PetPackage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

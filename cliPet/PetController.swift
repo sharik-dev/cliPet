@@ -43,6 +43,7 @@ final class PetController {
     private var licenseWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var clipResignObserver: NSObjectProtocol?
+    private var clipSizeObserver: NSObjectProtocol?
 
     /// Le pet est-il masqué (caché par l'utilisateur) ?
     private(set) var isPetHidden = false
@@ -154,11 +155,15 @@ final class PetController {
             onClose: { [weak self] in self?.hideClipboardPanel() },
             onClearHistory: { [weak self] in self?.showClearHistoryConfirm() })
         let host = NSHostingView(rootView: view)
+        if #available(macOS 13.0, *) {
+            host.sizingOptions = [.intrinsicContentSize]
+        }
         host.layoutSubtreeIfNeeded()
         let fit = host.fittingSize
-        host.frame = NSRect(x: 0, y: 0, width: max(300, fit.width), height: max(160, fit.height))
+        let initialSize = NSSize(width: max(300, fit.width), height: max(160, fit.height))
+        host.frame = NSRect(origin: .zero, size: initialSize)
 
-        let panel = FloatingPanel(contentRect: host.frame,
+        let panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: initialSize),
             styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
         configure(panel)
         panel.contentView = host
@@ -166,6 +171,16 @@ final class PetController {
         repositionClipPanel()
         panel.makeKeyAndOrderFront(nil)
         engine.isPaused = true
+
+        host.postsFrameChangedNotifications = true
+        clipSizeObserver = NotificationCenter.default.addObserver(
+            forName: NSView.frameDidChangeNotification, object: host, queue: .main
+        ) { [weak self, weak panel, weak host] _ in
+            guard let panel, let host else { return }
+            let newSize = NSSize(width: max(300, host.frame.width), height: max(160, host.frame.height))
+            panel.setContentSize(newSize)
+            self?.repositionClipPanel()
+        }
 
         clipResignObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResignKeyNotification, object: panel, queue: .main
@@ -175,6 +190,9 @@ final class PetController {
     private func hideClipboardPanel() {
         if let obs = clipResignObserver {
             NotificationCenter.default.removeObserver(obs); clipResignObserver = nil
+        }
+        if let obs = clipSizeObserver {
+            NotificationCenter.default.removeObserver(obs); clipSizeObserver = nil
         }
         clipPanel?.orderOut(nil)
         clipPanel = nil

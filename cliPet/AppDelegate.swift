@@ -130,13 +130,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                      action: #selector(clearHistory), keyEquivalent: "")
             .target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: l10n.menuSkinManager,
-                     action: #selector(openSkins), keyEquivalent: "k")
-            .target = self
-        menu.addItem(withTitle: l10n.menuEditor,
-                     action: #selector(openEditor), keyEquivalent: "e")
-            .target = self
-        menu.addItem(.separator())
         menu.addItem(withTitle: l10n.menuCheckUpdates,
                      action: #selector(checkForUpdates), keyEquivalent: "")
             .target = self

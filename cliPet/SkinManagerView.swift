@@ -9,6 +9,9 @@ struct SkinManagerView: View {
     @ObservedObject private var store = SpriteStore.shared
 
     @State private var skins: [Skin] = SkinCatalog.all()
+    @State private var tab: SkinTab = .mine
+
+    enum SkinTab { case mine, market }
 
     private var palette: PixelPalette {
         PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
@@ -32,25 +35,50 @@ struct SkinManagerView: View {
             .background(PixelTheme.panel)
             .overlay(Rectangle().fill(PixelTheme.border).frame(height: 2), alignment: .bottom)
 
-            ScrollView {
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
-                          spacing: 12) {
-                    ForEach(skins) { skin in
-                        skinCard(skin)
-                            .contextMenu {
-                                Button(l10n.skinRename) { showRenameAlert(for: skin) }
-                            }
-                    }
-                }
-                .padding(16)
-            }
+            tabBar
 
-            footer
+            if tab == .mine {
+                ScrollView {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 2),
+                              spacing: 12) {
+                        ForEach(skins) { skin in
+                            skinCard(skin)
+                                .contextMenu {
+                                    Button(l10n.skinRename) { showRenameAlert(for: skin) }
+                                    Button(l10n.skinExport) { exportPet(skin) }
+                                }
+                        }
+                    }
+                    .padding(16)
+                }
+                footer
+            } else {
+                MarketplaceView(l10n: l10n) { skins = SkinCatalog.all() }
+                    .environmentObject(settings)
+            }
         }
         .frame(width: 440, height: 540)
         .background(PixelTheme.bg)
         .foregroundStyle(PixelTheme.text)
         .onAppear { skins = SkinCatalog.all() }
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            tabButton(l10n.skinTabMine, .mine)
+            tabButton(l10n.skinTabMarket, .market)
+        }
+        .overlay(Rectangle().fill(PixelTheme.border).frame(height: 2), alignment: .bottom)
+    }
+
+    private func tabButton(_ label: String, _ value: SkinTab) -> some View {
+        Button { tab = value } label: {
+            Text(label).font(PixelTheme.font(11)).tracking(1)
+                .frame(maxWidth: .infinity).padding(.vertical, 9)
+                .foregroundStyle(tab == value ? PixelTheme.accent : PixelTheme.dim)
+                .background(tab == value ? PixelTheme.panelHi : PixelTheme.panel)
+        }
+        .buttonStyle(.plain)
     }
 
     private func skinCard(_ skin: Skin) -> some View {
@@ -89,14 +117,56 @@ struct SkinManagerView: View {
 
     private var footer: some View {
         VStack(spacing: 6) {
-            Button(l10n.skinOpenFolder) { openSkinsFolder() }
-                .buttonStyle(PixelButtonStyle())
+            HStack(spacing: 8) {
+                Button(l10n.skinAddPet) { importPet() }
+                    .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+                Button(l10n.skinOpenFolder) { openSkinsFolder() }
+                    .buttonStyle(PixelButtonStyle())
+            }
             Text(l10n.skinDropHint)
                 .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
                 .multilineTextAlignment(.center)
         }
         .padding(12)
         .overlay(Rectangle().fill(PixelTheme.border).frame(height: 2), alignment: .top)
+    }
+
+    // MARK: - Import / Export (.clipet)
+
+    private func importPet() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = l10n.skinAddPet.replacingOccurrences(of: "…", with: "")
+        panel.begin { resp in
+            guard resp == .OK, let url = panel.url else { return }
+            do {
+                let pkg = try PetPackage.load(from: url)
+                pkg.install()
+                skins = SkinCatalog.all()
+                notify(l10n.skinImported)
+            } catch {
+                notify((error as? LocalizedError)?.errorDescription ?? l10n.skinImportError, isError: true)
+            }
+        }
+    }
+
+    private func exportPet(_ skin: Skin) {
+        let pkg = PetPackage.forSkin(skin, settings: settings)
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "\(skin.name).\(PetPackage.fileExtension)"
+        panel.begin { resp in
+            guard resp == .OK, let url = panel.url else { return }
+            try? pkg.encoded().write(to: url)
+        }
+    }
+
+    private func notify(_ text: String, isError: Bool = false) {
+        let alert = NSAlert()
+        alert.messageText = text
+        alert.alertStyle = isError ? .warning : .informational
+        alert.runModal()
     }
 
     private func openSkinsFolder() {

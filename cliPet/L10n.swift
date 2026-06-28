@@ -150,6 +150,26 @@ struct L10n {
     let licenseContinueTrial: String
     let licenseQuit: String
 
+    // Marketplace
+    let skinTabMine: String
+    let skinTabMarket: String
+    let marketShare: String
+    let marketShareTitle: String
+    let marketShareBody: String
+    let marketShared: String
+    let marketDownload: String
+    let marketDownloaded: String
+    let marketWorking: String
+    let marketReport: String
+    let marketReported: String
+    let marketEmpty: String
+    let marketError: String
+    let marketRetry: String
+    let skinAddPet: String
+    let skinExport: String
+    let skinImported: String
+    let skinImportError: String
+
     func keepItems(_ n: Int) -> String { String(format: keepItemsFmt, n) }
     func licenseTrial(_ n: Int) -> String { String(format: licenseTrialFmt, n) }
     func editorBgTolerance(_ n: Int) -> String { String(format: editorBgToleranceFmt, n) }
@@ -246,7 +266,17 @@ struct L10n {
                 licenseActive: "Licence active — thank you!",
                 licenseInvalid: "Invalid licence key. Please check and try again.",
                 licenseContinueTrial: "Continue trial",
-                licenseQuit: "Quit cliPet"
+                licenseQuit: "Quit cliPet",
+                skinTabMine: "My skins", skinTabMarket: "Marketplace",
+                marketShare: "Share my pet", marketShareTitle: "Share your pet",
+                marketShareBody: "Give your pet a name. It will be published to the marketplace for everyone.",
+                marketShared: "Shared! 🎉", marketDownload: "Download",
+                marketDownloaded: "Added to your skins ✓", marketWorking: "…",
+                marketReport: "Report", marketReported: "Reported. Thanks.",
+                marketEmpty: "No pets yet. Be the first to share!",
+                marketError: "Something went wrong.", marketRetry: "Retry",
+                skinAddPet: "Add a pet…", skinExport: "Export pet…",
+                skinImported: "Pet imported ✓", skinImportError: "Could not import this pet."
             )
         case .zh:
             return L10n(
@@ -322,7 +352,17 @@ struct L10n {
                 licenseActive: "许可证已激活 — 谢谢！",
                 licenseInvalid: "许可证密钥无效，请检查后重试。",
                 licenseContinueTrial: "继续试用",
-                licenseQuit: "退出 cliPet"
+                licenseQuit: "退出 cliPet",
+                skinTabMine: "我的皮肤", skinTabMarket: "市场",
+                marketShare: "分享我的宠物", marketShareTitle: "分享你的宠物",
+                marketShareBody: "给你的宠物起个名字，它将发布到市场供所有人使用。",
+                marketShared: "已分享！🎉", marketDownload: "下载",
+                marketDownloaded: "已添加到你的皮肤 ✓", marketWorking: "…",
+                marketReport: "举报", marketReported: "已举报，谢谢。",
+                marketEmpty: "还没有宠物。来做第一个分享的人吧！",
+                marketError: "出错了。", marketRetry: "重试",
+                skinAddPet: "添加宠物…", skinExport: "导出宠物…",
+                skinImported: "宠物已导入 ✓", skinImportError: "无法导入此宠物。"
             )
         case .hi:
             return L10n(
@@ -398,7 +438,17 @@ struct L10n {
                 licenseActive: "लाइसेंस सक्रिय — धन्यवाद!",
                 licenseInvalid: "अमान्य लाइसेंस कुंजी। कृपया जाँचें और पुनः प्रयास करें।",
                 licenseContinueTrial: "ट्रायल जारी रखें",
-                licenseQuit: "cliPet बंद करें"
+                licenseQuit: "cliPet बंद करें",
+                skinTabMine: "मेरी स्किन", skinTabMarket: "मार्केटप्लेस",
+                marketShare: "मेरा पेट साझा करें", marketShareTitle: "अपना पेट साझा करें",
+                marketShareBody: "अपने पेट को एक नाम दें। यह सभी के लिए मार्केटप्लेस पर प्रकाशित होगा।",
+                marketShared: "साझा किया गया! 🎉", marketDownload: "डाउनलोड",
+                marketDownloaded: "आपकी स्किन में जोड़ा गया ✓", marketWorking: "…",
+                marketReport: "रिपोर्ट करें", marketReported: "रिपोर्ट किया गया। धन्यवाद।",
+                marketEmpty: "अभी कोई पेट नहीं। साझा करने वाले पहले बनें!",
+                marketError: "कुछ गलत हो गया।", marketRetry: "पुनः प्रयास करें",
+                skinAddPet: "पेट जोड़ें…", skinExport: "पेट निर्यात करें…",
+                skinImported: "पेट आयात किया गया ✓", skinImportError: "इस पेट को आयात नहीं किया जा सका।"
             )
         case .es:
             return L10n(
@@ -474,7 +524,17 @@ struct L10n {
                 licenseActive: "Licencia activa — ¡gracias!",
                 licenseInvalid: "Clave de licencia no válida. Compruébala e inténtalo de nuevo.",
                 licenseContinueTrial: "Continuar prueba",
-                licenseQuit: "Salir de cliPet"
+                licenseQuit: "Salir de cliPet",
+                skinTabMine: "Mis skins", skinTabMarket: "Mercado",
+                marketShare: "Compartir mi mascota", marketShareTitle: "Comparte tu mascota",
+                marketShareBody: "Dale un nombre a tu mascota. Se publicará en el mercado para todos.",
+                marketShared: "¡Compartida! 🎉", marketDownload: "Descargar",
+                marketDownloaded: "Añadida a tus skins ✓", marketWorking: "…",
+                marketReport: "Reportar", marketReported: "Reportada. Gracias.",
+                marketEmpty: "Aún no hay mascotas. ¡Sé el primero en compartir!",
+                marketError: "Algo salió mal.", marketRetry: "Reintentar",
+                skinAddPet: "Añadir mascota…", skinExport: "Exportar mascota…",
+                skinImported: "Mascota importada ✓", skinImportError: "No se pudo importar esta mascota."
             )
         case .fr:
             return L10n(
@@ -550,7 +610,17 @@ struct L10n {
                 licenseActive: "Licence active — merci !",
                 licenseInvalid: "Clé de licence invalide. Vérifiez et réessayez.",
                 licenseContinueTrial: "Continuer l'essai",
-                licenseQuit: "Quitter cliPet"
+                licenseQuit: "Quitter cliPet",
+                skinTabMine: "Mes skins", skinTabMarket: "Marketplace",
+                marketShare: "Partager mon pet", marketShareTitle: "Partagez votre pet",
+                marketShareBody: "Donnez un nom à votre pet. Il sera publié sur la marketplace pour tout le monde.",
+                marketShared: "Partagé ! 🎉", marketDownload: "Télécharger",
+                marketDownloaded: "Ajouté à vos skins ✓", marketWorking: "…",
+                marketReport: "Signaler", marketReported: "Signalé. Merci.",
+                marketEmpty: "Aucun pet pour l'instant. Soyez le premier à partager !",
+                marketError: "Une erreur est survenue.", marketRetry: "Réessayer",
+                skinAddPet: "Ajouter un pet…", skinExport: "Exporter le pet…",
+                skinImported: "Pet importé ✓", skinImportError: "Impossible d'importer ce pet."
             )
         case .ar:
             return L10n(
@@ -626,7 +696,17 @@ struct L10n {
                 licenseActive: "الترخيص مُفعَّل — شكرًا لك!",
                 licenseInvalid: "مفتاح ترخيص غير صالح. يرجى التحقق والمحاولة مرة أخرى.",
                 licenseContinueTrial: "متابعة التجربة",
-                licenseQuit: "إنهاء cliPet"
+                licenseQuit: "إنهاء cliPet",
+                skinTabMine: "سماتي", skinTabMarket: "المتجر",
+                marketShare: "شارك حيواني", marketShareTitle: "شارك حيوانك",
+                marketShareBody: "أعطِ حيوانك اسمًا. سيُنشر في المتجر ليستخدمه الجميع.",
+                marketShared: "تمت المشاركة! 🎉", marketDownload: "تنزيل",
+                marketDownloaded: "أُضيف إلى سماتك ✓", marketWorking: "…",
+                marketReport: "إبلاغ", marketReported: "تم الإبلاغ. شكرًا لك.",
+                marketEmpty: "لا توجد حيوانات بعد. كن أول من يشارك!",
+                marketError: "حدث خطأ ما.", marketRetry: "إعادة المحاولة",
+                skinAddPet: "إضافة حيوان…", skinExport: "تصدير الحيوان…",
+                skinImported: "تم استيراد الحيوان ✓", skinImportError: "تعذّر استيراد هذا الحيوان."
             )
         }
     }

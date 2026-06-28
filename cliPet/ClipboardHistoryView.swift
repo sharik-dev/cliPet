@@ -552,15 +552,10 @@ private struct ClipRow: View {
                 .frame(width: 18, height: 18)
                 .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
         case .image:
-            Group {
-                if let url = imageURL, let img = NSImage(contentsOf: url) {
-                    Image(nsImage: img).resizable().interpolation(.medium).scaledToFill()
-                } else {
-                    Image(systemName: "photo").foregroundStyle(PixelTheme.dim)
-                }
-            }
-            .frame(width: 26, height: 26)
-            .clipped()
+            Image(systemName: "photo.fill")
+                .font(.system(size: 14))
+                .foregroundStyle(PixelTheme.accent2)
+                .frame(width: 18)
             .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
         case .file:
             Image(systemName: "doc.fill")
