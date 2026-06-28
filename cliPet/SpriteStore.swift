@@ -16,10 +16,16 @@ final class SpriteStore: ObservableObject {
     @Published private(set) var customColors: [String: String] = [:]
     /// Couleurs ajoutées par l'utilisateur (chars hors palette de base), dans l'ordre.
     @Published private(set) var addedChars: [String] = []
+    /// Noms donnés aux couleurs : char -> nom (ex. "fourrure", "contour").
+    /// Ces noms deviennent des variables modifiables dans la gestion des couleurs.
+    @Published private(set) var colorNames: [String: String] = [:]
 
     private struct PaletteData: Codable {
         var customColors: [String: String]
         var addedChars: [String]
+        var colorNames: [String: String]?   // optionnel : compat anciens fichiers
+
+        enum CodingKeys: String, CodingKey { case customColors, addedChars, colorNames }
     }
 
     private init() {
@@ -80,6 +86,26 @@ final class SpriteStore: ObservableObject {
         scheduleSave()
     }
 
+    /// Nom donné à une couleur (nil si non nommée).
+    func colorName(for ch: Character) -> String? {
+        let n = colorNames[String(ch)]
+        return (n?.isEmpty == false) ? n : nil
+    }
+
+    /// Nomme une couleur (vide = retire le nom). Le nom devient une variable
+    /// modifiable dans la gestion des couleurs pour produire des variantes.
+    func setColorName(_ ch: Character, _ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmed.isEmpty { colorNames[String(ch)] = nil }
+        else { colorNames[String(ch)] = trimmed }
+        scheduleSave()
+    }
+
+    /// Caractères de palette qui portent un nom (= variables nommées), base + ajoutées.
+    var namedChars: [Character] {
+        (Self.baseChars + addedChars.map { Character($0) }).filter { colorName(for: $0) != nil }
+    }
+
     /// Ajoute une nouvelle couleur à la palette. Renvoie le caractère alloué.
     @discardableResult
     func addColor(_ color: Color) -> Character {
@@ -90,9 +116,27 @@ final class SpriteStore: ObservableObject {
         return ch
     }
 
+    /// Retire l'override de couleur d'un caractère (sans toucher au nom ni à addedChars).
+    func clearColor(_ ch: Character) {
+        guard customColors[String(ch)] != nil else { return }
+        customColors[String(ch)] = nil
+        scheduleSave()
+    }
+
+    /// Retire les overrides des couleurs de base (rôles) : ils masqueraient les coats.
+    func clearBaseOverrides() {
+        var changed = false
+        for ch in Self.baseChars where customColors[String(ch)] != nil {
+            customColors[String(ch)] = nil
+            changed = true
+        }
+        if changed { scheduleSave() }
+    }
+
     /// Retire une couleur ajoutée par l'utilisateur.
     func removeColor(_ ch: Character) {
         customColors[String(ch)] = nil
+        colorNames[String(ch)] = nil
         addedChars.removeAll { $0 == String(ch) }
         scheduleSave()
     }
@@ -134,7 +178,8 @@ final class SpriteStore: ObservableObject {
         guard let url = paletteURL(for: activeSkinId) else { return }
         try? FileManager.default.createDirectory(
             at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-        let payload = PaletteData(customColors: customColors, addedChars: addedChars)
+        let payload = PaletteData(customColors: customColors, addedChars: addedChars,
+                                  colorNames: colorNames)
         if let data = try? JSONEncoder().encode(payload) { try? data.write(to: url) }
     }
 
@@ -178,9 +223,11 @@ final class SpriteStore: ObservableObject {
               let payload = try? JSONDecoder().decode(PaletteData.self, from: data) else {
             customColors = [:]
             addedChars = []
+            colorNames = [:]
             return
         }
         customColors = payload.customColors
         addedChars = payload.addedChars
+        colorNames = payload.colorNames ?? [:]
     }
 }

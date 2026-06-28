@@ -2,11 +2,16 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var settings: PetSettings
+    @EnvironmentObject var clipboard: ClipboardManager
     @ObservedObject private var store = SpriteStore.shared
     @State private var tab: Tab = .pet
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
+    @State private var autoUpdate = UpdaterController.shared.automaticallyChecksForUpdates
     @State private var showLaunchHelp = false
+    @State private var showClearConfirm = false
     @State private var skins: [Skin] = SkinCatalog.all()
+    @State private var showSaveCoat = false
+    @State private var newCoatName = ""
 
     enum Tab { case pet, behavior }
 
@@ -87,24 +92,32 @@ struct SettingsView: View {
             PixelSectionHeader(title: l10n.sectionSkins)
             skinPicker
 
-            // 2) Couleurs / robes
+            // 2) Couleurs / robes (= variantes : même pet, couleurs différentes)
             PixelSectionHeader(title: l10n.sectionCoats)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
                       spacing: 8) {
-                ForEach(PetCatalog.presets) { preset in
-                    Button { settings.apply(preset) } label: {
+                ForEach(PetCatalog.presets + settings.customCoats) { preset in
+                    Button { applyCoat(preset) } label: {
                         PetSwatch(preset: preset, selected: isSelected(preset))
                     }
                     .buttonStyle(.plain)
+                    .contextMenu {
+                        if preset.id.hasPrefix("user-") {
+                            Button(role: .destructive) { settings.removeCoat(preset) } label: {
+                                Label(l10n.deleteVariant, systemImage: "trash")
+                            }
+                        }
+                    }
                 }
             }
-
+            // Custom Colors = rendu dynamique des couleurs nommées (variables).
+            // Éditer une couleur enregistre une variante par skin (via SpriteStore).
             PixelSectionHeader(title: l10n.sectionCustomColors)
-            colorRow(l10n.colorFur, $settings.bodyColor)
-            colorRow(l10n.colorBelly, $settings.bellyColor)
-            colorRow(l10n.colorStripes, $settings.stripeColor)
-            colorRow(l10n.colorEyes, $settings.eyeColor)
-            colorRow(l10n.colorNose, $settings.noseColor)
+            ForEach(variableChars, id: \.self) { customColorRow($0) }
+
+            Button(l10n.saveVariant) { showSaveCoat = true }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+                .popover(isPresented: $showSaveCoat, arrowEdge: .bottom) { saveCoatPopover }
 
             PixelSectionHeader(title: l10n.sectionSize)
             sliderRow(value: $settings.scale, range: 0.5...1.8, label: l10n.labelSize)
@@ -145,7 +158,7 @@ struct SettingsView: View {
             Text(skin.name).font(PixelTheme.font(10)).lineLimit(1)
                 .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
             if active {
-                Text("● ACTIF").font(PixelTheme.font(8)).foregroundStyle(PixelTheme.accent2)
+                Text(l10n.skinActive).font(PixelTheme.font(8)).foregroundStyle(PixelTheme.accent2)
             }
         }
         .padding(8)
@@ -164,19 +177,22 @@ struct SettingsView: View {
             PixelSectionHeader(title: l10n.sectionBehavior)
             toggleRow(l10n.toggleMischief, $settings.mischiefEnabled)
             toggleRow(l10n.toggleChaseCursor, $settings.chaseCursor)
+            toggleRow(l10n.toggleToy, $settings.toyEnabled)
 
             PixelSectionHeader(title: l10n.sectionStartup)
             launchAtLoginRow
+            toggleRow(l10n.toggleAutoUpdate, autoUpdateBinding)
 
             PixelSectionHeader(title: l10n.sectionClipboard)
-            HStack {
-                Text(l10n.keepItems(settings.maxHistory))
-                    .font(PixelTheme.font(11, .regular))
-                Spacer()
-                Stepper("", value: $settings.maxHistory, in: 5...200, step: 5)
-                    .labelsHidden()
-            }
-            .padding(10).pixelPanel()
+
+            Button(l10n.clearHistory) { showClearConfirm = true }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.3)))
+                .alert(l10n.clearHistoryTitle, isPresented: $showClearConfirm) {
+                    Button(l10n.cancel, role: .cancel) {}
+                    Button(l10n.clearConfirm, role: .destructive) { clipboard.clear() }
+                } message: {
+                    Text(l10n.clearHistoryMessage)
+                }
 
             PixelSectionHeader(title: l10n.sectionLanguage)
             languagePicker
@@ -248,6 +264,17 @@ struct SettingsView: View {
         )
     }
 
+    /// Pilote l'opt-in Sparkle aux vérifs automatiques (persisté par Sparkle lui-même).
+    private var autoUpdateBinding: Binding<Bool> {
+        Binding(
+            get: { autoUpdate },
+            set: { newValue in
+                UpdaterController.shared.automaticallyChecksForUpdates = newValue
+                autoUpdate = newValue
+            }
+        )
+    }
+
     private var launchHelpPopover: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(l10n.launchPromptTitle)
@@ -265,18 +292,77 @@ struct SettingsView: View {
         .foregroundStyle(PixelTheme.text)
     }
 
-    // MARK: - Reusable rows
+    // MARK: - Coats / variantes
 
-    private func colorRow(_ label: String, _ binding: Binding<Color>) -> some View {
-        HStack {
-            Text(label).font(PixelTheme.font(11, .regular))
+    /// Applique un coat et nettoie les overrides de base (sinon ils masqueraient le coat).
+    private func applyCoat(_ preset: PetPreset) {
+        settings.apply(preset)
+        store.clearBaseOverrides()
+    }
+
+    private var saveCoatPopover: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(l10n.saveVariant).font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent)
+            HStack(spacing: 6) {
+                TextField(l10n.variantNamePlaceholder, text: $newCoatName)
+                    .textFieldStyle(.plain).font(PixelTheme.font(11, .regular))
+                    .foregroundStyle(PixelTheme.text)
+                    .onSubmit(saveCoat)
+                Button(action: saveCoat) { Image(systemName: "checkmark") }
+                    .buttonStyle(.plain).foregroundStyle(PixelTheme.accent2)
+            }
+        }
+        .padding(12).frame(width: 200).background(PixelTheme.panel)
+    }
+
+    private func saveCoat() {
+        settings.saveCurrentAsCoat(name: newCoatName)
+        newCoatName = ""
+        showSaveCoat = false
+    }
+
+    // MARK: - Custom colors (rendu dynamique des couleurs nommées)
+
+    /// Caractères affichés comme variables : couleurs de base portant un nom
+    /// (explicite ou par défaut) + couleurs ajoutées nommées.
+    private var variableChars: [Character] {
+        let base = SpriteStore.baseChars.filter {
+            store.colorName(for: $0) != nil || l10n.defaultColorName(for: $0) != nil
+        }
+        let added = store.addedChars.compactMap { $0.first }.filter { store.colorName(for: $0) != nil }
+        return base + added
+    }
+
+    /// Une couleur custom : pastille + nom + sélecteur. La modifier enregistre une
+    /// variante (surcharge la couleur du caractère pour le skin actif).
+    private func customColorRow(_ ch: Character) -> some View {
+        HStack(spacing: 8) {
+            Rectangle()
+                .fill(skinPalette.color(for: ch) ?? .gray)
+                .frame(width: 18, height: 18)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+            Text(store.colorName(for: ch) ?? l10n.defaultColorName(for: ch) ?? String(ch))
+                .font(PixelTheme.font(11, .regular))
             Spacer()
-            ColorPicker("", selection: binding, supportsOpacity: false)
+            ColorPicker("", selection: colorBinding(for: ch), supportsOpacity: false)
                 .labelsHidden()
         }
-        .padding(.horizontal, 10).padding(.vertical, 8)
-        .pixelPanel()
     }
+
+    /// Rôles de base → éditent le coat courant (`settings`) + nettoient l'override ;
+    /// couleurs ajoutées → overrides par skin (`store`).
+    private func colorBinding(for ch: Character) -> Binding<Color> {
+        switch ch {
+        case "g": return Binding(get: { settings.bodyColor },   set: { settings.bodyColor = $0;   store.clearColor(ch) })
+        case "w": return Binding(get: { settings.bellyColor },  set: { settings.bellyColor = $0;  store.clearColor(ch) })
+        case "d": return Binding(get: { settings.stripeColor }, set: { settings.stripeColor = $0; store.clearColor(ch) })
+        case "o": return Binding(get: { settings.eyeColor },    set: { settings.eyeColor = $0;    store.clearColor(ch) })
+        case "p": return Binding(get: { settings.noseColor },   set: { settings.noseColor = $0;   store.clearColor(ch) })
+        default:  return Binding(get: { skinPalette.color(for: ch) ?? .gray }, set: { store.setColor(ch, $0) })
+        }
+    }
+
+    // MARK: - Reusable rows
 
     private func sliderRow(value: Binding<Double>, range: ClosedRange<Double>, label: String) -> some View {
         HStack(spacing: 10) {

@@ -1,7 +1,7 @@
 import Foundation
 
-/// Un preset de robe pour le chat.
-struct PetPreset: Identifiable, Equatable {
+/// Un preset de robe (= une variante : même pet, couleurs différentes).
+struct PetPreset: Identifiable, Equatable, Codable {
     let id: String
     let name: String
     let body: String

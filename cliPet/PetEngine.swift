@@ -249,10 +249,12 @@ final class PetEngine: ObservableObject {
         hideToy()
         let mischief = settings?.mischiefEnabled ?? true
         let chase = settings?.chaseCursor ?? true
+        let toy = settings?.toyEnabled ?? true
 
-        // Balade, repos et jeux avec la pelote.
-        var bag: [PetState] = [.idle, .idle, .sit, .walk, .walk, .walk, .play, .play, .chaseToy]
-        if mischief { bag += [.run, .pounce, .sleep, .chaseToy] }
+        // Balade, repos et (si activé) jeux avec la pelote.
+        var bag: [PetState] = [.idle, .idle, .sit, .walk, .walk, .walk]
+        if toy { bag += [.play, .play, .chaseToy] }
+        if mischief { bag += [.run, .pounce, .sleep]; if toy { bag.append(.chaseToy) } }
         if mischief && chase { bag += [.chase] }
         let next = bag.randomElement() ?? .idle
 

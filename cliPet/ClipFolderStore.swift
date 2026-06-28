@@ -71,8 +71,16 @@ final class ClipFolderStore: ObservableObject {
 
     func renameFolder(_ folder: ClipFolder, to name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty, let i = folders.firstIndex(where: { $0.id == folder.id }) else { return }
+        guard !trimmed.isEmpty, let i = folders.firstIndex(where: { $0.id == folder.id }),
+              folders[i].name != trimmed else { return }
         folders[i].name = trimmed
+        persist()
+    }
+
+    func setFolderColor(_ folder: ClipFolder, _ color: Color) {
+        let hex = color.hexString
+        guard let i = folders.firstIndex(where: { $0.id == folder.id }), folders[i].colorHex != hex else { return }
+        folders[i].colorHex = hex
         persist()
     }
 

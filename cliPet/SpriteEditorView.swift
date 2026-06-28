@@ -37,6 +37,8 @@ struct SpriteEditorView: View {
                      stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
     }
 
+    private var l10n: L10n { L10n.for_(L10n.Language(rawValue: settings.language) ?? .en) }
+
     var body: some View {
         GeometryReader { geo in
             let side = idealSide(for: geo.size)
@@ -70,7 +72,7 @@ struct SpriteEditorView: View {
 
     private var editor: some View {
         VStack(spacing: 10) {
-            Text("FRAME : \(frameName.uppercased())")
+            Text("\(l10n.editorSectionFrame) : \(frameName.uppercased())")
                 .font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent).tracking(1)
 
             Canvas { ctx, size in
@@ -108,9 +110,9 @@ struct SpriteEditorView: View {
             )
 
             HStack(spacing: 16) {
-                preview(.idle, "idle")
-                preview(.walk, "marche")
-                preview(.sit, "assis")
+                preview(.idle, l10n.editorPreviewIdle)
+                preview(.walk, l10n.editorPreviewWalk)
+                preview(.sit, l10n.editorPreviewSit)
             }
         }
     }
@@ -134,53 +136,53 @@ struct SpriteEditorView: View {
 
     private var sidebar: some View {
         VStack(alignment: .leading, spacing: 12) {
-            PixelSectionHeader(title: "Frame")
+            PixelSectionHeader(title: l10n.editorSectionFrame)
             Picker("", selection: $frameName) {
                 ForEach(CatSprites.order, id: \.self) { Text($0).tag($0) }
             }
             .labelsHidden().pickerStyle(.menu)
 
-            PixelSectionHeader(title: "Couleurs")
+            PixelSectionHeader(title: l10n.editorSectionColors)
             VStack(spacing: 6) {
                 eraserRow
                 ForEach(paletteChars, id: \.self) { ch in
                     colorRow(ch)
                 }
             }
-            Button("+ AJOUTER UNE COULEUR") { brush = store.addColor(.gray) }
+            Button(l10n.editorAddColor) { brush = store.addColor(.gray) }
                 .buttonStyle(PixelButtonStyle())
 
-            PixelSectionHeader(title: "Image → sprite")
-            Button("🖼 IMPORTER UNE IMAGE") { importImage() }
+            PixelSectionHeader(title: l10n.editorSectionImport)
+            Button(l10n.editorImportImage) { importImage() }
                 .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
             VStack(alignment: .leading, spacing: 2) {
-                Text("Tolérance fond : \(Int(bgTolerance))")
+                Text(l10n.editorBgTolerance(Int(bgTolerance)))
                     .font(PixelTheme.font(9, .regular)).foregroundStyle(PixelTheme.dim)
                 Slider(value: $bgTolerance, in: 0...150)
             }
-            Text("Détecte le fond (zones quasi-uniformes connectées aux bords) et le rend vide. ↑ tolérance = plus de fond effacé.")
+            Text(l10n.editorBgToleranceHelp)
                 .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
 
-            PixelSectionHeader(title: "Actions")
+            PixelSectionHeader(title: l10n.editorSectionActions)
             HStack(spacing: 6) {
-                Button("↶ ANNULER") { undo() }
+                Button(l10n.editorUndo) { undo() }
                     .buttonStyle(PixelButtonStyle())
                     .disabled(undoStack.isEmpty)
                     .keyboardShortcut("z", modifiers: .command)
-                Button("↷ RÉTABLIR") { redo() }
+                Button(l10n.editorRedo) { redo() }
                     .buttonStyle(PixelButtonStyle())
                     .disabled(redoStack.isEmpty)
                     .keyboardShortcut("z", modifiers: [.command, .shift])
             }
-            Button("🔗 ASSOCIER…") { associateTargets = []; showAssociate = true }
+            Button(l10n.editorAssociate) { associateTargets = []; showAssociate = true }
                 .buttonStyle(PixelButtonStyle())
                 .popover(isPresented: $showAssociate, arrowEdge: .leading) { associatePopover }
-            Button("EFFACER LA FRAME") { clearFrame() }
+            Button(l10n.editorClearFrame) { clearFrame() }
                 .buttonStyle(PixelButtonStyle())
-            Button("RÉINITIALISER TOUT") { store.resetToDefault(); loadGrid() }
+            Button(l10n.editorResetAll) { store.resetToDefault(); loadGrid() }
                 .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.35)))
 
-            Text("💾 Sauvegarde automatique")
+            Text(l10n.editorAutoSave)
                 .font(PixelTheme.font(9, .regular)).foregroundStyle(PixelTheme.accent2)
             Text(store.savePath)
                 .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
@@ -203,7 +205,7 @@ struct SpriteEditorView: View {
                 }
                 .frame(width: 18, height: 18)
                 .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
-                Text("gomme").font(PixelTheme.font(11, .regular))
+                Text(l10n.editorEraser).font(PixelTheme.font(11, .regular))
                 Spacer()
                 if brush == "." { Image(systemName: "checkmark").foregroundStyle(PixelTheme.accent) }
             }
@@ -215,34 +217,32 @@ struct SpriteEditorView: View {
         .buttonStyle(.plain)
     }
 
-    /// Une couleur : pastille sélectionnable + sélecteur de couleur + suppression.
+    /// Une couleur : pastille sélectionnable + sélecteur de couleur + nom (variable) + suppression.
     private func colorRow(_ ch: Character) -> some View {
         let selected = brush == ch
         let isCustom = !SpriteStore.baseChars.contains(ch)
+        // Pastille (aperçu + sélection) | nom (variable) | sélecteur de couleur | suppression.
         return HStack(spacing: 6) {
             Button { brush = ch } label: {
-                HStack(spacing: 6) {
+                ZStack {
                     Rectangle()
                         .fill(paletteView.color(for: ch) ?? .clear)
-                        .frame(width: 18, height: 18)
-                        .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                        .frame(width: 22, height: 22)
+                        .overlay(Rectangle().strokeBorder(
+                            selected ? PixelTheme.accent : PixelTheme.border,
+                            lineWidth: selected ? 2 : 1))
                     if selected {
                         Image(systemName: "checkmark").font(.system(size: 9))
                             .foregroundStyle(PixelTheme.accent)
                     }
-                    Spacer(minLength: 0)
                 }
-                .padding(.horizontal, 6).padding(.vertical, 5)
-                .background(selected ? PixelTheme.panelHi : PixelTheme.panel)
-                .overlay(Rectangle().strokeBorder(
-                    selected ? PixelTheme.accent : PixelTheme.border, lineWidth: 1))
             }
             .buttonStyle(.plain)
 
-            ColorPicker("", selection: Binding(
-                get: { paletteView.color(for: ch) ?? .gray },
-                set: { store.setColor(ch, $0) }
-            ), supportsOpacity: false)
+            ColorNameField(ch: ch,
+                           placeholder: l10n.defaultColorName(for: ch) ?? l10n.colorNamePlaceholder)
+
+            ColorPicker("", selection: colorBinding(for: ch), supportsOpacity: false)
                 .labelsHidden()
                 .frame(width: 32)
 
@@ -255,9 +255,43 @@ struct SpriteEditorView: View {
         }
     }
 
+    /// Binding couleur d'un caractère : les rôles de base éditent le coat courant
+    /// (`settings`) et nettoient tout override parasite ; les couleurs ajoutées
+    /// restent des overrides par skin.
+    private func colorBinding(for ch: Character) -> Binding<Color> {
+        switch ch {
+        case "g": return Binding(get: { settings.bodyColor },   set: { settings.bodyColor = $0;   store.clearColor(ch) })
+        case "w": return Binding(get: { settings.bellyColor },  set: { settings.bellyColor = $0;  store.clearColor(ch) })
+        case "d": return Binding(get: { settings.stripeColor }, set: { settings.stripeColor = $0; store.clearColor(ch) })
+        case "o": return Binding(get: { settings.eyeColor },    set: { settings.eyeColor = $0;    store.clearColor(ch) })
+        case "p": return Binding(get: { settings.noseColor },   set: { settings.noseColor = $0;   store.clearColor(ch) })
+        default:  return Binding(get: { paletteView.color(for: ch) ?? .gray }, set: { store.setColor(ch, $0) })
+        }
+    }
+
     private func removeColorChar(_ ch: Character) {
         store.removeColor(ch)
         if brush == ch { brush = "g" }
+    }
+
+    /// Champ de nom d'une couleur (état local pour garder le focus pendant la frappe).
+    private struct ColorNameField: View {
+        let ch: Character
+        let placeholder: String
+        @ObservedObject private var store = SpriteStore.shared
+        @State private var name = ""
+
+        var body: some View {
+            TextField(placeholder, text: $name)
+                .textFieldStyle(.plain)
+                .font(PixelTheme.font(9, .regular))
+                .foregroundStyle(PixelTheme.text)
+                .padding(.horizontal, 6).padding(.vertical, 3)
+                .background(PixelTheme.panel)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                .onAppear { name = store.colorName(for: ch) ?? "" }
+                .onChange(of: name) { store.setColorName(ch, $0) }
+        }
     }
 
     // MARK: - Associer (copier vers d'autres frames)
@@ -270,7 +304,7 @@ struct SpriteEditorView: View {
     private var associatePopover: some View {
         let targets = associateCandidates
         return VStack(alignment: .leading, spacing: 8) {
-            Text("Copier « \(frameName) » vers :")
+            Text(l10n.editorCopyTo(frameName))
                 .font(PixelTheme.font(10)).foregroundStyle(PixelTheme.accent)
             ScrollView {
                 VStack(alignment: .leading, spacing: 4) {
@@ -287,12 +321,12 @@ struct SpriteEditorView: View {
             }
             .frame(maxHeight: 220)
             HStack(spacing: 6) {
-                Button("Tout") { associateTargets = Set(targets) }
+                Button(l10n.editorSelectAll) { associateTargets = Set(targets) }
                     .buttonStyle(PixelButtonStyle())
-                Button("Aucun") { associateTargets = [] }
+                Button(l10n.editorSelectNone) { associateTargets = [] }
                     .buttonStyle(PixelButtonStyle())
             }
-            Button("ASSOCIER (\(associateTargets.count))") { associateFrames() }
+            Button(l10n.editorApply(associateTargets.count)) { associateFrames() }
                 .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
                 .disabled(associateTargets.isEmpty)
         }

@@ -1,7 +1,9 @@
 import AppKit
 import SwiftUI
+import Combine
 
 /// Point d'orchestration de l'app (mode agent, sans fenêtre principale).
+@MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
     let settings = PetSettings()
     private(set) lazy var clipboard = ClipboardManager(settings: settings)
@@ -9,6 +11,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var petController: PetController?
     private var statusItem: NSStatusItem?
     private var hidePetItem: NSMenuItem?
+    private var cancellables = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Agent : pas d'icône Dock, vit dans la barre de menus.
@@ -18,7 +21,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         clipboard.start()
         engine.start()
 
+        // Démarre Sparkle (vérifs auto des mises à jour selon l'Info.plist).
+        _ = UpdaterController.shared
+
         setupStatusItem()
+
+        // Licence / essai : verrouille si l'essai est fini et aucune clé valide.
+        enforceLicense()
+
+        // Rebuild menu when language changes.
+        settings.$language.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in
+            self?.rebuildMenu()
+        }.store(in: &cancellables)
 
         // Guidage « lancer au démarrage » au tout premier lancement.
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
@@ -47,6 +61,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    // MARK: - Licence / essai
+
+    private let license = LicenseManager.shared
+
+    /// Verrouille l'app derrière le paywall si l'essai est terminé sans licence.
+    private func enforceLicense() {
+        license.startTrialIfNeeded()
+        if !license.hasOptimisticAccess { lockBehindPaywall() }
+
+        // Revalidation réseau silencieuse : verrouille seulement si confirmé invalide.
+        Task { @MainActor in
+            await license.revalidateOnLaunch()
+            if !license.hasAccess { lockBehindPaywall() }
+        }
+    }
+
+    private func lockBehindPaywall() {
+        petController?.setPetHidden(true)
+        petController?.showLicenseWindow(license: license, locked: true) { [weak self] in
+            self?.petController?.setPetHidden(false)
+        }
+    }
+
+    @objc private func openLicense() {
+        petController?.showLicenseWindow(license: license, locked: false) {}
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         engine.stop()
         clipboard.stop()
@@ -59,49 +100,69 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if let button = item.button {
             button.image = NSImage(systemSymbolName: "pawprint.fill", accessibilityDescription: "cliPet")
         }
+        item.menu = buildMenu()
+        statusItem = item
+    }
 
+    private func rebuildMenu() {
+        statusItem?.menu = buildMenu()
+        // Sync hide/show label with current state after rebuild.
+        let hidden = petController?.isPetHidden ?? false
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+        hidePetItem?.title = hidden ? l10n.menuShowPet : l10n.menuHidePet
+    }
+
+    private func buildMenu() -> NSMenu {
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
         let menu = NSMenu()
-        menu.addItem(withTitle: "Historique du presse-papiers",
+        menu.addItem(withTitle: l10n.menuClipboard,
                      action: #selector(toggleClipboard), keyEquivalent: "")
             .target = self
-        let hideItem = menu.addItem(withTitle: "Masquer le pet",
+        let hideItem = menu.addItem(withTitle: l10n.menuHidePet,
                                     action: #selector(toggleHidePet), keyEquivalent: "h")
         hideItem.target = self
         hidePetItem = hideItem
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Réglages…",
+        menu.addItem(withTitle: l10n.menuSettings,
                      action: #selector(openSettings), keyEquivalent: ",")
             .target = self
-        menu.addItem(withTitle: "Vider l'historique",
+        menu.addItem(withTitle: l10n.menuClearHistory,
                      action: #selector(clearHistory), keyEquivalent: "")
             .target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Gestionnaire de skins…",
+        menu.addItem(withTitle: l10n.menuSkinManager,
                      action: #selector(openSkins), keyEquivalent: "k")
             .target = self
-        menu.addItem(withTitle: "Éditeur de sprite (dev)…",
+        menu.addItem(withTitle: l10n.menuEditor,
                      action: #selector(openEditor), keyEquivalent: "e")
             .target = self
         menu.addItem(.separator())
-        menu.addItem(withTitle: "Quitter cliPet",
+        menu.addItem(withTitle: l10n.menuCheckUpdates,
+                     action: #selector(checkForUpdates), keyEquivalent: "")
+            .target = self
+        menu.addItem(withTitle: l10n.menuLicense,
+                     action: #selector(openLicense), keyEquivalent: "")
+            .target = self
+        menu.addItem(.separator())
+        menu.addItem(withTitle: l10n.menuQuit,
                      action: #selector(quit), keyEquivalent: "q")
             .target = self
-
-        item.menu = menu
-        statusItem = item
+        return menu
     }
 
     @objc private func toggleClipboard() { petController?.toggleClipboardPanel() }
     @objc private func openEditor() { petController?.openSpriteEditor() }
     @objc private func openSkins() { petController?.openSkinManager() }
-    @objc private func clearHistory() { clipboard.clear() }
+    @objc private func clearHistory() { petController?.showClearHistoryConfirm() }
     @objc private func quit() { NSApp.terminate(nil) }
     @objc private func openSettings() { petController?.openSettings() }
+    @objc private func checkForUpdates() { UpdaterController.shared.checkForUpdates() }
 
     @objc private func toggleHidePet() {
         petController?.togglePetVisible()
         let hidden = petController?.isPetHidden ?? false
-        hidePetItem?.title = hidden ? "Afficher le pet" : "Masquer le pet"
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+        hidePetItem?.title = hidden ? l10n.menuShowPet : l10n.menuHidePet
     }
 }
 

@@ -39,6 +39,8 @@ final class PetController {
     private var editorWindow: NSWindow?
     private var skinWindow: NSWindow?
     private var settingsWindow: NSWindow?
+    private var clearHistoryWindow: NSWindow?
+    private var licenseWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var clipResignObserver: NSObjectProtocol?
 
@@ -149,7 +151,8 @@ final class PetController {
             folders: folderStore,
             l10n: L10n.for_(L10n.Language(rawValue: settings.language) ?? .en),
             onPick: { [weak self] item in self?.clipboard.copyToPasteboard(item); self?.hideClipboardPanel() },
-            onClose: { [weak self] in self?.hideClipboardPanel() })
+            onClose: { [weak self] in self?.hideClipboardPanel() },
+            onClearHistory: { [weak self] in self?.showClearHistoryConfirm() })
         let host = NSHostingView(rootView: view)
         host.layoutSubtreeIfNeeded()
         let fit = host.fittingSize
@@ -214,7 +217,9 @@ final class PetController {
     func openSettings() {
         NSApp.activate(ignoringOtherApps: true)
         if let w = settingsWindow { w.makeKeyAndOrderFront(nil); return }
-        let view = SettingsView().environmentObject(settings)
+        let view = SettingsView()
+            .environmentObject(settings)
+            .environmentObject(clipboard)
         let w = NSWindow(contentViewController: NSHostingController(rootView: view))
         w.title = "Réglages — cliPet"
         w.styleMask = [.titled, .closable, .miniaturizable]
@@ -238,6 +243,58 @@ final class PetController {
             petPanel.orderFrontRegardless()
             if engine.toyVisible { toyPanel.orderFront(nil) }
         }
+    }
+
+    func showClearHistoryConfirm() {
+        NSApp.activate(ignoringOtherApps: true)
+        if let w = clearHistoryWindow, w.isVisible { w.makeKeyAndOrderFront(nil); return }
+
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+        let view = ClearHistoryConfirmView(
+            title: l10n.clearHistoryTitle,
+            message: l10n.clearHistoryMessage,
+            onConfirm: { [weak self] in
+                self?.clipboard.clear()
+                self?.clearHistoryWindow?.close()
+            },
+            onCancel: { [weak self] in
+                self?.clearHistoryWindow?.close()
+            }
+        )
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.styleMask = [.titled, .closable]
+        w.title = ""
+        w.titlebarAppearsTransparent = true
+        w.isReleasedWhenClosed = false
+        w.setContentSize(NSSize(width: 320, height: 200))
+        w.center()
+        w.makeKeyAndOrderFront(nil)
+        clearHistoryWindow = w
+    }
+
+    // MARK: - Licence / paywall
+
+    /// Affiche la fenêtre de licence. `locked = true` (essai terminé) cache le pet
+    /// et ne laisse pas fermer la fenêtre sans activer.
+    func showLicenseWindow(license: LicenseManager, locked: Bool, onContinue: @escaping () -> Void) {
+        NSApp.activate(ignoringOtherApps: true)
+        if let w = licenseWindow, w.isVisible { w.makeKeyAndOrderFront(nil); return }
+
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+        let view = LicenseView(license: license, l10n: l10n) { [weak self] in
+            self?.licenseWindow?.close()
+            self?.licenseWindow = nil
+            onContinue()
+        }
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.title = l10n.licenseTitle
+        // Essai terminé → fenêtre non fermable (sortie = activer ou quitter).
+        w.styleMask = locked ? [.titled] : [.titled, .closable]
+        w.titlebarAppearsTransparent = true
+        w.isReleasedWhenClosed = false
+        w.center()
+        w.makeKeyAndOrderFront(nil)
+        licenseWindow = w
     }
 
     func openSkinManager() {

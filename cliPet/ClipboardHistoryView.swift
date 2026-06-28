@@ -7,6 +7,7 @@ struct ClipboardHistoryView: View {
     let l10n: L10n
     let onPick: (ClipItem) -> Void
     let onClose: () -> Void
+    var onClearHistory: (() -> Void)? = nil
 
     @State private var search = ""
     @State private var selectedFolder: ClipFolder?   // nil = vue historique
@@ -57,8 +58,8 @@ struct ClipboardHistoryView: View {
                 .foregroundStyle(PixelTheme.text)
                 .tracking(1)
             Spacer()
-            if selectedFolder == nil {
-                Button(action: clipboard.clear) { Image(systemName: "trash.fill") }
+            if selectedFolder == nil, let onClear = onClearHistory {
+                Button(action: onClear) { Image(systemName: "trash.fill") }
                     .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
                     .help(l10n.clipClearHelp)
             }
@@ -93,24 +94,24 @@ struct ClipboardHistoryView: View {
     private func folderChip(_ folder: ClipFolder?) -> some View {
         let selected = selectedFolder?.id == folder?.id
         Button { selectedFolder = folder } label: {
-            VStack(spacing: 2) {
+            VStack(spacing: 1) {
                 Group {
                     if let folder {
-                        PixelFolderView(color: folder.color).frame(width: 40, height: 32)
+                        PixelFolderView(color: folder.color).frame(width: 30, height: 24)
                     } else {
                         Image(systemName: "clock.arrow.circlepath")
-                            .font(.system(size: 18))
+                            .font(.system(size: 14))
                             .foregroundStyle(PixelTheme.text)
-                            .frame(width: 40, height: 32)
+                            .frame(width: 30, height: 24)
                     }
                 }
                 Text(folder?.name ?? l10n.historyTab)
-                    .font(PixelTheme.font(8, .regular))
+                    .font(PixelTheme.font(7, .regular))
                     .foregroundStyle(selected ? PixelTheme.text : PixelTheme.dim)
                     .lineLimit(1)
-                    .frame(width: 48)
+                    .frame(width: 40)
             }
-            .padding(4)
+            .padding(3)
             .background(selected ? PixelTheme.panelHi : Color.clear)
             .overlay(Rectangle().strokeBorder(selected ? PixelTheme.accent : .clear, lineWidth: 2))
         }
@@ -118,31 +119,67 @@ struct ClipboardHistoryView: View {
     }
 
     private var manageFolders: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(l10n.foldersTitle).font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent)
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            HStack {
+                Text(l10n.foldersTitle)
+                    .font(PixelTheme.font(11))
+                    .foregroundStyle(PixelTheme.accent)
+                Spacer()
+                Text("\(folders.folders.count)")
+                    .font(PixelTheme.font(9, .regular))
+                    .foregroundStyle(PixelTheme.dim)
+                    .padding(.horizontal, 6).padding(.vertical, 2)
+                    .background(PixelTheme.bg)
+                    .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+            }
+            .padding(.horizontal, 12).padding(.top, 12).padding(.bottom, 8)
+
+            // Add folder row
             HStack(spacing: 6) {
                 TextField(l10n.newFolderPlaceholder, text: $newFolderName)
                     .textFieldStyle(.plain).font(PixelTheme.font(10, .regular))
                     .foregroundStyle(PixelTheme.text)
+                    .padding(.horizontal, 8).padding(.vertical, 5)
+                    .background(PixelTheme.bg)
+                    .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
                     .onSubmit(createFolder)
-                Button(action: createFolder) { Image(systemName: "plus") }
-                    .buttonStyle(.plain).foregroundStyle(PixelTheme.accent2)
+                Button(action: createFolder) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(newFolderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                         ? PixelTheme.dim : PixelTheme.accent)
+                        .frame(width: 26, height: 26)
+                        .background(PixelTheme.bg)
+                        .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                }
+                .buttonStyle(.plain)
+                .disabled(newFolderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
+            .padding(.horizontal, 12).padding(.bottom, 8)
+
             if !folders.folders.isEmpty {
                 Rectangle().fill(PixelTheme.border).frame(height: 1)
-                ForEach(folders.folders) { f in
-                    HStack(spacing: 6) {
-                        Rectangle().fill(f.color).frame(width: 12, height: 12)
-                            .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
-                        Text(f.name).font(PixelTheme.font(11, .regular)).foregroundStyle(PixelTheme.text)
-                        Spacer()
-                        Button { deleteFolder(f) } label: { Image(systemName: "trash") }
-                            .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(folders.folders) { f in
+                            FolderEditRow(
+                                folder: f,
+                                clipCount: folders.saved(in: f.id).count,
+                                onRename: { folders.renameFolder(f, to: $0) },
+                                onColor: { folders.setFolderColor(f, $0) },
+                                onDelete: { deleteFolder(f) })
+                            if f.id != folders.folders.last?.id {
+                                Rectangle().fill(PixelTheme.border.opacity(0.4)).frame(height: 1)
+                                    .padding(.leading, 12)
+                            }
+                        }
                     }
                 }
+                .frame(maxHeight: 220)
             }
         }
-        .padding(12).frame(width: 220).background(PixelTheme.panel)
+        .frame(width: 256).background(PixelTheme.panel)
     }
 
     private func createFolder() {
@@ -279,6 +316,65 @@ struct FolderPickerData {
     let createAndSave: (String) -> Void
 }
 
+/// Ligne d'édition d'un dossier : icône + point couleur + nom + badge + corbeille.
+private struct FolderEditRow: View {
+    let folder: ClipFolder
+    var clipCount: Int = 0
+    let onRename: (String) -> Void
+    let onColor: (Color) -> Void
+    let onDelete: () -> Void
+
+    @State private var name = ""
+    @State private var hover = false
+
+    var body: some View {
+        HStack(spacing: 8) {
+            // Folder icon (small)
+            PixelFolderView(color: folder.color).frame(width: 20, height: 16)
+
+            // Color dot — clicking opens native ColorPicker
+            ColorPicker("", selection: Binding(get: { folder.color }, set: onColor), supportsOpacity: false)
+                .labelsHidden()
+                .frame(width: 18, height: 18)
+                .clipShape(Circle())
+                .overlay(Circle().strokeBorder(PixelTheme.border, lineWidth: 1))
+
+            // Name field
+            TextField("", text: $name)
+                .textFieldStyle(.plain)
+                .font(PixelTheme.font(11, .regular))
+                .foregroundStyle(PixelTheme.text)
+                .onChange(of: name) { onRename($0) }
+
+            Spacer(minLength: 0)
+
+            // Clip count badge
+            if clipCount > 0 {
+                Text("\(clipCount)")
+                    .font(PixelTheme.font(8, .regular))
+                    .foregroundStyle(PixelTheme.dim)
+                    .padding(.horizontal, 5).padding(.vertical, 1)
+                    .background(PixelTheme.bg)
+                    .overlay(Rectangle().strokeBorder(PixelTheme.border.opacity(0.6), lineWidth: 1))
+            }
+
+            // Delete button
+            Button(action: onDelete) {
+                Image(systemName: "trash")
+                    .font(.system(size: 10))
+                    .foregroundStyle(hover ? Color.red.opacity(0.8) : PixelTheme.dim)
+            }
+            .buttonStyle(.plain)
+            .opacity(hover ? 1 : 0.5)
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .background(hover ? PixelTheme.panelHi : Color.clear)
+        .contentShape(Rectangle())
+        .onHover { hover = $0 }
+        .onAppear { name = folder.name }
+    }
+}
+
 private struct FolderPicker: View {
     let data: FolderPickerData
     @State private var newName = ""
@@ -306,14 +402,16 @@ private struct FolderPicker: View {
                 }
             }
             Rectangle().fill(PixelTheme.border).frame(height: 1)
-            HStack(spacing: 6) {
-                TextField(data.l10n.newFolderPlaceholder, text: $newName)
-                    .textFieldStyle(.plain).font(PixelTheme.font(10, .regular))
-                    .foregroundStyle(PixelTheme.text)
-                    .onSubmit(create)
-                Button(action: create) { Image(systemName: "plus") }
-                    .buttonStyle(.plain).foregroundStyle(PixelTheme.accent2)
-            }
+            TextField(data.l10n.newFolderPlaceholder, text: $newName)
+                .textFieldStyle(.plain).font(PixelTheme.font(10, .regular))
+                .foregroundStyle(PixelTheme.text)
+                .padding(.horizontal, 8).padding(.vertical, 5)
+                .background(PixelTheme.bg)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                .onSubmit(create)
+            Button(data.l10n.addFolder, action: create)
+                .buttonStyle(PixelButtonStyle())
+                .disabled(newName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
         }
         .padding(10).frame(width: 200).background(PixelTheme.panel)
     }
@@ -339,18 +437,23 @@ private struct ClipRow: View {
     @State private var hover = false
     @State private var showPicker = false
 
+    /// La ligne reste « active » (surlignée, actions visibles) tant que le picker est ouvert,
+    /// pour éviter que la croix disparaisse et décale l'étoile (ce qui faisait re-popper le popover).
+    private var active: Bool { hover || showPicker }
+
     var body: some View {
         Group {
             if item.kind == .image { imageRow } else { standardRow }
         }
         .padding(.horizontal, 10).padding(.vertical, 8)
-        .background(hover ? PixelTheme.panelHi : Color.clear)
+        .background(active ? PixelTheme.panelHi : Color.clear)
         .contentShape(Rectangle())
         .onHover { hover = $0 }
-        .onTapGesture(perform: onPick)
     }
 
     /// Étoile (sauvegarder) + croix (supprimer) — partagé par les deux types de lignes.
+    /// La croix garde toujours sa place (opacité seulement) : l'ancre du popover de l'étoile
+    /// ne bouge donc jamais, même quand le survol change.
     @ViewBuilder private var trailing: some View {
         HStack(spacing: 8) {
             if let picker {
@@ -361,34 +464,38 @@ private struct ClipRow: View {
                 .foregroundStyle(picker.savedAnywhere ? PixelTheme.accent2 : PixelTheme.dim)
                 .popover(isPresented: $showPicker, arrowEdge: .trailing) { FolderPicker(data: picker) }
             }
-            if hover {
-                Button(action: onDelete) { Image(systemName: "xmark") }
-                    .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
-            }
+            Button(action: onDelete) { Image(systemName: "xmark") }
+                .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
+                .opacity(active ? 1 : 0)
+                .allowsHitTesting(active)
         }
     }
 
     private var standardRow: some View {
         HStack(spacing: 8) {
-            Text(String(format: "%02d", index + 1))
-                .font(PixelTheme.font(9))
-                .foregroundStyle(PixelTheme.accent2)
+            HStack(spacing: 8) {
+                Text(String(format: "%02d", index + 1))
+                    .font(PixelTheme.font(9))
+                    .foregroundStyle(PixelTheme.accent2)
 
-            leading
+                leading
 
-            VStack(alignment: .leading, spacing: 1) {
-                Text(item.preview)
-                    .font(PixelTheme.font(11, .regular))
-                    .foregroundStyle(PixelTheme.text)
-                    .lineLimit(2)
-                if item.kind == .file {
-                    Text(item.text)
-                        .font(PixelTheme.font(8, .regular))
-                        .foregroundStyle(PixelTheme.dim)
-                        .lineLimit(1).truncationMode(.middle)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(item.preview)
+                        .font(PixelTheme.font(11, .regular))
+                        .foregroundStyle(PixelTheme.text)
+                        .lineLimit(2)
+                    if item.kind == .file {
+                        Text(item.text)
+                            .font(PixelTheme.font(8, .regular))
+                            .foregroundStyle(PixelTheme.dim)
+                            .lineLimit(1).truncationMode(.middle)
+                    }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .contentShape(Rectangle())
+            .onTapGesture(perform: onPick)
 
             trailing
         }
@@ -397,17 +504,20 @@ private struct ClipRow: View {
     private var imageRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                Text(String(format: "%02d", index + 1))
-                    .font(PixelTheme.font(9))
-                    .foregroundStyle(PixelTheme.accent2)
-                Image(systemName: "photo.fill")
-                    .font(.system(size: 10))
-                    .foregroundStyle(PixelTheme.dim)
-                Text(item.preview)
-                    .font(PixelTheme.font(10, .regular))
-                    .foregroundStyle(PixelTheme.dim)
-                    .lineLimit(1)
-                Spacer()
+                HStack(spacing: 8) {
+                    Text(String(format: "%02d", index + 1))
+                        .font(PixelTheme.font(9))
+                        .foregroundStyle(PixelTheme.accent2)
+                    leading
+                    Text(item.preview)
+                        .font(PixelTheme.font(10, .regular))
+                        .foregroundStyle(PixelTheme.dim)
+                        .lineLimit(1)
+                    Spacer()
+                }
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onPick)
+
                 trailing
             }
 
@@ -430,6 +540,7 @@ private struct ClipRow: View {
             .frame(height: 120)
             .clipped()
             .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+            .onTapGesture(perform: onPick)
         }
     }
 
@@ -459,5 +570,117 @@ private struct ClipRow: View {
         case .text:
             EmptyView()
         }
+    }
+}
+
+// MARK: - Confirmation vider l'historique
+
+struct ClearHistoryConfirmView: View {
+    let title: String
+    let message: String
+    let onConfirm: () -> Void
+    let onCancel: () -> Void
+
+    var body: some View {
+        VStack(spacing: 0) {
+            // Titre
+            Text(title)
+                .font(PixelTheme.font(13))
+                .foregroundStyle(PixelTheme.text)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+                .padding(.top, 28)
+                .padding(.bottom, 12)
+
+            // Message
+            Text(message)
+                .font(PixelTheme.font(10, .regular))
+                .foregroundStyle(PixelTheme.dim)
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+                .padding(.horizontal, 24)
+                .padding(.bottom, 28)
+
+            // Séparateur pixel
+            Rectangle()
+                .fill(PixelTheme.border)
+                .frame(height: 2)
+
+            // Boutons pixel art
+            HStack(spacing: 0) {
+                // Rouge — annuler
+                Button(action: onCancel) {
+                    HStack(spacing: 6) {
+                        PixelXIcon()
+                        Text("CANCEL")
+                            .font(PixelTheme.font(11))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                }
+                .buttonStyle(PixelConfirmButtonStyle(tint: Color(hex: "#7A2020")))
+
+                Rectangle()
+                    .fill(PixelTheme.border)
+                    .frame(width: 2)
+
+                // Vert — confirmer
+                Button(action: onConfirm) {
+                    HStack(spacing: 6) {
+                        PixelCheckIcon()
+                        Text("CLEAR")
+                            .font(PixelTheme.font(11))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 44)
+                }
+                .buttonStyle(PixelConfirmButtonStyle(tint: Color(hex: "#1E5C2A")))
+            }
+        }
+        .frame(width: 320)
+        .background(PixelTheme.bg)
+        .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 2))
+    }
+}
+
+private struct PixelConfirmButtonStyle: ButtonStyle {
+    let tint: Color
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(PixelTheme.text)
+            .background(configuration.isPressed ? tint.darkened(0.15) : tint)
+    }
+}
+
+// Icône ✓ pixel art (5×4 grille)
+private struct PixelCheckIcon: View {
+    private let pixels: [(Int, Int)] = [
+        (0,3),(1,2),(2,1),(3,0),(4,1),(3,2),(2,3)
+    ]
+    var body: some View {
+        Canvas { ctx, _ in
+            for (col, row) in pixels {
+                let r = CGRect(x: CGFloat(col) * 2, y: CGFloat(row) * 2, width: 2, height: 2)
+                ctx.fill(Path(r), with: .color(.white))
+            }
+        }
+        .frame(width: 10, height: 8)
+    }
+}
+
+// Icône ✗ pixel art (5×5 grille)
+private struct PixelXIcon: View {
+    private let pixels: [(Int, Int)] = [
+        (0,0),(1,1),(2,2),(3,3),(4,4),
+        (4,0),(3,1),(1,3),(0,4)
+    ]
+    var body: some View {
+        Canvas { ctx, _ in
+            for (col, row) in pixels {
+                let r = CGRect(x: CGFloat(col) * 2, y: CGFloat(row) * 2, width: 2, height: 2)
+                ctx.fill(Path(r), with: .color(.white))
+            }
+        }
+        .frame(width: 10, height: 10)
     }
 }

@@ -155,12 +155,7 @@ final class ClipboardManager: ObservableObject {
     }
 
     private func enforceCap() {
-        let cap = settings?.maxHistory ?? 50
-        guard history.count > cap else { return }
-        for dropped in history[cap...] where dropped.kind == .image {
-            deleteImageFile(dropped.imageFile)
-        }
-        history = Array(history.prefix(cap))
+        // No limit — history grows unbounded
     }
 
     // MARK: - Re-copie
