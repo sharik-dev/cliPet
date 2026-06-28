@@ -4,8 +4,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
 (function () {
   "use strict";
 
-  // Palette des sprites du chat (depuis gen_sprites.py)
-  var CAT = { ".": null, "X": "#2b2622", "g": "#a2a3a6", "w": "#f3f1ea", "p": "#d94f4f", "r": "#e0833f" };
+  // Palette officielle du pet « Cœur gris » (identité de marque — miroir de l'app).
+  var CAT = { ".": null, "X": "#17191C", "g": "#969BA1", "w": "#F5F5F5", "p": "#CE2828", "r": "#F2A24C" };
 
   // ---- rendu générique d'une grille ASCII sur un canvas ----
   function drawGrid(ctx, rows, palette, scale, ox, oy, flip, w) {
