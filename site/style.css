@@ -299,11 +299,10 @@ p  { margin: 0; color: var(--text-muted); }
 /* — Playground interactif (le chat suit la souris) — */
 .stage {
   position: relative;
-  /* Pleine largeur (sort du .wrap) : un vrai écran, large, proportions 16:10 */
-  width: min(1500px, 94vw);
-  margin: 56px 0 0;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  /* Écran modéré, proportions 16:10 d'un vrai écran */
+  margin: 56px auto 0;
+  width: 100%;
+  max-width: 1000px;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border);
@@ -347,7 +346,6 @@ p  { margin: 0; color: var(--text-muted); }
   display: block;
   width: 100%;
   background: transparent;      /* seul le chat est dessiné dessus */
-  cursor: none;                 /* la pelote remplace le curseur (canvas seulement) */
 }
 
 /* Barre de menus macOS */
@@ -384,13 +382,13 @@ p  { margin: 0; color: var(--text-muted); }
   --cpink:    #E0708A;   /* accent */
   --cgreen:   #7BE0B0;   /* accent2 */
   position: absolute;
-  top: 50%;
-  right: clamp(16px, 4%, 56px);
-  transform: translateY(-50%) scale(0.92);
+  left: 0; top: 0;                 /* placé dynamiquement en JS, au-dessus du pet */
+  transform: scale(0.9);
+  transform-origin: bottom center; /* pop depuis le pet */
   z-index: 6;
   width: 300px;
-  max-width: 80%;
-  max-height: calc(100% - 32px);
+  max-width: 86%;
+  max-height: calc(100% - 16px);
   overflow: hidden;
   background: var(--cbg);
   border: 2px solid var(--cborder);
@@ -404,7 +402,7 @@ p  { margin: 0; color: var(--text-muted); }
   pointer-events: none;
   transition: opacity .22s ease, transform .22s cubic-bezier(.2, .9, .3, 1.2);
 }
-.clip-panel.show { opacity: 1; transform: translateY(-50%) scale(1); pointer-events: auto; }
+.clip-panel.show { opacity: 1; transform: scale(1); pointer-events: auto; }
 
 .clip-head {
   display: flex; align-items: center; gap: 8px;
@@ -412,14 +410,19 @@ p  { margin: 0; color: var(--text-muted); }
   background: var(--cpanelHi);
   border-bottom: 2px solid var(--cborder);
 }
-.clip-head .grow { flex: 1; }
+.clip-panel .grow { flex: 1; }
 .clip-title { font-family: var(--pixel); font-size: 11px; letter-spacing: 1px; color: var(--ctext); }
 .clip-ico { position: relative; width: 12px; height: 14px; flex: none;
   border: 2px solid var(--cpink); border-radius: 2px;
 }
 .clip-ico::before { content: ""; position: absolute; top: -3px; left: 50%; transform: translateX(-50%);
   width: 6px; height: 3px; background: var(--cpink); border-radius: 2px; }
-.clip-act { width: 11px; height: 11px; border-radius: 2px; background: var(--cdim); opacity: .5; }
+/* Œil barré (masquer le pet) — comme dans l'app */
+.clip-hide { position: relative; width: 18px; height: 12px; flex: none; align-self: center; }
+.clip-hide::before { content: ""; position: absolute; left: 1px; right: 1px; top: 1px; bottom: 1px;
+  border: 2px solid var(--cdim); border-radius: 50% / 70%; }
+.clip-hide::after { content: ""; position: absolute; left: -2px; top: 50%; width: 22px; height: 2px;
+  background: var(--cdim); transform: rotate(-24deg); }
 .clip-x {
   border: none; background: none; color: var(--cdim);
   font-size: 12px; cursor: pointer; padding: 0 2px; line-height: 1;
@@ -439,6 +442,13 @@ p  { margin: 0; color: var(--text-muted); }
 .chip-folder::before { content: ""; position: absolute; top: -3px; left: 0; width: 8px; height: 4px; border-radius: 2px 2px 0 0; background: inherit; }
 .chip-folder.pink { background: var(--cpink); }
 .chip-folder.green { background: var(--cgreen); }
+/* Bouton « nouveau dossier » (contour vert + ＋) — comme dans l'app */
+.chip-add { position: relative; align-self: center; width: 22px; height: 17px; flex: none;
+  border: 2px solid var(--cgreen); border-radius: 2px 2px 3px 3px; }
+.chip-add::before { content: ""; position: absolute; top: -4px; left: 0; width: 9px; height: 4px;
+  background: var(--cgreen); border-radius: 2px 2px 0 0; }
+.chip-add::after { content: "+"; position: absolute; inset: 0; display: flex;
+  align-items: center; justify-content: center; color: var(--cgreen); font-size: 12px; line-height: 1; }
 
 .clip-search { display: flex; align-items: center; gap: 6px; padding: 7px 10px; border-bottom: 2px solid var(--cborder); }
 .clip-search .ph { font-size: 11px; color: var(--cdim); }

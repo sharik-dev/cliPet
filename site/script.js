@@ -57,8 +57,19 @@ var SPRITES = {"idle":["..........................XX.....","....................
 
   // ============ Panneau presse-papier (ouvert au clic sur le pet) ============
   var clipPanel = document.getElementById("clipPanel");
-  function openClip() {
+  function openClip(petCx, petTop) {
     if (!clipPanel) return;
+    var ms = document.getElementById("macScreen");
+    if (ms && petCx != null) {
+      var msw = ms.clientWidth;
+      var pw = Math.min(300, msw * 0.86);
+      clipPanel.style.width = pw + "px";
+      // centré horizontalement sur le pet, borné dans l'écran
+      clipPanel.style.left = Math.round(Math.max(8, Math.min(petCx - pw / 2, msw - pw - 8))) + "px";
+      // juste au-dessus du pet (mesure la hauteur réelle du panneau)
+      var ph = clipPanel.offsetHeight;
+      clipPanel.style.top = Math.round(Math.max(8, petTop - ph - 6)) + "px";
+    }
     clipPanel.classList.add("show");
     clipPanel.setAttribute("aria-hidden", "false");
   }
@@ -89,10 +100,9 @@ var SPRITES = {"idle":["..........................XX.....","....................
 
   function runPlayground(cv) {
     var ctx = cv.getContext("2d");
-    var SC = 12;                             // taille d'un pixel (pet bien visible)
+    var SC = 6;                              // taille d'un pixel (petit pet discret)
     var catW = SPRITES.idle[0].length * SC;  // 33*9
     var catH = SPRITES.idle.length * SC;
-    var yarnFrames = [SPRITES.yarn1, SPRITES.yarn2, SPRITES.yarn3, SPRITES.yarn4];
     var walkFrames = [SPRITES.walk1, SPRITES.walk2, SPRITES.walk3, SPRITES.walk4];
     var floorY = cv.height - catH + 4;       // pattes au ras du bas de l'écran
 
@@ -121,12 +131,19 @@ var SPRITES = {"idle":["..........................XX.....","....................
     });
     cv.addEventListener("pointerleave", function () { pointerActive = false; });
 
-    // — clic sur le pet « Cœur gris » → ouvre son presse-papier —
+    // — clic sur le pet « Cœur gris » → ouvre son presse-papier au-dessus de lui —
     cv.addEventListener("click", function (e) {
       var p = toInternal(e);
       var onCat = p.x > cat.x - 30 && p.x < cat.x + catW + 30 && p.y > floorY - 30;
-      if (onCat) { e.stopPropagation(); openClip(); }
-      else closeClip();
+      if (onCat) {
+        e.stopPropagation();
+        var r = cv.getBoundingClientRect();
+        var ms = cv.parentElement.getBoundingClientRect();
+        var sx = r.width / cv.width, sy = r.height / cv.height;
+        var petCx = (r.left - ms.left) + (cat.x + catW / 2) * sx;  // centre du pet (px écran)
+        var petTop = (r.top - ms.top) + floorY * sy;               // haut du pet
+        openClip(petCx, petTop);
+      } else closeClip();
     });
 
     function frame(now) {
@@ -178,15 +195,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       ctx.fill();
 
       drawGrid(ctx, sprite, CAT, SC, Math.round(cat.x), floorY, flip);
-
-      // pelote (= curseur) quand la souris est dans le cadre
-      if (pointerActive) {
-        var yf = yarnFrames[Math.floor(t / 90) % 4];
-        var yS = 9, yW = yf[0].length * yS;
-        drawGrid(ctx, yf, CAT, yS,
-          Math.round(target - yW / 2),
-          Math.round(Math.min(floorY + catH - yW, targetY - yW / 2)));
-      }
+      // Pas de pelote : le vrai curseur souris reste affiché ; le pet le suit.
 
       requestAnimationFrame(frame);
     }
