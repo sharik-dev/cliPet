@@ -26,7 +26,6 @@
 		BB0000000000000000000015 /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000015 /* L10n.swift */; };
 		BB0000000000000000000016 /* Skin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000016 /* Skin.swift */; };
 		BB0000000000000000000017 /* SkinManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000017 /* SkinManagerView.swift */; };
-		BB0000000000000000000018 /* ImageToSprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000018 /* ImageToSprite.swift */; };
 		BB0000000000000000000019 /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000019 /* LaunchAtLogin.swift */; };
 		BB0000000000000000000020 /* ClipFolderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000020 /* ClipFolderStore.swift */; };
 		BB0000000000000000000021 /* UpdaterController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000021 /* UpdaterController.swift */; };
@@ -61,7 +60,6 @@
 		AA0000000000000000000015 /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
 		AA0000000000000000000016 /* Skin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Skin.swift; sourceTree = "<group>"; };
 		AA0000000000000000000017 /* SkinManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkinManagerView.swift; sourceTree = "<group>"; };
-		AA0000000000000000000018 /* ImageToSprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageToSprite.swift; sourceTree = "<group>"; };
 		AA0000000000000000000019 /* LaunchAtLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchAtLogin.swift; sourceTree = "<group>"; };
 		AA0000000000000000000020 /* ClipFolderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipFolderStore.swift; sourceTree = "<group>"; };
 		AA0000000000000000000021 /* UpdaterController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdaterController.swift; sourceTree = "<group>"; };
@@ -123,7 +121,6 @@
 				AA0000000000000000000015 /* L10n.swift */,
 				AA0000000000000000000016 /* Skin.swift */,
 				AA0000000000000000000017 /* SkinManagerView.swift */,
-				AA0000000000000000000018 /* ImageToSprite.swift */,
 				AA0000000000000000000019 /* LaunchAtLogin.swift */,
 				AA0000000000000000000020 /* ClipFolderStore.swift */,
 				AA0000000000000000000021 /* UpdaterController.swift */,
@@ -238,7 +235,6 @@
 				BB0000000000000000000015 /* L10n.swift in Sources */,
 				BB0000000000000000000016 /* Skin.swift in Sources */,
 				BB0000000000000000000017 /* SkinManagerView.swift in Sources */,
-				BB0000000000000000000018 /* ImageToSprite.swift in Sources */,
 				BB0000000000000000000019 /* LaunchAtLogin.swift in Sources */,
 				BB0000000000000000000020 /* ClipFolderStore.swift in Sources */,
 				BB0000000000000000000021 /* UpdaterController.swift in Sources */,
@@ -383,7 +379,7 @@
 				INFOPLIST_FILE = cliPet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.clipet;
@@ -406,7 +402,7 @@
 				INFOPLIST_FILE = cliPet/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
-					"@executable_path/Frameworks",
+					"@executable_path/../Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.clipet;
