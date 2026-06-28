@@ -301,6 +301,7 @@ final class LicenseManager: ObservableObject {
                 let rec = try await provider.activate(key: trimmed)
                 record = rec
                 state = .valid
+                Analytics.track("app_activated", ["channel": rec.channel.rawValue])
                 return
             } catch let LicenseError.rejected(reason) {
                 lastError = reason

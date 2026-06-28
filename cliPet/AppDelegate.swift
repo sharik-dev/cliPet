@@ -29,6 +29,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Licence / essai : verrouille si l'essai est fini et aucune clé valide.
         enforceLicense()
 
+        // Analytics anonymes (tunnel de vente) — aucune donnée perso.
+        Analytics.trackFirstLaunchOnce()
+
         // Rebuild menu when language changes.
         settings.$language.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in
             self?.rebuildMenu()
@@ -78,6 +81,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func lockBehindPaywall() {
+        Analytics.track("app_paywall_shown")
         petController?.setPetHidden(true)
         petController?.showLicenseWindow(license: license, locked: true) { [weak self] in
             self?.petController?.setPetHidden(false)

@@ -43,7 +43,6 @@ final class PetController {
     private var licenseWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var clipResignObserver: NSObjectProtocol?
-    private var clipSizeObserver: NSObjectProtocol?
 
     /// Le pet est-il masqué (caché par l'utilisateur) ?
     private(set) var isPetHidden = false
@@ -147,40 +146,41 @@ final class PetController {
     }
 
     private func showClipboardPanel() {
+        let panel = FloatingPanel(contentRect: NSRect(x: 0, y: 0, width: 300, height: 160),
+            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
+        configure(panel)
+
         let view = ClipboardHistoryView(
             clipboard: clipboard,
             folders: folderStore,
             l10n: L10n.for_(L10n.Language(rawValue: settings.language) ?? .en),
             onPick: { [weak self] item in self?.clipboard.copyToPasteboard(item); self?.hideClipboardPanel() },
             onClose: { [weak self] in self?.hideClipboardPanel() },
-            onClearHistory: { [weak self] in self?.showClearHistoryConfirm() })
+            onClearHistory: { [weak self] in self?.showClearHistoryConfirm() },
+            onHeightChange: { [weak self, weak panel] height in
+                guard let panel else { return }
+                let newSize = NSSize(width: 300, height: max(160, height))
+                guard abs(panel.frame.height - newSize.height) > 1 else { return }
+                NSAnimationContext.runAnimationGroup { ctx in
+                    ctx.duration = 0.22
+                    ctx.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                    panel.animator().setContentSize(newSize)
+                }
+                self?.repositionClipPanel()
+            })
+
         let host = NSHostingView(rootView: view)
-        if #available(macOS 13.0, *) {
-            host.sizingOptions = [.intrinsicContentSize]
-        }
         host.layoutSubtreeIfNeeded()
         let fit = host.fittingSize
-        let initialSize = NSSize(width: max(300, fit.width), height: max(160, fit.height))
+        let initialSize = NSSize(width: 300, height: max(160, fit.height))
         host.frame = NSRect(origin: .zero, size: initialSize)
-
-        let panel = FloatingPanel(contentRect: NSRect(origin: .zero, size: initialSize),
-            styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: false)
-        configure(panel)
+        panel.setContentSize(initialSize)
         panel.contentView = host
+
         clipPanel = panel
         repositionClipPanel()
         panel.makeKeyAndOrderFront(nil)
         engine.isPaused = true
-
-        host.postsFrameChangedNotifications = true
-        clipSizeObserver = NotificationCenter.default.addObserver(
-            forName: NSView.frameDidChangeNotification, object: host, queue: .main
-        ) { [weak self, weak panel, weak host] _ in
-            guard let panel, let host else { return }
-            let newSize = NSSize(width: max(300, host.frame.width), height: max(160, host.frame.height))
-            panel.setContentSize(newSize)
-            self?.repositionClipPanel()
-        }
 
         clipResignObserver = NotificationCenter.default.addObserver(
             forName: NSWindow.didResignKeyNotification, object: panel, queue: .main
@@ -190,9 +190,6 @@ final class PetController {
     private func hideClipboardPanel() {
         if let obs = clipResignObserver {
             NotificationCenter.default.removeObserver(obs); clipResignObserver = nil
-        }
-        if let obs = clipSizeObserver {
-            NotificationCenter.default.removeObserver(obs); clipSizeObserver = nil
         }
         clipPanel?.orderOut(nil)
         clipPanel = nil

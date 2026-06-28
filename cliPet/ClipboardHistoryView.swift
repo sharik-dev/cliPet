@@ -8,6 +8,7 @@ struct ClipboardHistoryView: View {
     let onPick: (ClipItem) -> Void
     let onClose: () -> Void
     var onClearHistory: (() -> Void)? = nil
+    var onHeightChange: ((CGFloat) -> Void)? = nil
 
     @State private var search = ""
     @State private var selectedFolder: ClipFolder?   // nil = vue historique
@@ -43,6 +44,13 @@ struct ClipboardHistoryView: View {
         }
         .frame(width: 300)
         .pixelPanel(PixelTheme.bg)
+        .background(
+            GeometryReader { geo in
+                Color.clear
+                    .onAppear { onHeightChange?(geo.size.height) }
+                    .onChange(of: geo.size.height) { _, h in onHeightChange?(h) }
+            }
+        )
     }
 
     private var divider: some View { Rectangle().fill(PixelTheme.border).frame(height: 2) }
@@ -344,7 +352,7 @@ private struct FolderEditRow: View {
                 .textFieldStyle(.plain)
                 .font(PixelTheme.font(11, .regular))
                 .foregroundStyle(PixelTheme.text)
-                .onChange(of: name) { onRename($0) }
+                .onChange(of: name) { _, n in onRename(n) }
 
             Spacer(minLength: 0)
 

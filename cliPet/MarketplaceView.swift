@@ -33,7 +33,10 @@ struct MarketplaceView: View {
 
             content
         }
-        .onAppear { if pets.isEmpty { Task { await load() } } }
+        .onAppear {
+            Analytics.track("app_marketplace_open")
+            if pets.isEmpty { Task { await load() } }
+        }
     }
 
     @ViewBuilder private var content: some View {
@@ -102,6 +105,7 @@ struct MarketplaceView: View {
             let full = try await MarketplaceClient.fetch(pet.id)
             MarketBridge.install(full)
             await MarketplaceClient.markDownloaded(pet.id)
+            Analytics.track("app_pet_downloaded")
             onInstalled()
             flash(l10n.marketDownloaded)
         } catch {
@@ -134,6 +138,7 @@ struct MarketplaceView: View {
             do {
                 _ = try await MarketplaceClient.publish(name: name, frames: pet.frames,
                                                         palette: pet.palette, author: author)
+                Analytics.track("app_pet_shared")
                 flash(l10n.marketShared)
                 await load()
             } catch {

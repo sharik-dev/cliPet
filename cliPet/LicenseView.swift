@@ -106,6 +106,7 @@ struct LicenseView: View {
     }
 
     private func openBuyPage() {
+        Analytics.track("app_buy_click")
         if let url = URL(string: LicenseConfig.buyURL) { NSWorkspace.shared.open(url) }
     }
 }
