@@ -412,22 +412,16 @@ p  { margin: 0; color: var(--text-muted); }
 }
 .clip-panel .grow { flex: 1; }
 .clip-title { font-family: var(--pixel); font-size: 11px; letter-spacing: 1px; color: var(--ctext); }
-.clip-ico { position: relative; width: 12px; height: 14px; flex: none;
-  border: 2px solid var(--cpink); border-radius: 2px;
-}
-.clip-ico::before { content: ""; position: absolute; top: -3px; left: 50%; transform: translateX(-50%);
-  width: 6px; height: 3px; background: var(--cpink); border-radius: 2px; }
-/* Œil barré (masquer le pet) — comme dans l'app */
-.clip-hide { position: relative; width: 18px; height: 12px; flex: none; align-self: center; }
-.clip-hide::before { content: ""; position: absolute; left: 1px; right: 1px; top: 1px; bottom: 1px;
-  border: 2px solid var(--cdim); border-radius: 50% / 70%; }
-.clip-hide::after { content: ""; position: absolute; left: -2px; top: 50%; width: 22px; height: 2px;
-  background: var(--cdim); transform: rotate(-24deg); }
+/* Icônes du header = SVG fidèles aux SF Symbols de l'app */
+.clip-svg { width: 15px; height: 15px; flex: none; display: block; }
+.clip-svg.pink { color: var(--cpink); }
+.clip-svg.dim { color: var(--cdim); }
+.clip-head .grow + .clip-svg, .clip-head .clip-svg + .clip-svg { cursor: default; }
 .clip-x {
-  border: none; background: none; color: var(--cdim);
-  font-size: 12px; cursor: pointer; padding: 0 2px; line-height: 1;
+  border: none; background: none; padding: 0 1px; cursor: pointer;
+  display: inline-flex; align-items: center;
 }
-.clip-x:hover { color: var(--ctext); }
+.clip-x:hover .clip-svg { color: var(--ctext); }
 
 .clip-folders { display: flex; gap: 8px; padding: 8px 10px; border-bottom: 2px solid var(--cborder); }
 .clip-folders .chip {
