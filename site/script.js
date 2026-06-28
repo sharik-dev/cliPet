@@ -55,6 +55,38 @@ var SPRITES = {"idle":["..........................XX.....","....................
   var pg = document.getElementById("playground");
   if (pg) runPlayground(pg);
 
+  // ============ Panneau presse-papier (ouvert au clic sur le pet) ============
+  var clipPanel = document.getElementById("clipPanel");
+  function openClip() {
+    if (!clipPanel) return;
+    clipPanel.classList.add("show");
+    clipPanel.setAttribute("aria-hidden", "false");
+  }
+  function closeClip() {
+    if (!clipPanel) return;
+    clipPanel.classList.remove("show");
+    clipPanel.setAttribute("aria-hidden", "true");
+  }
+  (function () {
+    if (!clipPanel) return;
+    var x = document.getElementById("clipClose");
+    if (x) x.addEventListener("click", function (e) { e.stopPropagation(); closeClip(); });
+    // Empêche un clic dans le panneau de le refermer (le fond le ferme via le canvas)
+    clipPanel.addEventListener("click", function (e) { e.stopPropagation(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeClip(); });
+
+    // « Screenshot.png » du presse-papier : un vrai rendu du pet sur le bureau
+    var shot = document.getElementById("clipShot");
+    if (shot) {
+      var sx = shot.getContext("2d");
+      var g = sx.createLinearGradient(0, 0, 0, shot.height);
+      g.addColorStop(0, "#2f2b4d"); g.addColorStop(0.55, "#8a5d6a"); g.addColorStop(1, "#e8a866");
+      sx.fillStyle = g; sx.fillRect(0, 0, shot.width, shot.height);
+      var rows = SPRITES.sit, s = 3, w = rows[0].length * s, h = rows.length * s;
+      drawGrid(sx, rows, CAT, s, Math.round((shot.width - w) / 2), shot.height - h + 2);
+    }
+  })();
+
   function runPlayground(cv) {
     var ctx = cv.getContext("2d");
     var SC = 9;                              // taille d'un pixel
@@ -88,6 +120,14 @@ var SPRITES = {"idle":["..........................XX.....","....................
       lastMove = performance.now();
     });
     cv.addEventListener("pointerleave", function () { pointerActive = false; });
+
+    // — clic sur le pet « Cœur gris » → ouvre son presse-papier —
+    cv.addEventListener("click", function (e) {
+      var p = toInternal(e);
+      var onCat = p.x > cat.x - 30 && p.x < cat.x + catW + 30 && p.y > floorY - 30;
+      if (onCat) { e.stopPropagation(); openClip(); }
+      else closeClip();
+    });
 
     function frame(now) {
       var t = now - t0;
@@ -169,7 +209,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "notch.clipboard": "Presse-papier", "notch.copied": "copié · 2m",
       "notch.skin": "Skin actif", "notch.skins": "3 dispo",
       "notch.sounds": "Sons rétro", "notch.onstate": "on",
-      "stage.hint": "↑ <span class=\"accent\">bouge ta souris</span> dans le cadre — il te suit pour de vrai",
+      "stage.hint": "↑ <span class=\"accent\">bouge ta souris</span> — il te suit. <span class=\"accent\">Clique dessus</span> pour ouvrir son presse-papier.",
+      "clip.title": "PRESSE-PAPIER", "clip.history": "Historique", "clip.search": "Rechercher…", "clip.shot": "Capture.png",
       "features.eyebrow": "Fonctionnalités", "features.h2": "Petit, mais bien vivant",
       "features.sub": "Tout ce qu'un compagnon de bureau doit savoir faire — et rien qui te ralentisse.",
       "f1.t": "Dans la barre de menus", "f1.d": "Zéro fenêtre, toujours là, jamais dans le chemin. Un clic pour tout régler.",
@@ -215,7 +256,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "notch.clipboard": "Portapapeles", "notch.copied": "copiado · 2m",
       "notch.skin": "Skin activo", "notch.skins": "3 disponibles",
       "notch.sounds": "Sonidos retro", "notch.onstate": "on",
-      "stage.hint": "↑ <span class=\"accent\">mueve el ratón</span> dentro del marco — te sigue de verdad",
+      "stage.hint": "↑ <span class=\"accent\">mueve el ratón</span> — te sigue. <span class=\"accent\">Haz clic</span> para abrir su portapapeles.",
+      "clip.title": "PORTAPAPELES", "clip.history": "Historial", "clip.search": "Buscar…", "clip.shot": "Captura.png",
       "features.eyebrow": "Funciones", "features.h2": "Pequeño, pero muy vivo",
       "features.sub": "Todo lo que un compañero de escritorio debe hacer — y nada que te frene.",
       "f1.t": "En la barra de menús", "f1.d": "Sin ventanas, siempre ahí, nunca en medio. Un clic para ajustarlo todo.",
@@ -261,7 +303,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "notch.clipboard": "Zwischenablage", "notch.copied": "kopiert · 2m",
       "notch.skin": "Aktiver Skin", "notch.skins": "3 verfügbar",
       "notch.sounds": "Retro-Sounds", "notch.onstate": "an",
-      "stage.hint": "↑ <span class=\"accent\">beweg deine Maus</span> im Rahmen — sie folgt dir wirklich",
+      "stage.hint": "↑ <span class=\"accent\">beweg deine Maus</span> — sie folgt dir. <span class=\"accent\">Klick sie an</span>, um ihre Zwischenablage zu öffnen.",
+      "clip.title": "ZWISCHENABLAGE", "clip.history": "Verlauf", "clip.search": "Suchen…", "clip.shot": "Bildschirmfoto.png",
       "features.eyebrow": "Funktionen", "features.h2": "Klein, aber quicklebendig",
       "features.sub": "Alles, was ein Schreibtisch-Begleiter können sollte — und nichts, was dich bremst.",
       "f1.t": "In der Menüleiste", "f1.d": "Kein Fenster, immer da, nie im Weg. Ein Klick für alle Einstellungen.",
@@ -307,7 +350,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "notch.clipboard": "Appunti", "notch.copied": "copiato · 2m",
       "notch.skin": "Skin attivo", "notch.skins": "3 disponibili",
       "notch.sounds": "Suoni retro", "notch.onstate": "on",
-      "stage.hint": "↑ <span class=\"accent\">muovi il mouse</span> nel riquadro — ti segue davvero",
+      "stage.hint": "↑ <span class=\"accent\">muovi il mouse</span> — ti segue. <span class=\"accent\">Cliccalo</span> per aprire i suoi appunti.",
+      "clip.title": "APPUNTI", "clip.history": "Cronologia", "clip.search": "Cerca…", "clip.shot": "Schermata.png",
       "features.eyebrow": "Funzioni", "features.h2": "Piccolo, ma vivissimo",
       "features.sub": "Tutto ciò che un compagno da scrivania dovrebbe fare — e niente che ti rallenti.",
       "f1.t": "Nella barra dei menu", "f1.d": "Nessuna finestra, sempre lì, mai d'intralcio. Un clic per regolare tutto.",
@@ -353,7 +397,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "notch.clipboard": "Transferência", "notch.copied": "copiado · 2m",
       "notch.skin": "Skin ativo", "notch.skins": "3 disponíveis",
       "notch.sounds": "Sons retrô", "notch.onstate": "on",
-      "stage.hint": "↑ <span class=\"accent\">mexa o mouse</span> dentro do quadro — ele segue você de verdade",
+      "stage.hint": "↑ <span class=\"accent\">mexa o mouse</span> — ele segue você. <span class=\"accent\">Clique nele</span> para abrir sua área de transferência.",
+      "clip.title": "TRANSFERÊNCIA", "clip.history": "Histórico", "clip.search": "Buscar…", "clip.shot": "Captura.png",
       "features.eyebrow": "Funções", "features.h2": "Pequeno, mas bem vivo",
       "features.sub": "Tudo o que um companheiro de mesa deve fazer — e nada que te atrase.",
       "f1.t": "Na barra de menus", "f1.d": "Sem janelas, sempre ali, nunca no caminho. Um clique para ajustar tudo.",
@@ -422,8 +467,8 @@ var SPRITES = {"idle":["..........................XX.....","....................
         i = (i + 1) % words.length;
         el.textContent = words[i];
         el.classList.remove("swap");
-      }, 300);
-    }, 2100);
+      }, 420);
+    }, 4200);
   }
 
   (function () {

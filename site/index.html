@@ -47,16 +47,16 @@
         <a class="btn btn-ghost" href="#features" data-i18n="hero.cta2">See what it can do</a>
       </div>
 
-      <!-- Démo interactive : un vrai Mac, avec le chat de l'app -->
+      <!-- Démo interactive : un vrai Mac, avec le pet de l'app -->
       <div class="stage">
         <div class="stage-bar">
           <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
           <span class="title" data-i18n="stage.title">cliPet — live on your desktop</span>
           <span class="clock">Sun 0:36</span>
         </div>
-        <div class="mac-screen">
+        <div class="mac-screen" id="macScreen">
           <div class="wallpaper" aria-hidden="true"></div>
-          <canvas id="playground" width="1840" height="560"></canvas>
+          <canvas id="playground" width="1840" height="860"></canvas>
 
           <!-- Barre de menus macOS -->
           <div class="menubar">
@@ -67,42 +67,59 @@
               <span data-i18n="menu.window">Window</span>
               <span data-i18n="menu.help">Help</span>
             </span>
-            <span class="mb-right">📋&nbsp;3 &nbsp; 🔊 &nbsp; 100% &nbsp; Sun&nbsp;0:36</span>
+            <span class="mb-right">📋&nbsp;4 &nbsp; 🔊 &nbsp; 100% &nbsp; Sun&nbsp;0:36</span>
           </div>
 
-          <!-- Notch / Dynamic Island : statut du chat + features -->
-          <div class="notch">
-            <div class="notch-row head">
-              <canvas class="notch-cat" data-sprite="sit" width="33" height="33"></canvas>
-              <span class="ni-main">
-                <b>cliPet</b>
-                <span class="sub" data-i18n="notch.status">purring · great mood</span>
-              </span>
+          <!-- Panneau presse-papier (réplique fidèle de l'app) — ouvert au clic sur le pet -->
+          <div class="clip-panel" id="clipPanel" aria-hidden="true">
+            <div class="clip-head">
+              <span class="clip-ico"></span>
+              <span class="clip-title" data-i18n="clip.title">CLIPBOARD</span>
               <span class="grow"></span>
-              <span class="tag on" data-i18n="notch.online">online</span>
+              <span class="clip-act"></span>
+              <span class="clip-act"></span>
+              <button class="clip-x" id="clipClose" aria-label="Close">✕</button>
             </div>
-            <div class="notch-row">
-              <span class="bullet o"></span>
-              <span data-i18n="notch.clipboard">Clipboard</span>
-              <span class="muted grow">git commit -m "fix"</span>
-              <span class="tag" data-i18n="notch.copied">copied · 2m</span>
+            <div class="clip-folders">
+              <div class="chip active"><span class="chip-clock"></span><span data-i18n="clip.history">History</span></div>
+              <div class="chip"><span class="chip-folder pink"></span>Work</div>
+              <div class="chip"><span class="chip-folder green"></span>Snippets</div>
             </div>
-            <div class="notch-row">
-              <span class="bullet b"></span>
-              <span data-i18n="notch.skin">Active skin</span>
-              <span class="muted grow">Calico</span>
-              <span class="tag" data-i18n="notch.skins">3 available</span>
+            <div class="clip-search">
+              <span class="mag"></span>
+              <span class="ph" data-i18n="clip.search">Search…</span>
             </div>
-            <div class="notch-row">
-              <span class="bullet g"></span>
-              <span data-i18n="notch.sounds">Retro sounds</span>
-              <span class="muted grow">8-bit</span>
-              <span class="tag on" data-i18n="notch.onstate">on</span>
-            </div>
+            <ul class="clip-list">
+              <li class="clip-row">
+                <span class="idx">01</span>
+                <span class="sw" style="background:#D97757"></span>
+                <span class="prev">#D97757</span>
+              </li>
+              <li class="clip-row img">
+                <div class="row-top">
+                  <span class="idx">02</span>
+                  <span class="clip-lead photo"></span>
+                  <span class="prev dim" data-i18n="clip.shot">Screenshot.png</span>
+                </div>
+                <canvas class="clip-shot" id="clipShot" width="276" height="104"></canvas>
+              </li>
+              <li class="clip-row">
+                <span class="idx">03</span>
+                <span class="clip-lead doc"></span>
+                <span class="col">
+                  <span class="prev">cliPet.dmg</span>
+                  <span class="sub">~/Downloads/cliPet.dmg</span>
+                </span>
+              </li>
+              <li class="clip-row">
+                <span class="idx">04</span>
+                <span class="prev mono">git commit -m "fix"</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
-      <p class="stage-hint" data-i18n="stage.hint">↑ <span class="accent">move your mouse</span> inside the frame — it really follows you</p>
+      <p class="stage-hint" data-i18n="stage.hint">↑ <span class="accent">move your mouse</span> — it follows you. <span class="accent">Click it</span> to open its clipboard.</p>
 
       <p class="compat">macOS&nbsp;13+ · Apple&nbsp;Silicon&nbsp;&amp;&nbsp;Intel · &lt;&nbsp;50&nbsp;MB&nbsp;RAM</p>
     </div>
