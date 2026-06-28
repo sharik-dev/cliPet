@@ -23,31 +23,51 @@ SSH_HOST="ubuntu@51.91.125.99"
 SSH_PORT="2222"
 WEBROOT="/var/www/clipet.sharik.fr"
 DL_PREFIX="https://clipet.sharik.fr/download/"
-RELEASES="$ROOT/releases"
-BUILD="$ROOT/.build-release"
+# Build + zips HORS iCloud (le dossier projet est synchronisé iCloud, qui réinjecte
+# com.apple.FinderInfo et casse la signature codesign — "detritus not allowed").
+RELEASES="/tmp/clipet-releases"
+BUILD="/tmp/clipet-build"
 mkdir -p "$RELEASES"
+
+# Signature Developer ID + notarisation (distribution publique sans alerte Gatekeeper).
+# Empreinte SHA-1 du certificat (deux certs portent le même nom → on désambiguïse par hash).
+DEVID="30F1D02E0F27DCACBC6CA17B34A9C3AA239E6C29"
+NOTARY_PROFILE="AC_NOTARY"   # profil notarytool stocké dans le trousseau
 
 VERSION="$(xcodebuild -project cliPet.xcodeproj -showBuildSettings -configuration Release 2>/dev/null \
   | awk -F' = ' '/ MARKETING_VERSION =/{print $2; exit}')"
 echo "▶︎ cliPet $VERSION"
 
-# --- 1. Build Release (non signé) puis nettoyage + signature ad-hoc ---
+# --- 1. Build Release (non signé) puis signature ---
 rm -rf "$BUILD"
 xcodebuild -project cliPet.xcodeproj -scheme cliPet -configuration Release \
   -derivedDataPath "$BUILD" CODE_SIGNING_ALLOWED=NO build >/dev/null
 APP="$BUILD/Build/Products/Release/cliPet.app"
 xattr -cr "$APP" 2>/dev/null || true
-codesign --remove-signature "$APP" 2>/dev/null || true
-codesign --force --deep --sign - "$APP"
 
-# --- Developer ID + notarisation (à activer pour le grand public) ---
-# codesign --force --deep --options runtime --sign "Developer ID Application: TON NOM (TEAMID)" "$APP"
-# ditto -c -k --keepParent "$APP" "$BUILD/notarize.zip"
-# xcrun notarytool submit "$BUILD/notarize.zip" --keychain-profile AC_NOTARY --wait
-# xcrun stapler staple "$APP"
+if security find-identity -v -p codesigning 2>/dev/null | grep -q "$DEVID"; then
+  echo "▶︎ signature Developer ID + hardened runtime"
+  # Signe l'intérieur d'abord (frameworks/XPC Sparkle), puis l'app.
+  find "$APP/Contents/Frameworks" -depth \( -name "*.xpc" -o -name "*.app" -o -name "*.framework" -o -name "Autoupdate" -o -name "*.dylib" \) -print0 2>/dev/null \
+    | while IFS= read -r -d '' item; do
+        codesign --force --options runtime --timestamp --sign "$DEVID" "$item" 2>/dev/null || true
+      done
+  xattr -cr "$APP" 2>/dev/null || true
+  codesign --force --options runtime --timestamp --sign "$DEVID" "$APP"
+
+  echo "▶︎ notarisation (peut prendre 1–3 min)…"
+  ditto -c -k --keepParent "$APP" "$BUILD/notarize.zip"
+  xcrun notarytool submit "$BUILD/notarize.zip" --keychain-profile "$NOTARY_PROFILE" --wait
+  xcrun stapler staple "$APP"
+  echo "✓ notarisé + staplé"
+else
+  echo "⚠︎ certificat Developer ID absent — signature ad-hoc (test uniquement)."
+  codesign --force --deep --sign - "$APP"
+fi
 
 # --- 2. Zip versionné (seul dans releases/, sinon generate_appcast voit un doublon) ---
 ZIP="$RELEASES/cliPet-$VERSION.zip"
+rm -f "$RELEASES"/cliPet*.zip
 ditto -c -k --keepParent "$APP" "$ZIP"
 echo "▶︎ $(du -h "$ZIP" | cut -f1) → $ZIP"
 
