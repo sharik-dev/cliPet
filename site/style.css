@@ -51,7 +51,7 @@
 
 /* ---------- Reset léger ---------- */
 *, *::before, *::after { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
 body {
   margin: 0;
   font-family: var(--sans);
@@ -299,8 +299,11 @@ p  { margin: 0; color: var(--text-muted); }
 /* — Playground interactif (le chat suit la souris) — */
 .stage {
   position: relative;
-  margin: 56px auto 0;
-  max-width: 1060px;
+  /* Pleine largeur (sort du .wrap) : un vrai écran, large, proportions 16:10 */
+  width: min(1500px, 94vw);
+  margin: 56px 0 0;
+  margin-left: 50%;
+  transform: translateX(-50%);
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: 1px solid var(--border);
@@ -328,7 +331,6 @@ p  { margin: 0; color: var(--text-muted); }
 .mac-screen {
   position: relative;
   overflow: hidden;
-  cursor: none;                 /* la pelote remplace le curseur */
 }
 .wallpaper {
   position: absolute;
@@ -345,6 +347,7 @@ p  { margin: 0; color: var(--text-muted); }
   display: block;
   width: 100%;
   background: transparent;      /* seul le chat est dessiné dessus */
+  cursor: none;                 /* la pelote remplace le curseur (canvas seulement) */
 }
 
 /* Barre de menus macOS */

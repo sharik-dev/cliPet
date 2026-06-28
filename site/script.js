@@ -89,7 +89,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
 
   function runPlayground(cv) {
     var ctx = cv.getContext("2d");
-    var SC = 9;                              // taille d'un pixel
+    var SC = 12;                             // taille d'un pixel (pet bien visible)
     var catW = SPRITES.idle[0].length * SC;  // 33*9
     var catH = SPRITES.idle.length * SC;
     var yarnFrames = [SPRITES.yarn1, SPRITES.yarn2, SPRITES.yarn3, SPRITES.yarn4];
@@ -182,7 +182,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       // pelote (= curseur) quand la souris est dans le cadre
       if (pointerActive) {
         var yf = yarnFrames[Math.floor(t / 90) % 4];
-        var yS = 6, yW = yf[0].length * yS;
+        var yS = 9, yW = yf[0].length * yS;
         drawGrid(ctx, yf, CAT, yS,
           Math.round(target - yW / 2),
           Math.round(Math.min(floorY + catH - yW, targetY - yW / 2)));
