@@ -8,6 +8,7 @@ on:
     paths:
       - 'site/**'
       - 'dashboard/**'
+      - 'server/**'
       - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
@@ -16,6 +17,7 @@ env:
   SSH_USER: ubuntu
   SSH_PORT: '2222'
   WEBROOT: /var/www/clipet.sharik.fr
+  APIDIR: /home/ubuntu/clipet-api
 
 jobs:
   deploy:
@@ -45,3 +47,13 @@ jobs:
           rsync -az --delete --human-readable \
             -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
             dashboard/ "$SSH_USER@$SSH_HOST:$WEBROOT/dashboard/"
+
+      # API marketplace : rsync (sans node_modules ni data), install, restart.
+      - name: Deploy marketplace API
+        run: |
+          rsync -az --human-readable \
+            -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
+            --exclude 'node_modules' --exclude 'data' \
+            server/ "$SSH_USER@$SSH_HOST:$APIDIR/"
+          ssh -i ~/.ssh/id_deploy -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" \
+            "cd $APIDIR && npm install --omit=dev --no-audit --no-fund && sudo systemctl restart clipet-api"
