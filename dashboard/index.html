@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>cliPet — Dashboard</title>
+  <style>
+    :root {
+      --bg: #0d0f12;
+      --panel: #15181d;
+      --border: #262b32;
+      --text: #e7e9ec;
+      --dim: #8a929c;
+      --accent: #ce2828;
+      --accent2: #4aa3a3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      line-height: 1.5;
+    }
+    .wrap { width: 100%; max-width: 720px; }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    h1 { font-size: 22px; letter-spacing: 2px; }
+    h1 .paw { margin-right: 8px; }
+    .badge {
+      display: inline-block; font-size: 11px; padding: 4px 10px;
+      border: 1px solid var(--accent); color: var(--accent);
+      border-radius: 4px; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .lang { display: flex; gap: 6px; }
+    .lang button {
+      background: var(--panel); border: 1px solid var(--border); color: var(--dim);
+      font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 4px; cursor: pointer;
+    }
+    .lang button.on { color: var(--accent2); border-color: var(--accent2); }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 22px; }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 8px; padding: 18px 20px;
+    }
+    .card h2 { font-size: 14px; margin-bottom: 6px; }
+    .card p { font-size: 13px; color: var(--dim); }
+    .card .soon { font-size: 11px; color: var(--accent2); margin-top: 10px; display: inline-block; }
+    .lead { color: var(--dim); font-size: 14px; margin-top: 4px; }
+    footer { margin-top: 28px; font-size: 12px; color: var(--dim); }
+    a { color: var(--accent2); }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1><span class="paw">🐾</span>cliPet</h1>
+      <div class="lang">
+        <button data-lang="en" class="on">EN</button>
+        <button data-lang="fr">FR</button>
+      </div>
+    </header>
+
+    <span class="badge" data-i18n="badge">Work in progress</span>
+    <p class="lead" data-i18n="lead">Admin dashboard for the cliPet marketplace.</p>
+
+    <div class="grid">
+      <div class="card">
+        <h2 data-i18n="modTitle">Pet moderation</h2>
+        <p data-i18n="modBody">Review, approve and remove user-submitted pets.</p>
+        <span class="soon" data-i18n="soon">Coming soon</span>
+      </div>
+      <div class="card">
+        <h2 data-i18n="anaTitle">Analytics</h2>
+        <p data-i18n="anaBody">Track installs, activations and user journeys.</p>
+        <span class="soon" data-i18n="soon">Coming soon</span>
+      </div>
+      <div class="card">
+        <h2 data-i18n="licTitle">Licences</h2>
+        <p data-i18n="licBody">Monitor sales from Gumroad and LemonSqueezy.</p>
+        <span class="soon" data-i18n="soon">Coming soon</span>
+      </div>
+      <div class="card">
+        <h2 data-i18n="relTitle">Releases</h2>
+        <p data-i18n="relBody">Publish updates served to apps via Sparkle.</p>
+        <span class="soon" data-i18n="soon">Coming soon</span>
+      </div>
+    </div>
+
+    <footer data-i18n="footer">Continuously deployed from main — this page updates on every push.</footer>
+  </div>
+
+  <script>
+    const I18N = {
+      en: {
+        badge: "Work in progress",
+        lead: "Admin dashboard for the cliPet marketplace.",
+        modTitle: "Pet moderation", modBody: "Review, approve and remove user-submitted pets.",
+        anaTitle: "Analytics", anaBody: "Track installs, activations and user journeys.",
+        licTitle: "Licences", licBody: "Monitor sales from Gumroad and LemonSqueezy.",
+        relTitle: "Releases", relBody: "Publish updates served to apps via Sparkle.",
+        soon: "Coming soon",
+        footer: "Continuously deployed from main — this page updates on every push.",
+      },
+      fr: {
+        badge: "En travaux",
+        lead: "Tableau de bord admin pour la marketplace cliPet.",
+        modTitle: "Modération des pets", modBody: "Vérifier, approuver et supprimer les pets soumis par les utilisateurs.",
+        anaTitle: "Analytics", anaBody: "Suivre les installations, activations et parcours utilisateurs.",
+        licTitle: "Licences", licBody: "Suivre les ventes Gumroad et LemonSqueezy.",
+        relTitle: "Mises à jour", relBody: "Publier les mises à jour servies aux apps via Sparkle.",
+        soon: "Bientôt",
+        footer: "Déployé en continu depuis main — cette page se met à jour à chaque push.",
+      },
+    };
+    function apply(lang) {
+      document.documentElement.lang = lang;
+      document.querySelectorAll("[data-i18n]").forEach(el => {
+        const k = el.getAttribute("data-i18n");
+        if (I18N[lang][k]) el.textContent = I18N[lang][k];
+      });
+      document.querySelectorAll(".lang button").forEach(b =>
+        b.classList.toggle("on", b.dataset.lang === lang));
+      localStorage.setItem("clipet.dash.lang", lang);
+    }
+    document.querySelectorAll(".lang button").forEach(b =>
+      b.addEventListener("click", () => apply(b.dataset.lang)));
+    const saved = localStorage.getItem("clipet.dash.lang");
+    apply(saved || (navigator.language.startsWith("fr") ? "fr" : "en"));
+  </script>
+</body>
+</html>

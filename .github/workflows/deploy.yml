@@ -1,0 +1,47 @@
+name: Deploy site & dashboard
+
+# Déploiement continu : chaque push sur main qui touche le site ou le dashboard
+# rsync les fichiers vers le VPS. Déclenchable aussi à la main (workflow_dispatch).
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'site/**'
+      - 'dashboard/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+env:
+  SSH_HOST: 51.91.125.99
+  SSH_USER: ubuntu
+  SSH_PORT: '2222'
+  WEBROOT: /var/www/clipet.sharik.fr
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "$SSH_PORT" "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # Site : pas de --delete → on préserve appcast.xml et les .zip de release
+      # uploadés séparément (Sparkle).
+      - name: Deploy marketing site
+        run: |
+          rsync -az --human-readable \
+            -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
+            --exclude 'CLAUDE.md' --exclude 'dashboard' \
+            site/ "$SSH_USER@$SSH_HOST:$WEBROOT/"
+
+      # Dashboard : --delete OK (dossier dédié, contenu entièrement versionné).
+      - name: Deploy dashboard
+        run: |
+          rsync -az --delete --human-readable \
+            -e "ssh -i ~/.ssh/id_deploy -p $SSH_PORT" \
+            dashboard/ "$SSH_USER@$SSH_HOST:$WEBROOT/dashboard/"
