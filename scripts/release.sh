@@ -57,15 +57,43 @@ find "$APP/Contents/Frameworks" -depth \( -name "*.xpc" -o -name "*.app" -o -nam
 xattr -cr "$APP" 2>/dev/null || true
 codesign --force --options runtime --timestamp --sign "$DEVID" "$APP"
 
-# --- 3. DMG (avec lien vers /Applications pour l'install par glisser-déposer) ---
+# --- 3. DMG stylé (fond + icônes positionnées + flèche vers Applications) ---
 echo "▶︎ création du DMG"
 STAGE="$BUILD/dmg-stage"
-rm -rf "$STAGE"; mkdir -p "$STAGE"
+rm -rf "$STAGE"; mkdir -p "$STAGE/.background"
 ditto "$APP" "$STAGE/cliPet.app"
 ln -s /Applications "$STAGE/Applications"
-DMG="$BUILD/cliPet-$VERSION.dmg"
-rm -f "$DMG"
-hdiutil create -volname "cliPet" -srcfolder "$STAGE" -ov -format UDZO "$DMG" >/dev/null
+cp "$(pwd)/scripts/dmg-bg.png" "$STAGE/.background/bg.png"
+hdiutil detach /Volumes/cliPet >/dev/null 2>&1 || true
+RW="$BUILD/cliPet-rw.dmg"; rm -f "$RW"
+hdiutil create -volname "cliPet" -srcfolder "$STAGE" -fs HFS+ -format UDRW -ov "$RW" >/dev/null
+hdiutil attach "$RW" -nobrowse -noautoopen >/dev/null
+# Mise en page Finder (best-effort : si ça échoue, le DMG reste valide sans layout).
+osascript >/dev/null 2>&1 <<'OSA' || true
+tell application "Finder"
+  tell disk "cliPet"
+    open
+    set current view of container window to icon view
+    set toolbar visible of container window to false
+    set statusbar visible of container window to false
+    set bounds of container window to {200, 120, 920, 580}
+    set vo to icon view options of container window
+    set arrangement of vo to not arranged
+    set icon size of vo to 120
+    set background picture of vo to file ".background:bg.png"
+    set position of item "cliPet.app" of container window to {180, 205}
+    set position of item "Applications" of container window to {540, 205}
+    update without registering applications
+    delay 1
+    close
+  end tell
+end tell
+OSA
+sync
+hdiutil detach /Volumes/cliPet >/dev/null 2>&1 || hdiutil detach /Volumes/cliPet -force >/dev/null 2>&1 || true
+DMG="$BUILD/cliPet-$VERSION.dmg"; rm -f "$DMG"
+hdiutil convert "$RW" -format UDZO -o "$DMG" >/dev/null
+rm -f "$RW"
 codesign --force --sign "$DEVID" "$DMG"
 
 # --- 4. Notarisation du DMG (notarise aussi l'app à l'intérieur), staple des deux ---
