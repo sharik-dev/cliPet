@@ -2,6 +2,11 @@ import AppKit
 import SwiftUI
 import Combine
 
+extension Notification.Name {
+    /// Demande l'ouverture de l'éditeur de pet (émise depuis les réglages).
+    static let openPetEditor = Notification.Name("cliPet.openPetEditor")
+}
+
 /// Panneau flottant qui peut devenir « key » sans activer l'app (pour recevoir les clics).
 final class FloatingPanel: NSPanel {
     override var canBecomeKey: Bool { true }
@@ -26,6 +31,7 @@ final class PetController {
     private let engine: PetEngine
     private let settings: PetSettings
     private let clipboard: ClipboardManager
+    private let folderStore = ClipFolderStore()
 
     private let petPanel: FloatingPanel
     private let toyPanel: FloatingPanel
@@ -123,6 +129,12 @@ final class PetController {
         SpriteStore.shared.$activeSkinId.receive(on: RunLoop.main).sink { [weak self] _ in
             self?.engine.recomputeSize()
         }.store(in: &cancellables)
+
+        // L'éditeur peut être ouvert depuis les réglages (onglet « Mon pet »).
+        NotificationCenter.default.publisher(for: .openPetEditor)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.openSpriteEditor() }
+            .store(in: &cancellables)
     }
 
     // MARK: - Historique
@@ -134,6 +146,8 @@ final class PetController {
     private func showClipboardPanel() {
         let view = ClipboardHistoryView(
             clipboard: clipboard,
+            folders: folderStore,
+            l10n: L10n.for_(L10n.Language(rawValue: settings.language) ?? .en),
             onPick: { [weak self] item in self?.clipboard.copyToPasteboard(item); self?.hideClipboardPanel() },
             onClose: { [weak self] in self?.hideClipboardPanel() })
         let host = NSHostingView(rootView: view)
@@ -176,6 +190,10 @@ final class PetController {
     }
 
     // MARK: - Éditeur dev
+
+    static func requestOpenEditor() {
+        NotificationCenter.default.post(name: .openPetEditor, object: nil)
+    }
 
     func openSpriteEditor() {
         NSApp.activate(ignoringOtherApps: true)

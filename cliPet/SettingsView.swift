@@ -2,9 +2,11 @@ import SwiftUI
 
 struct SettingsView: View {
     @EnvironmentObject var settings: PetSettings
+    @ObservedObject private var store = SpriteStore.shared
     @State private var tab: Tab = .pet
     @State private var launchAtLogin = LaunchAtLogin.isEnabled
     @State private var showLaunchHelp = false
+    @State private var skins: [Skin] = SkinCatalog.all()
 
     enum Tab { case pet, behavior }
 
@@ -81,6 +83,11 @@ struct SettingsView: View {
 
     private var petTab: some View {
         VStack(alignment: .leading, spacing: 14) {
+            // 1) Choix du skin
+            PixelSectionHeader(title: l10n.sectionSkins)
+            skinPicker
+
+            // 2) Couleurs / robes
             PixelSectionHeader(title: l10n.sectionCoats)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
                       spacing: 8) {
@@ -101,7 +108,50 @@ struct SettingsView: View {
 
             PixelSectionHeader(title: l10n.sectionSize)
             sliderRow(value: $settings.scale, range: 0.5...1.8, label: l10n.labelSize)
+
+            // 3) Éditeur de pet
+            Button(l10n.buttonOpenEditor) { PetController.requestOpenEditor() }
+                .buttonStyle(PixelButtonStyle())
+                .padding(.top, 6)
         }
+    }
+
+    // MARK: - Skin picker (intègre le gestionnaire de skins)
+
+    private var skinPalette: PixelPalette {
+        PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
+                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
+    }
+
+    private var skinPicker: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2),
+                  spacing: 10) {
+            ForEach(skins) { skin in
+                Button { store.setActiveSkin(skin.id) } label: {
+                    skinCard(skin)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .onAppear { skins = SkinCatalog.all() }
+    }
+
+    private func skinCard(_ skin: Skin) -> some View {
+        let active = store.activeSkinId == skin.id
+        return VStack(spacing: 6) {
+            PixelSpriteView(frame: skin.frames["idle1"] ?? skin.frames["idle"] ?? [],
+                            palette: skinPalette)
+                .frame(width: 72, height: 72)
+            Text(skin.name).font(PixelTheme.font(10)).lineLimit(1)
+                .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
+            if active {
+                Text("● ACTIF").font(PixelTheme.font(8)).foregroundStyle(PixelTheme.accent2)
+            }
+        }
+        .padding(8)
+        .frame(maxWidth: .infinity)
+        .background(active ? PixelTheme.panelHi : PixelTheme.panel)
+        .overlay(Rectangle().strokeBorder(active ? PixelTheme.accent : PixelTheme.border, lineWidth: 2))
     }
 
     // MARK: - Settings tab

@@ -27,6 +27,7 @@
         BB0000000000000000000017 /* SkinManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000017 /* SkinManagerView.swift */; };
         BB0000000000000000000018 /* ImageToSprite.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000018 /* ImageToSprite.swift */; };
         BB0000000000000000000019 /* LaunchAtLogin.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000019 /* LaunchAtLogin.swift */; };
+        BB0000000000000000000020 /* ClipFolderStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000020 /* ClipFolderStore.swift */; };
         DEAF279BFEDFCB8AAEAE1553 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */; };
         84D100C56611DEAF9CB019F9 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FE777EC5B430A4B5FD97E478 /* Preview Assets.xcassets */; };
 /* End PBXBuildFile section */
@@ -53,6 +54,7 @@
         AA0000000000000000000017 /* SkinManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SkinManagerView.swift"; sourceTree = "<group>"; };
         AA0000000000000000000018 /* ImageToSprite.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImageToSprite.swift"; sourceTree = "<group>"; };
         AA0000000000000000000019 /* LaunchAtLogin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LaunchAtLogin.swift"; sourceTree = "<group>"; };
+        AA0000000000000000000020 /* ClipFolderStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ClipFolderStore.swift"; sourceTree = "<group>"; };
         0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Assets.xcassets"; sourceTree = "<group>"; };
         FE777EC5B430A4B5FD97E478 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,6 +109,7 @@
                 AA0000000000000000000017 /* SkinManagerView.swift */,
                 AA0000000000000000000018 /* ImageToSprite.swift */,
                 AA0000000000000000000019 /* LaunchAtLogin.swift */,
+                AA0000000000000000000020 /* ClipFolderStore.swift */,
                 0AE6514C24CADC0D6E32F2A6 /* Assets.xcassets */,
                 C4C7EB5F0BE22CA67AAC8555 /* Preview Content */,
             );
@@ -212,6 +215,7 @@
                 BB0000000000000000000017 /* SkinManagerView.swift in Sources */,
                 BB0000000000000000000018 /* ImageToSprite.swift in Sources */,
                 BB0000000000000000000019 /* LaunchAtLogin.swift in Sources */,
+                BB0000000000000000000020 /* ClipFolderStore.swift in Sources */,
             );
             runOnlyForDeploymentPostprocessing = 0;
         };

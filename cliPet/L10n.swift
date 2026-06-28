@@ -35,6 +35,8 @@ struct L10n {
 
     let tabMyCat: String
     let tabSettings: String
+    let sectionSkins: String
+    let buttonOpenEditor: String
     let sectionCoats: String
     let sectionCustomColors: String
     let sectionSize: String
@@ -61,6 +63,19 @@ struct L10n {
     let launchLater: String
     let launchOpenSettings: String
 
+    // Clipboard panel + folders
+    let clipTitle: String
+    let clipSearchPlaceholder: String
+    let clipClearHelp: String
+    let clipEmpty: String
+    let clipNoResults: String
+    let historyTab: String
+    let foldersTitle: String
+    let newFolderPlaceholder: String
+    let folderEmpty: String
+    let saveToFolder: String
+    let noFoldersYet: String
+
     func keepItems(_ n: Int) -> String { String(format: keepItemsFmt, n) }
 
     // MARK: - Factory
@@ -69,7 +84,8 @@ struct L10n {
         switch lang {
         case .en:
             return L10n(
-                tabMyCat: "MY CAT", tabSettings: "SETTINGS",
+                tabMyCat: "MY PET", tabSettings: "SETTINGS",
+                sectionSkins: "Skin", buttonOpenEditor: "🎨 OPEN PET EDITOR",
                 sectionCoats: "Coats", sectionCustomColors: "Custom Colors",
                 sectionSize: "Size",
                 colorFur: "Fur", colorBelly: "Belly / paws",
@@ -86,11 +102,18 @@ struct L10n {
                 launchPromptBody: "Add cliPet to your login items so your pet is always there when you start your Mac. You can change this anytime in Settings.",
                 launchEnable: "Add to startup",
                 launchLater: "Not now",
-                launchOpenSettings: "Open Login Items settings"
+                launchOpenSettings: "Open Login Items settings",
+                clipTitle: "CLIPBOARD", clipSearchPlaceholder: "search…",
+                clipClearHelp: "Clear", clipEmpty: "nothing copied yet",
+                clipNoResults: "no results", historyTab: "History",
+                foldersTitle: "Folders", newFolderPlaceholder: "folder name",
+                folderEmpty: "nothing saved here yet", saveToFolder: "Save to folder",
+                noFoldersYet: "Create a folder first"
             )
         case .zh:
             return L10n(
-                tabMyCat: "我的猫", tabSettings: "设置",
+                tabMyCat: "我的宠物", tabSettings: "设置",
+                sectionSkins: "皮肤", buttonOpenEditor: "🎨 打开宠物编辑器",
                 sectionCoats: "外观", sectionCustomColors: "自定义颜色",
                 sectionSize: "大小",
                 colorFur: "毛色", colorBelly: "肚子 / 爪子",
@@ -107,11 +130,18 @@ struct L10n {
                 launchPromptBody: "将 cliPet 添加到登录项，开机时宠物就会一直陪着你。可随时在设置中更改。",
                 launchEnable: "添加到启动项",
                 launchLater: "暂不",
-                launchOpenSettings: "打开登录项设置"
+                launchOpenSettings: "打开登录项设置",
+                clipTitle: "剪贴板", clipSearchPlaceholder: "搜索…",
+                clipClearHelp: "清空", clipEmpty: "还没有复制任何内容",
+                clipNoResults: "无结果", historyTab: "历史",
+                foldersTitle: "文件夹", newFolderPlaceholder: "文件夹名称",
+                folderEmpty: "这里还没有保存内容", saveToFolder: "保存到文件夹",
+                noFoldersYet: "请先创建一个文件夹"
             )
         case .hi:
             return L10n(
-                tabMyCat: "मेरी बिल्ली", tabSettings: "सेटिंग्स",
+                tabMyCat: "मेरा पेट", tabSettings: "सेटिंग्स",
+                sectionSkins: "स्किन", buttonOpenEditor: "🎨 पेट एडिटर खोलें",
                 sectionCoats: "रंग-रूप", sectionCustomColors: "कस्टम रंग",
                 sectionSize: "आकार",
                 colorFur: "फर", colorBelly: "पेट / पंजे",
@@ -128,11 +158,18 @@ struct L10n {
                 launchPromptBody: "cliPet को अपने लॉगिन आइटम्स में जोड़ें ताकि Mac शुरू होते ही आपका पेट मौजूद रहे। इसे सेटिंग्स में कभी भी बदला जा सकता है।",
                 launchEnable: "स्टार्टअप में जोड़ें",
                 launchLater: "अभी नहीं",
-                launchOpenSettings: "लॉगिन आइटम्स सेटिंग्स खोलें"
+                launchOpenSettings: "लॉगिन आइटम्स सेटिंग्स खोलें",
+                clipTitle: "क्लिपबोर्ड", clipSearchPlaceholder: "खोजें…",
+                clipClearHelp: "साफ़ करें", clipEmpty: "अभी तक कुछ कॉपी नहीं हुआ",
+                clipNoResults: "कोई परिणाम नहीं", historyTab: "इतिहास",
+                foldersTitle: "फ़ोल्डर", newFolderPlaceholder: "फ़ोल्डर का नाम",
+                folderEmpty: "यहाँ अभी तक कुछ सहेजा नहीं गया", saveToFolder: "फ़ोल्डर में सहेजें",
+                noFoldersYet: "पहले एक फ़ोल्डर बनाएँ"
             )
         case .es:
             return L10n(
-                tabMyCat: "MI GATO", tabSettings: "AJUSTES",
+                tabMyCat: "MI MASCOTA", tabSettings: "AJUSTES",
+                sectionSkins: "Skin", buttonOpenEditor: "🎨 ABRIR EDITOR DE MASCOTA",
                 sectionCoats: "Pelajes", sectionCustomColors: "Colores personalizados",
                 sectionSize: "Tamaño",
                 colorFur: "Pelaje", colorBelly: "Vientre / patas",
@@ -149,11 +186,18 @@ struct L10n {
                 launchPromptBody: "Añade cliPet a tus elementos de inicio para tener a tu mascota siempre al arrancar el Mac. Puedes cambiarlo cuando quieras en Ajustes.",
                 launchEnable: "Añadir al inicio",
                 launchLater: "Ahora no",
-                launchOpenSettings: "Abrir Elementos de inicio"
+                launchOpenSettings: "Abrir Elementos de inicio",
+                clipTitle: "PORTAPAPELES", clipSearchPlaceholder: "buscar…",
+                clipClearHelp: "Vaciar", clipEmpty: "nada copiado todavía",
+                clipNoResults: "sin resultados", historyTab: "Historial",
+                foldersTitle: "Carpetas", newFolderPlaceholder: "nombre de carpeta",
+                folderEmpty: "nada guardado aquí todavía", saveToFolder: "Guardar en carpeta",
+                noFoldersYet: "Crea una carpeta primero"
             )
         case .fr:
             return L10n(
-                tabMyCat: "MON CHAT", tabSettings: "RÉGLAGES",
+                tabMyCat: "MON PET", tabSettings: "RÉGLAGES",
+                sectionSkins: "Skin", buttonOpenEditor: "🎨 OUVRIR L'ÉDITEUR DE PET",
                 sectionCoats: "Robes", sectionCustomColors: "Couleurs perso",
                 sectionSize: "Taille",
                 colorFur: "Pelage", colorBelly: "Ventre / pattes",
@@ -170,11 +214,18 @@ struct L10n {
                 launchPromptBody: "Ajoutez cliPet à vos éléments d'ouverture pour retrouver votre compagnon dès le démarrage du Mac. Modifiable à tout moment dans les Réglages.",
                 launchEnable: "Ajouter au démarrage",
                 launchLater: "Plus tard",
-                launchOpenSettings: "Ouvrir les Éléments d'ouverture"
+                launchOpenSettings: "Ouvrir les Éléments d'ouverture",
+                clipTitle: "PRESSE-PAPIERS", clipSearchPlaceholder: "rechercher…",
+                clipClearHelp: "Vider", clipEmpty: "rien copié pour l'instant",
+                clipNoResults: "aucun résultat", historyTab: "Historique",
+                foldersTitle: "Dossiers", newFolderPlaceholder: "nom du dossier",
+                folderEmpty: "rien de sauvegardé ici", saveToFolder: "Sauvegarder dans",
+                noFoldersYet: "Créez d'abord un dossier"
             )
         case .ar:
             return L10n(
-                tabMyCat: "قطتي", tabSettings: "الإعدادات",
+                tabMyCat: "حيواني", tabSettings: "الإعدادات",
+                sectionSkins: "المظهر العام", buttonOpenEditor: "🎨 فتح محرر الحيوان",
                 sectionCoats: "المظهر", sectionCustomColors: "ألوان مخصصة",
                 sectionSize: "الحجم",
                 colorFur: "الفراء", colorBelly: "البطن / المخالب",
@@ -191,7 +242,13 @@ struct L10n {
                 launchPromptBody: "أضف cliPet إلى عناصر تسجيل الدخول ليكون رفيقك حاضرًا دائمًا عند تشغيل الـ Mac. يمكنك تغيير ذلك في أي وقت من الإعدادات.",
                 launchEnable: "إضافة إلى بدء التشغيل",
                 launchLater: "ليس الآن",
-                launchOpenSettings: "فتح إعدادات عناصر تسجيل الدخول"
+                launchOpenSettings: "فتح إعدادات عناصر تسجيل الدخول",
+                clipTitle: "الحافظة", clipSearchPlaceholder: "بحث…",
+                clipClearHelp: "مسح", clipEmpty: "لم يتم نسخ أي شيء بعد",
+                clipNoResults: "لا نتائج", historyTab: "السجل",
+                foldersTitle: "المجلدات", newFolderPlaceholder: "اسم المجلد",
+                folderEmpty: "لا شيء محفوظ هنا بعد", saveToFolder: "حفظ في مجلد",
+                noFoldersYet: "أنشئ مجلدًا أولًا"
             )
         }
     }

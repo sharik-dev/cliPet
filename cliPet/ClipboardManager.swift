@@ -167,25 +167,30 @@ final class ClipboardManager: ObservableObject {
 
     /// Remet un élément dans le presse-papiers (clic sur un item de l'historique).
     func copyToPasteboard(_ item: ClipItem) {
-        ignoreNextChange = true
-        pasteboard.clearContents()
-        switch item.kind {
-        case .image:
-            if let url = imageURL(for: item), let img = NSImage(contentsOf: url) {
-                pasteboard.writeObjects([img])
-            }
-        case .file:
-            let urls = item.text.split(separator: "\n").map { URL(fileURLWithPath: String($0)) as NSURL }
-            if !urls.isEmpty { pasteboard.writeObjects(urls) }
-        case .text, .color:
-            pasteboard.setString(item.text, forType: .string)
-        }
-        lastChangeCount = pasteboard.changeCount
+        placeOnPasteboard(kind: item.kind, text: item.text, imageURL: imageURL(for: item))
 
         // Remonte l'item en tête.
         history.removeAll { $0.id == item.id }
         history.insert(item, at: 0)
         persist()
+    }
+
+    /// Écrit un contenu brut dans le presse-papiers (utilisé aussi par les clips sauvegardés).
+    func placeOnPasteboard(kind: ClipKind, text: String, imageURL: URL?) {
+        ignoreNextChange = true
+        pasteboard.clearContents()
+        switch kind {
+        case .image:
+            if let url = imageURL, let img = NSImage(contentsOf: url) {
+                pasteboard.writeObjects([img])
+            }
+        case .file:
+            let urls = text.split(separator: "\n").map { URL(fileURLWithPath: String($0)) as NSURL }
+            if !urls.isEmpty { pasteboard.writeObjects(urls) }
+        case .text, .color:
+            pasteboard.setString(text, forType: .string)
+        }
+        lastChangeCount = pasteboard.changeCount
     }
 
     func remove(_ item: ClipItem) {
