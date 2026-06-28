@@ -57,8 +57,10 @@ var SPRITES = {"idle":["..........................XX.....","....................
 
   // ============ Panneau presse-papier (ouvert au clic sur le pet) ============
   var clipPanel = document.getElementById("clipPanel");
+  var clipOpen = false;               // le pet reste immobile tant que c'est vrai
   function openClip(petCx, petTop) {
     if (!clipPanel) return;
+    clipOpen = true;
     var ms = document.getElementById("macScreen");
     if (ms && petCx != null) {
       var msw = ms.clientWidth;
@@ -75,6 +77,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
   }
   function closeClip() {
     if (!clipPanel) return;
+    clipOpen = false;
     clipPanel.classList.remove("show");
     clipPanel.setAttribute("aria-hidden", "true");
   }
@@ -148,6 +151,19 @@ var SPRITES = {"idle":["..........................XX.....","....................
 
     function frame(now) {
       var t = now - t0;
+
+      // Presse-papier ouvert → le pet reste immobile (assis) à sa position.
+      if (clipOpen) {
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        var sCx = cat.x + catW / 2, sCy = floorY + catH - 6;
+        var sg = ctx.createRadialGradient(sCx, sCy, 4, sCx, sCy, catW * 0.42);
+        sg.addColorStop(0, "rgba(0,0,0,0.32)"); sg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = sg;
+        ctx.beginPath(); ctx.ellipse(sCx, sCy, catW * 0.42, 14, 0, 0, Math.PI * 2); ctx.fill();
+        drawGrid(ctx, SPRITES.sit, CAT, SC, Math.round(cat.x), floorY, cat.face < 0);
+        requestAnimationFrame(frame);
+        return;
+      }
 
       // auto-balade : le chat marche le long du bas de l'écran
       if (!pointerActive && t > wanderNext) {

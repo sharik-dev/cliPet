@@ -368,7 +368,16 @@ p  { margin: 0; color: var(--text-muted); }
 .menubar .mb-left .apple { font-size: 13px; }
 .menubar .mb-left b { font-weight: 700; }
 .menubar .mb-left span:not(.apple) { color: rgba(255, 255, 255, 0.8); }
-.menubar .mb-right { display: flex; align-items: center; gap: 12px; color: rgba(255, 255, 255, 0.88); }
+.menubar .mb-right { display: flex; align-items: center; gap: 11px; color: rgba(255, 255, 255, 0.92); }
+.mb-ico { height: 15px; width: auto; display: block; color: rgba(255, 255, 255, 0.92); }
+.mb-batt { height: 13px; }
+.mb-paw { height: 16px; }
+.mb-input { font-size: 11px; font-weight: 600; line-height: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.55); border-radius: 4px; padding: 0 4px; }
+.mb-cc { position: relative; display: inline-flex; }
+.mb-dot { position: absolute; top: -1px; right: -3px; width: 5px; height: 5px;
+  border-radius: 50%; background: #ff9f0a; }
+.mb-clock { font-size: 12px; white-space: nowrap; }
 
 /* — Panneau presse-papier (réplique fidèle de l'app cliPet) — */
 /* Palette miroir de PixelTheme (cliPet/PixelUI.swift) */
