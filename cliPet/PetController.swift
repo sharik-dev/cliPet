@@ -32,8 +32,12 @@ final class PetController {
     private var clipPanel: FloatingPanel?
     private var editorWindow: NSWindow?
     private var skinWindow: NSWindow?
+    private var settingsWindow: NSWindow?
     private var cancellables = Set<AnyCancellable>()
     private var clipResignObserver: NSObjectProtocol?
+
+    /// Le pet est-il masqué (caché par l'utilisateur) ?
+    private(set) var isPetHidden = false
 
     init(engine: PetEngine, settings: PetSettings, clipboard: ClipboardManager) {
         self.engine = engine
@@ -107,7 +111,7 @@ final class PetController {
         }.store(in: &cancellables)
 
         engine.$toyVisible.receive(on: RunLoop.main).sink { [weak self] visible in
-            guard let self else { return }
+            guard let self, !self.isPetHidden else { return }
             if visible { self.toyPanel.orderFront(nil) } else { self.toyPanel.orderOut(nil) }
         }.store(in: &cancellables)
 
@@ -187,6 +191,35 @@ final class PetController {
         w.center()
         w.makeKeyAndOrderFront(nil)
         editorWindow = w
+    }
+
+    func openSettings() {
+        NSApp.activate(ignoringOtherApps: true)
+        if let w = settingsWindow { w.makeKeyAndOrderFront(nil); return }
+        let view = SettingsView().environmentObject(settings)
+        let w = NSWindow(contentViewController: NSHostingController(rootView: view))
+        w.title = "Réglages — cliPet"
+        w.styleMask = [.titled, .closable, .miniaturizable]
+        w.isReleasedWhenClosed = false
+        w.center()
+        w.makeKeyAndOrderFront(nil)
+        settingsWindow = w
+    }
+
+    // MARK: - Masquer / afficher le pet
+
+    func togglePetVisible() { setPetHidden(!isPetHidden) }
+
+    func setPetHidden(_ hidden: Bool) {
+        isPetHidden = hidden
+        engine.isPaused = hidden
+        if hidden {
+            petPanel.orderOut(nil)
+            toyPanel.orderOut(nil)
+        } else {
+            petPanel.orderFrontRegardless()
+            if engine.toyVisible { toyPanel.orderFront(nil) }
+        }
     }
 
     func openSkinManager() {

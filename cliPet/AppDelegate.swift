@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private(set) lazy var engine = PetEngine(settings: settings)
     private var petController: PetController?
     private var statusItem: NSStatusItem?
+    private var hidePetItem: NSMenuItem?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Agent : pas d'icône Dock, vit dans la barre de menus.
@@ -63,6 +64,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(withTitle: "Historique du presse-papiers",
                      action: #selector(toggleClipboard), keyEquivalent: "")
             .target = self
+        let hideItem = menu.addItem(withTitle: "Masquer le pet",
+                                    action: #selector(toggleHidePet), keyEquivalent: "h")
+        hideItem.target = self
+        hidePetItem = hideItem
         menu.addItem(.separator())
         menu.addItem(withTitle: "Réglages…",
                      action: #selector(openSettings), keyEquivalent: ",")
@@ -91,13 +96,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openSkins() { petController?.openSkinManager() }
     @objc private func clearHistory() { clipboard.clear() }
     @objc private func quit() { NSApp.terminate(nil) }
+    @objc private func openSettings() { petController?.openSettings() }
 
-    @objc private func openSettings() {
-        NSApp.activate(ignoringOtherApps: true)
-        // macOS 14+ : showSettingsWindow: — fallback showPreferencesWindow: pour macOS 13.
-        if !NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil) {
-            NSApp.sendAction(Selector(("showPreferencesWindow:")), to: nil, from: nil)
-        }
+    @objc private func toggleHidePet() {
+        petController?.togglePetVisible()
+        let hidden = petController?.isPetHidden ?? false
+        hidePetItem?.title = hidden ? "Afficher le pet" : "Masquer le pet"
     }
 }
 
