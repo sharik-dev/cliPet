@@ -579,6 +579,9 @@ section.block { padding: 96px 0; }
   content: "✓"; color: var(--success); font-weight: 700; flex: none;
 }
 .price-card .btn-primary { width: 100%; justify-content: center; }
+.buy-label { font-size: 13px; color: var(--text-faint); margin: 16px 0 10px; }
+.buy-row { display: flex; gap: 10px; }
+.buy-row .btn { flex: 1; justify-content: center; }
 .price-note { font-size: 13px; color: var(--text-faint); margin-top: 16px; }
 .price-note a { color: var(--text-muted); text-decoration: underline; }
 
