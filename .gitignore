@@ -41,3 +41,7 @@ Thumbs.db
 # Build / release artifacts
 .build-release/
 releases/
+
+# Build artifacts (Xcode local builds)
+build/
+.build-release/
