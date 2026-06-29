@@ -678,20 +678,78 @@ section.block { padding: 96px 0; }
 .reveal.in { opacity: 1; transform: none; }
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE  (mobile only — la version desktop reste intacte)
    ============================================================ */
 @media (max-width: 860px) {
   .features { grid-template-columns: repeat(2, 1fr); }
   .footer .grid { grid-template-columns: 1fr 1fr; }
   .footer .brand-col { grid-column: 1 / -1; }
   section.block { padding: 72px 0; }
+
+  /* Démo macOS : la barre de menus est en px fixes alors que l'écran rétrécit
+     → on resserre pour qu'elle ne déborde pas */
+  .menubar { padding: 0 10px; gap: 8px; }
+  .menubar .mb-left { gap: 11px; }
+  .menubar .mb-right { gap: 9px; }
 }
+
 @media (max-width: 560px) {
-  .features { grid-template-columns: 1fr; }
+  .wrap { padding: 0 18px; }
+
+  /* Nav : on masque les liens d'ancrage, on garde logo + langue + Download */
+  .nav-links { gap: 12px; }
   .nav-links a:not(.btn) { display: none; }
-  .cta-row { flex-direction: column; align-items: stretch; }
+  .nav .wrap { height: 58px; }
+
+  /* Hero plus compact */
+  .hero { padding: 56px 0 30px; }
+  .hero .lead { margin-top: 18px; }
+  .cta-row { flex-direction: column; align-items: stretch; margin-top: 28px; }
   .cta-row .btn { justify-content: center; }
-  .footer .grid { grid-template-columns: 1fr; }
+  .stage { margin-top: 38px; }
+  .compat { margin-top: 32px; font-size: 11px; }
+
+  /* Démo macOS : on simplifie la barre de menus (sinon ça déborde / passe à la ligne) */
+  .stage-bar { padding: 0 10px; }
+  .stage-bar .title { display: none; }
+  .menubar { height: 22px; font-size: 10px; padding: 0 8px; gap: 6px; }
+  .menubar .mb-left { gap: 8px; }
+  .menubar .mb-left span:not(.apple) { display: none; }  /* File/Edit/Window/Help */
+  .menubar .mb-right { gap: 7px; }
+  .menubar .mb-input { display: none; }
+  .mb-ico { height: 13px; }
+  .mb-batt { height: 11px; }
+  .mb-clock { font-size: 10px; }
+
+  /* Panneau presse-papier un peu plus étroit pour respirer dans l'écran simulé */
+  .clip-panel { width: 270px; }
+
+  /* Sections */
+  .features { grid-template-columns: 1fr; }
+  .section-head { margin-bottom: 40px; }
+  section.block { padding: 60px 0; }
+
+  /* Pricing */
+  .price-card { padding: 32px 22px; }
+  .price { font-size: 48px; }
+  .buy-row { flex-direction: column; }
+
+  /* FAQ + CTA final */
+  .qa button { font-size: 16px; padding: 20px 0; }
+  .final { padding: 80px 0; }
+
+  /* Footer */
+  .footer { padding: 52px 0 32px; }
+  .footer .grid { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 380px) {
+  .wrap { padding: 0 14px; }
+  .logo { font-size: 15px; gap: 8px; }
+  .logo canvas { width: 22px; height: 22px; }
+  .btn-sm { padding: 8px 14px; font-size: 13px; }
+  .price { font-size: 42px; }
+  .price-card { padding: 28px 18px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
