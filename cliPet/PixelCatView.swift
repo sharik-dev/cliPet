@@ -3,11 +3,17 @@ import SwiftUI
 /// Palette partagée char -> couleur, recolorée via les réglages.
 struct PixelPalette {
     let body, belly, stripe, eye, nose: Color
+    /// Surcharges utilisateur (char -> hex), prioritaires sur le mapping par défaut.
+    /// Doit être passée explicitement : on ne lit PAS `SpriteStore.shared` dans le
+    /// rendu, sinon (1) la palette du skin actif déteindrait sur l'aperçu des autres
+    /// skins, et (2) le `Canvas` ne se redessinerait pas au changement (dépendance
+    /// cachée non suivie par SwiftUI → aperçus qui « traînent »).
+    var customColors: [String: String] = [:]
 
     func color(for ch: Character) -> Color? {
         if ch == "." { return nil }
         // Couleur personnalisée (palette utilisateur) prioritaire.
-        if let custom = SpriteStore.shared.customColor(for: ch) { return custom }
+        if let hex = customColors[String(ch)] { return Color(hex: hex) }
         switch ch {
         case ".":  return nil
         case "X":  return stripe.darkened(0.6)   // contour
@@ -66,14 +72,15 @@ struct PixelCatView: View {
         PixelSpriteView(
             frame: SpriteStore.shared.frame(Self.frameName(for: state, tick: tick)),
             palette: PixelPalette(body: bodyColor, belly: bellyColor,
-                                  stripe: stripeColor, eye: eyeColor, nose: noseColor),
+                                  stripe: stripeColor, eye: eyeColor, nose: noseColor,
+                                  customColors: SpriteStore.shared.customColors),
             flipped: facing == .left
         )
     }
 
     static func frameName(for state: PetState, tick: Int) -> String {
         switch state {
-        case .walk, .pounce, .chaseToy:
+        case .walk, .pounce, .chaseToy, .travel:
             return "walk\((tick / 6) % 4 + 1)"
         case .run, .chase:
             return "walk\((tick / 3) % 4 + 1)"
@@ -113,7 +120,28 @@ struct ToyView: View {
         return PixelSpriteView(
             frame: SpriteStore.shared.frame("yarn\(idx)"),
             palette: PixelPalette(body: bodyColor, belly: bellyColor,
-                                  stripe: stripeColor, eye: eyeColor, nose: noseColor)
+                                  stripe: stripeColor, eye: eyeColor, nose: noseColor,
+                                  customColors: SpriteStore.shared.customColors)
+        )
+    }
+}
+
+/// La niche (maison du pet) : décor affiché à droite pendant que le pet se cache /
+/// réapparaît. Rendue depuis le `SpriteStore` (frame « niche ») avec la palette
+/// standard du pet → entièrement éditable dans l'éditeur de sprite, par skin.
+struct NicheView: View {
+    let bodyColor: Color
+    let bellyColor: Color
+    let stripeColor: Color
+    let eyeColor: Color
+    let noseColor: Color
+
+    var body: some View {
+        PixelSpriteView(
+            frame: SpriteStore.shared.frame("niche"),
+            palette: PixelPalette(body: bodyColor, belly: bellyColor,
+                                  stripe: stripeColor, eye: eyeColor, nose: noseColor,
+                                  customColors: SpriteStore.shared.customColors)
         )
     }
 }

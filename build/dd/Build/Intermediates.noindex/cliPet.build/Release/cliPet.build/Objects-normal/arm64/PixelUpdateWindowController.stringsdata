@@ -1,0 +1,128 @@
+{
+  "source": "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PixelUpdateWindowController.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "CHECKING FOR UPDATES",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 116
+        }
+      },
+      {
+        "comment": "",
+        "key": "UPDATE AVAILABLE",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 133
+        }
+      },
+      {
+        "comment": "",
+        "key": "v%@",
+        "location": {
+          "startingColumn": 14,
+          "startingLine": 202
+        }
+      },
+      {
+        "comment": "",
+        "key": "INSTALL NOW",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 170
+        }
+      },
+      {
+        "comment": "",
+        "key": "REMIND ME LATER",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "Skip this version",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 192
+        }
+      },
+      {
+        "comment": "",
+        "key": "YOU'RE UP TO DATE",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 215
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld%%",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 238
+        }
+      },
+      {
+        "comment": "",
+        "key": "READY TO INSTALL",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 249
+        }
+      },
+      {
+        "comment": "",
+        "key": "INSTALL & RELAUNCH",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 255
+        }
+      },
+      {
+        "comment": "",
+        "key": "LATER",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 266
+        }
+      },
+      {
+        "comment": "",
+        "key": "INSTALLING…",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 282
+        }
+      },
+      {
+        "comment": "",
+        "key": "UPDATE COMPLETE",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 295
+        }
+      },
+      {
+        "comment": "",
+        "key": "Relaunching…",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 299
+        }
+      },
+      {
+        "comment": "",
+        "key": "UPDATE ERROR",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 309
+        }
+      }
+    ]
+  },
+  "version": 1
+}

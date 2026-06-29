@@ -164,6 +164,7 @@ enum PetInstaller {
             if let data = try? JSONSerialization.data(withJSONObject: payload) { try? data.write(to: url) }
         }
         if activate { SpriteStore.shared.setActiveSkin(skinId) }
+        NotificationCenter.default.post(name: .skinsChanged, object: nil)
         return skinId
     }
 }

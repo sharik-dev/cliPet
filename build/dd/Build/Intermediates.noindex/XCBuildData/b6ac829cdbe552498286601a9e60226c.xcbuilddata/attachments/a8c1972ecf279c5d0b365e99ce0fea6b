@@ -1,0 +1,161 @@
+{
+  "" : {
+    "const-values" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.swiftconstvalues",
+    "dependencies" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.d",
+    "diagnostics" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.dia",
+    "emit-module-dependencies" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary-emit-module.dia",
+    "pch" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.swiftdeps"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/GeneratedAssetSymbols.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/GeneratedAssetSymbols.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/Analytics.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Analytics.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Analytics.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Analytics.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/AppDelegate.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/AppDelegate.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/AppDelegate.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/AppDelegate.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/CatSprites.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/CatSprites.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/CatSprites.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/CatSprites.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/ClipFolderStore.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipFolderStore.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipFolderStore.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipFolderStore.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/ClipboardHistoryView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardHistoryView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardHistoryView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardHistoryView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/ClipboardManager.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardManager.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardManager.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/ClipboardManager.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/L10n.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/L10n.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/L10n.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/L10n.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/LaunchAtLogin.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LaunchAtLogin.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LaunchAtLogin.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LaunchAtLogin.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/LicenseManager.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseManager.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseManager.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseManager.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/LicenseView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/LicenseView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/MarketplaceClient.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceClient.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceClient.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceClient.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/MarketplaceView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/MarketplaceView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetCatalog.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetCatalog.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetCatalog.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetCatalog.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetController.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetController.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetController.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetController.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetEngine.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetEngine.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetEngine.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetEngine.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetPackage.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetPackage.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetPackage.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetPackage.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetSettings.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetSettings.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetSettings.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetSettings.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PetView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PetView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PixelCatView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelCatView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelCatView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelCatView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PixelUI.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUI.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUI.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUI.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PixelUpdateDriver.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateDriver.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateDriver.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateDriver.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/PixelUpdateWindowController.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateWindowController.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateWindowController.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/PixelUpdateWindowController.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/SettingsView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SettingsView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SettingsView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SettingsView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/Skin.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Skin.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Skin.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/Skin.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/SkinManagerView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SkinManagerView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SkinManagerView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SkinManagerView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/SpriteEditorView.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteEditorView.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteEditorView.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteEditorView.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/SpriteStore.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteStore.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteStore.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/SpriteStore.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/UpdaterController.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/UpdaterController.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/UpdaterController.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/UpdaterController.o"
+  },
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/cliPetApp.swift" : {
+    "index-unit-output-path" : "/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPetApp.o",
+    "llvm-bc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPetApp.bc",
+    "object" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPetApp.o"
+  }
+}

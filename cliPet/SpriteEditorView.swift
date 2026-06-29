@@ -1,6 +1,9 @@
 import SwiftUI
 import AppKit
-import UniformTypeIdentifiers
+
+private enum DrawTool: Equatable {
+    case pencil, bucket, rectangle, triangle, circle
+}
 
 /// Éditeur de pet : dessiner ses propres animaux pixel-art en direct.
 /// La palette est une liste de couleurs libres (pas de rôles imposés), les
@@ -12,17 +15,27 @@ struct SpriteEditorView: View {
     @State private var frameName = "idle1"
     @State private var grid: [[Character]] = []
     @State private var brush: Character = "g"
-    @State private var bgTolerance: Double = 60
     @State private var editSize: CGFloat = 392
+
+    // Outil actif
+    @State private var activeTool: DrawTool = .pencil
 
     // Historique d'édition (annuler / rétablir)
     @State private var undoStack: [[[Character]]] = []
     @State private var redoStack: [[[Character]]] = []
     @State private var strokeSnapshot: [[Character]]? = nil
 
+    // Début du tracé de forme (rectangle / triangle / cercle)
+    @State private var shapeStartRow: Int = 0
+    @State private var shapeStartCol: Int = 0
+    @State private var hasShapeStart: Bool = false
+
     // Associer (copier la frame courante vers d'autres frames)
     @State private var showAssociate = false
     @State private var associateTargets: Set<String> = []
+
+    // Copier / coller une frame (presse-papiers de sprite interne à l'éditeur)
+    @State private var frameClipboard: [[Character]]? = nil
 
     private var cols: Int { grid.first?.count ?? 33 }
     private var rows: Int { grid.count }
@@ -34,7 +47,8 @@ struct SpriteEditorView: View {
 
     private var paletteView: PixelPalette {
         PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
-                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
+                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor,
+                     customColors: store.customColors)
     }
 
     private var l10n: L10n { L10n.for_(L10n.Language(rawValue: settings.language) ?? .en) }
@@ -63,7 +77,7 @@ struct SpriteEditorView: View {
 
     /// Taille du canvas adaptée à l'espace dispo (carré), avec bornes.
     private func idealSide(for size: CGSize) -> CGFloat {
-        let availW = size.width - 172 - 16 - 32   // sidebar + spacing + padding
+        let availW = size.width - 172 - 16 - 32 - 76   // sidebar + spacing + padding + flèches
         let availH = size.height - 32 - 40 - 90    // padding + titre + previews
         return max(220, min(availW, availH, 460))
     }
@@ -75,39 +89,35 @@ struct SpriteEditorView: View {
             Text("\(l10n.editorSectionFrame) : \(frameName.uppercased())")
                 .font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent).tracking(1)
 
-            Canvas { ctx, size in
-                let cell = size.width / CGFloat(cols)
-                for r in 0..<rows {
-                    for c in 0..<cols {
-                        let rect = CGRect(x: CGFloat(c) * cell, y: CGFloat(r) * cell,
-                                          width: cell, height: cell)
-                        let dark = (r + c) % 2 == 0
-                        ctx.fill(Path(rect), with: .color(dark ? PixelTheme.panel : PixelTheme.panelHi))
-                        if r < grid.count, c < grid[r].count,
-                           let color = paletteView.color(for: grid[r][c]) {
-                            ctx.fill(Path(rect), with: .color(color))
+            HStack(spacing: 10) {
+                frameArrow("chevron.left", help: l10n.editorPrevFrame) { step(-1) }
+
+                Canvas { ctx, size in
+                    let cell = size.width / CGFloat(cols)
+                    for r in 0..<rows {
+                        for c in 0..<cols {
+                            let rect = CGRect(x: CGFloat(c) * cell, y: CGFloat(r) * cell,
+                                              width: cell, height: cell)
+                            let dark = (r + c) % 2 == 0
+                            ctx.fill(Path(rect), with: .color(dark ? PixelTheme.panel : PixelTheme.panelHi))
+                            if r < grid.count, c < grid[r].count,
+                               let color = paletteView.color(for: grid[r][c]) {
+                                ctx.fill(Path(rect), with: .color(color))
+                            }
+                            ctx.stroke(Path(rect), with: .color(PixelTheme.border.opacity(0.4)), lineWidth: 0.5)
                         }
-                        ctx.stroke(Path(rect), with: .color(PixelTheme.border.opacity(0.4)), lineWidth: 0.5)
                     }
                 }
+                .frame(width: editSize, height: editSize)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 2))
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { v in handleDragChanged(at: v.location) }
+                        .onEnded   { v in handleDragEnded(at: v.location) }
+                )
+
+                frameArrow("chevron.right", help: l10n.editorNextFrame) { step(1) }
             }
-            .frame(width: editSize, height: editSize)
-            .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 2))
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { v in
-                        if strokeSnapshot == nil { strokeSnapshot = grid }  // début de trait
-                        paint(at: v.location)
-                    }
-                    .onEnded { _ in
-                        if let snap = strokeSnapshot, snap != grid {
-                            undoStack.append(snap)
-                            if undoStack.count > 50 { undoStack.removeFirst() }
-                            redoStack.removeAll()
-                        }
-                        strokeSnapshot = nil
-                    }
-            )
 
             HStack(spacing: 16) {
                 preview(.idle, l10n.editorPreviewIdle)
@@ -132,6 +142,28 @@ struct SpriteEditorView: View {
         .padding(6).pixelPanel()
     }
 
+    /// Flèche de navigation rapide entre frames (à gauche / droite du canvas).
+    private func frameArrow(_ symbol: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(PixelTheme.accent)
+                .frame(width: 28, height: 44)
+                .background(PixelTheme.panel)
+                .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .help(help)
+    }
+
+    /// Passe à la frame suivante / précédente dans l'ordre du catalogue (cyclique).
+    private func step(_ delta: Int) {
+        let order = CatSprites.order
+        guard let i = order.firstIndex(of: frameName) else { return }
+        let next = (i + delta + order.count) % order.count
+        frameName = order[next]
+    }
+
     // MARK: - Barre latérale
 
     private var sidebar: some View {
@@ -142,6 +174,9 @@ struct SpriteEditorView: View {
             }
             .labelsHidden().pickerStyle(.menu)
 
+            PixelSectionHeader(title: l10n.editorSectionTools)
+            toolSelector
+
             PixelSectionHeader(title: l10n.editorSectionColors)
             VStack(spacing: 6) {
                 eraserRow
@@ -151,17 +186,6 @@ struct SpriteEditorView: View {
             }
             Button(l10n.editorAddColor) { brush = store.addColor(.gray) }
                 .buttonStyle(PixelButtonStyle())
-
-            PixelSectionHeader(title: l10n.editorSectionImport)
-            Button(l10n.editorImportImage) { importImage() }
-                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
-            VStack(alignment: .leading, spacing: 2) {
-                Text(l10n.editorBgTolerance(Int(bgTolerance)))
-                    .font(PixelTheme.font(9, .regular)).foregroundStyle(PixelTheme.dim)
-                Slider(value: $bgTolerance, in: 0...150)
-            }
-            Text(l10n.editorBgToleranceHelp)
-                .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
 
             PixelSectionHeader(title: l10n.editorSectionActions)
             HStack(spacing: 6) {
@@ -174,13 +198,15 @@ struct SpriteEditorView: View {
                     .disabled(redoStack.isEmpty)
                     .keyboardShortcut("z", modifiers: [.command, .shift])
             }
-            Button(l10n.editorAssociate) { associateTargets = []; showAssociate = true }
-                .buttonStyle(PixelButtonStyle())
-                .popover(isPresented: $showAssociate, arrowEdge: .leading) { associatePopover }
+            HStack(spacing: 6) {
+                Button(l10n.editorCopyFrame) { copyFrame() }
+                    .buttonStyle(PixelButtonStyle())
+                Button(l10n.editorPasteFrame) { pasteFrame() }
+                    .buttonStyle(PixelButtonStyle())
+                    .disabled(frameClipboard == nil)
+            }
             Button(l10n.editorClearFrame) { clearFrame() }
                 .buttonStyle(PixelButtonStyle())
-            Button(l10n.editorResetAll) { store.resetToDefault(); loadGrid() }
-                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.35)))
 
             Text(l10n.editorAutoSave)
                 .font(PixelTheme.font(9, .regular)).foregroundStyle(PixelTheme.accent2)
@@ -361,31 +387,25 @@ struct SpriteEditorView: View {
         commit()
     }
 
-    /// Ouvre une image et la convertit en sprite (fond auto-détecté → vide).
-    private func importImage() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.png, .jpeg, .tiff, .gif, .bmp, .heic]
-        panel.allowsMultipleSelection = false
-        panel.canChooseDirectories = false
-        guard panel.runModal() == .OK, let url = panel.url,
-              let image = NSImage(contentsOf: url) else { return }
-
-        let targetCols = cols, targetRows = rows
-        guard targetCols > 0, targetRows > 0,
-              let converted = ImageToSprite.convert(
-                image, cols: targetCols, rows: targetRows,
-                palette: paletteView, tolerance: bgTolerance) else {
-            NSSound.beep()
-            return
-        }
-        pushUndo()
-        grid = converted
-        commit()
-    }
-
     private func clearFrame() {
         pushUndo()
         grid = grid.map { row in Array(repeating: Character("."), count: row.count) }
+        commit()
+    }
+
+    /// Copie le dessin de la frame courante dans le presse-papiers interne.
+    private func copyFrame() { frameClipboard = grid }
+
+    /// Colle le dessin copié dans la frame courante. Les dimensions peuvent
+    /// différer : on recopie uniquement les cellules qui se chevauchent.
+    private func pasteFrame() {
+        guard let src = frameClipboard else { return }
+        pushUndo()
+        for r in 0..<min(rows, src.count) {
+            for c in 0..<min(grid[r].count, src[r].count) {
+                grid[r][c] = src[r][c]
+            }
+        }
         commit()
     }
 
@@ -413,6 +433,168 @@ struct SpriteEditorView: View {
         guard let next = redoStack.popLast() else { return }
         undoStack.append(grid)
         grid = next
+        commit()
+    }
+
+    // MARK: - Tool selector UI
+
+    private var toolSelector: some View {
+        HStack(spacing: 4) {
+            toolBtn(.pencil,    "pencil",           l10n.editorToolPencil)
+            toolBtn(.bucket,    "paintbucket",      l10n.editorToolBucket)
+            toolBtn(.rectangle, "rectangle.fill",   l10n.editorToolRect)
+            toolBtn(.triangle,  "triangle.fill",    l10n.editorToolTriangle)
+            toolBtn(.circle,    "circle.fill",      l10n.editorToolCircle)
+        }
+    }
+
+    @ViewBuilder
+    private func toolBtn(_ tool: DrawTool, _ icon: String, _ helpText: String) -> some View {
+        let selected = activeTool == tool
+        Button { activeTool = tool } label: {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(selected ? PixelTheme.accent : PixelTheme.dim)
+                .frame(width: 28, height: 24)
+                .background(selected ? PixelTheme.panelHi : PixelTheme.panel)
+                .overlay(Rectangle().strokeBorder(
+                    selected ? PixelTheme.accent : PixelTheme.border, lineWidth: 1))
+        }
+        .buttonStyle(.plain)
+        .help(helpText)
+    }
+
+    // MARK: - Drag dispatch
+
+    private func handleDragChanged(at p: CGPoint) {
+        switch activeTool {
+        case .pencil:
+            if strokeSnapshot == nil { strokeSnapshot = grid }
+            paint(at: p)
+        case .bucket:
+            break
+        case .rectangle, .triangle, .circle:
+            if strokeSnapshot == nil {
+                strokeSnapshot = grid
+                let cell = clampedCell(p)
+                shapeStartRow = cell.row
+                shapeStartCol = cell.col
+                hasShapeStart = true
+            }
+            guard hasShapeStart, let snap = strokeSnapshot,
+                  let end = boundedCell(p) else { return }
+            grid = snap
+            applyShape(r0: min(shapeStartRow, end.row), r1: max(shapeStartRow, end.row),
+                       c0: min(shapeStartCol, end.col), c1: max(shapeStartCol, end.col))
+            commit()
+        }
+    }
+
+    private func handleDragEnded(at p: CGPoint) {
+        switch activeTool {
+        case .pencil:
+            if let snap = strokeSnapshot, snap != grid {
+                undoStack.append(snap); if undoStack.count > 50 { undoStack.removeFirst() }
+                redoStack.removeAll()
+            }
+            strokeSnapshot = nil
+        case .bucket:
+            if let cell = boundedCell(p) { floodFill(row: cell.row, col: cell.col) }
+        case .rectangle, .triangle, .circle:
+            if let snap = strokeSnapshot, snap != grid {
+                undoStack.append(snap); if undoStack.count > 50 { undoStack.removeFirst() }
+                redoStack.removeAll()
+            }
+            strokeSnapshot = nil
+            hasShapeStart = false
+        }
+    }
+
+    // MARK: - Cell coordinate helpers
+
+    private func clampedCell(_ p: CGPoint) -> (row: Int, col: Int) {
+        guard cols > 0 else { return (0, 0) }
+        let cell = editSize / CGFloat(cols)
+        return (max(0, min(rows - 1, Int(p.y / cell))),
+                max(0, min(cols - 1, Int(p.x / cell))))
+    }
+
+    private func boundedCell(_ p: CGPoint) -> (row: Int, col: Int)? {
+        guard cols > 0 else { return nil }
+        let cell = editSize / CGFloat(cols)
+        let c = Int(p.x / cell), r = Int(p.y / cell)
+        guard r >= 0, r < rows, c >= 0, c < cols else { return nil }
+        return (r, c)
+    }
+
+    // MARK: - Shape drawing
+
+    private func applyShape(r0: Int, r1: Int, c0: Int, c1: Int) {
+        switch activeTool {
+        case .rectangle: fillRect(r0: r0, r1: r1, c0: c0, c1: c1)
+        case .triangle:  fillTriangle(r0: r0, r1: r1, c0: c0, c1: c1)
+        case .circle:    fillCircle(r0: r0, r1: r1, c0: c0, c1: c1)
+        default: break
+        }
+    }
+
+    private func fillRect(r0: Int, r1: Int, c0: Int, c1: Int) {
+        for r in r0...r1 {
+            guard r < rows else { break }
+            for c in c0...c1 {
+                guard c < grid[r].count else { break }
+                grid[r][c] = brush
+            }
+        }
+    }
+
+    private func fillTriangle(r0: Int, r1: Int, c0: Int, c1: Int) {
+        let cMid = (c0 + c1) / 2
+        let totalRows = r1 - r0
+        for r in r0...r1 {
+            guard r < rows else { break }
+            let t = totalRows > 0 ? Double(r - r0) / Double(totalRows) : 1.0
+            let leftC  = Int((Double(cMid) + t * Double(c0 - cMid)).rounded())
+            let rightC = Int((Double(cMid) + t * Double(c1 - cMid)).rounded())
+            for c in min(leftC, rightC)...max(leftC, rightC) {
+                guard c >= 0, c < grid[r].count else { continue }
+                grid[r][c] = brush
+            }
+        }
+    }
+
+    private func fillCircle(r0: Int, r1: Int, c0: Int, c1: Int) {
+        let centerR = Double(r0 + r1) / 2.0
+        let centerC = Double(c0 + c1) / 2.0
+        let radiusR = max(0.5, Double(r1 - r0) / 2.0)
+        let radiusC = max(0.5, Double(c1 - c0) / 2.0)
+        for r in r0...r1 {
+            guard r < rows else { break }
+            for c in c0...c1 {
+                guard c < grid[r].count else { break }
+                let dr = (Double(r) - centerR) / radiusR
+                let dc = (Double(c) - centerC) / radiusC
+                if dr * dr + dc * dc <= 1.0 { grid[r][c] = brush }
+            }
+        }
+    }
+
+    // MARK: - Flood fill (paint bucket)
+
+    private func floodFill(row: Int, col: Int) {
+        let target = grid[row][col]
+        guard target != brush else { return }
+        pushUndo()
+        var queue: [(Int, Int)] = [(row, col)]
+        var head = 0
+        while head < queue.count {
+            let (r, c) = queue[head]; head += 1
+            guard r >= 0, r < rows, c >= 0, c < grid[r].count,
+                  grid[r][c] == target else { continue }
+            grid[r][c] = brush
+            queue.append((r - 1, c)); queue.append((r + 1, c))
+            queue.append((r, c - 1)); queue.append((r, c + 1))
+        }
         commit()
     }
 }

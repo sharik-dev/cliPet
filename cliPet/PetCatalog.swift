@@ -12,7 +12,15 @@ struct PetPreset: Identifiable, Equatable, Codable {
 }
 
 enum PetCatalog {
-    static let presets: [PetPreset] = [
+    /// Variantes intégrées (par défaut) propres à un skin. Seul le skin « coeur »
+    /// (Cœur gris) en possède : ses 8 robes forment ensemble la **famille du Cœur gris**.
+    /// Tout nouveau skin démarre sans aucune variante par défaut.
+    static func builtinCoats(for skinId: String) -> [PetPreset] {
+        skinId == "coeur" ? coeurPresets : []
+    }
+
+    /// Robes de la famille « Cœur gris » (skin `coeur`).
+    static let coeurPresets: [PetPreset] = [
         PetPreset(id: "grey",   name: "Gris cœur", body: "#969BA1", belly: "#F5F5F5",
                   stripe: "#3C4045", eye: "#141414", nose: "#CE2828"),
         PetPreset(id: "orange", name: "Roux",       body: "#E8993A", belly: "#F7E9CE",

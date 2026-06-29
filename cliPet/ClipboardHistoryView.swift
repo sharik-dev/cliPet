@@ -8,7 +8,11 @@ struct ClipboardHistoryView: View {
     let onPick: (ClipItem) -> Void
     let onClose: () -> Void
     var onClearHistory: (() -> Void)? = nil
-    var onHeightChange: ((CGFloat) -> Void)? = nil
+    var onHidePet: (() -> Void)? = nil
+
+    /// Hauteur fixe de la zone de liste : le panneau garde toujours la même taille
+    /// (la liste défile), pour une UX stable et simple.
+    private let listHeight: CGFloat = 380
 
     @State private var search = ""
     @State private var selectedFolder: ClipFolder?   // nil = vue historique
@@ -41,16 +45,10 @@ struct ClipboardHistoryView: View {
             searchField
             divider
             content
+                .frame(height: listHeight)
         }
         .frame(width: 300)
         .pixelPanel(PixelTheme.bg)
-        .background(
-            GeometryReader { geo in
-                Color.clear
-                    .onAppear { onHeightChange?(geo.size.height) }
-                    .onChange(of: geo.size.height) { _, h in onHeightChange?(h) }
-            }
-        )
     }
 
     private var divider: some View { Rectangle().fill(PixelTheme.border).frame(height: 2) }
@@ -70,6 +68,11 @@ struct ClipboardHistoryView: View {
                 Button(action: onClear) { Image(systemName: "trash.fill") }
                     .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
                     .help(l10n.clipClearHelp)
+            }
+            if let onHidePet {
+                Button(action: onHidePet) { Image(systemName: "eye.slash.fill") }
+                    .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
+                    .help(l10n.clipHideHelp)
             }
             Button(action: onClose) { Image(systemName: "xmark") }
                 .buttonStyle(.plain).foregroundStyle(PixelTheme.dim)
@@ -243,7 +246,7 @@ struct ClipboardHistoryView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 300)
+                .frame(maxHeight: .infinity)
             }
         }
     }
@@ -271,7 +274,7 @@ struct ClipboardHistoryView: View {
                         }
                     }
                 }
-                .frame(maxHeight: 300)
+                .frame(maxHeight: .infinity)
             }
         }
     }
@@ -288,7 +291,7 @@ struct ClipboardHistoryView: View {
                 .font(PixelTheme.font(10, .regular))
                 .foregroundStyle(PixelTheme.dim)
         }
-        .frame(maxWidth: .infinity, minHeight: 120)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     // MARK: - Picker de dossier pour un item d'historique
@@ -512,21 +515,18 @@ private struct ClipRow: View {
     private var imageRow: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    Text(String(format: "%02d", index + 1))
-                        .font(PixelTheme.font(9))
-                        .foregroundStyle(PixelTheme.accent2)
-                    leading
-                    Text(item.preview)
-                        .font(PixelTheme.font(10, .regular))
-                        .foregroundStyle(PixelTheme.dim)
-                        .lineLimit(1)
-                    Spacer()
-                }
-                .contentShape(Rectangle())
-                .onTapGesture(perform: onPick)
-
-                trailing
+                Text(String(format: "%02d", index + 1))
+                    .font(PixelTheme.font(9))
+                    .foregroundStyle(PixelTheme.accent2)
+                leading
+                Text(item.preview)
+                    .font(PixelTheme.font(10, .regular))
+                    .foregroundStyle(PixelTheme.dim)
+                    .lineLimit(1)
+                Spacer()
+                // Réserve l'espace des actions ; les vrais boutons sont posés en overlay
+                // par-dessus toute la ligne (priorité de hit-test sur le tap « copier »).
+                trailing.hidden()
             }
 
             Group {
@@ -548,8 +548,12 @@ private struct ClipRow: View {
             .frame(height: 120)
             .clipped()
             .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
-            .onTapGesture(perform: onPick)
         }
+        // Un seul tap « copier » sur tout le contenu, et les boutons d'action posés
+        // au-dessus : ils captent leurs clics en priorité au lieu de tomber sur onPick.
+        .contentShape(Rectangle())
+        .onTapGesture(perform: onPick)
+        .overlay(alignment: .topTrailing) { trailing }
     }
 
     @ViewBuilder private var leading: some View {

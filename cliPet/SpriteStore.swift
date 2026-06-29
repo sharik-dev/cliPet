@@ -46,6 +46,8 @@ final class SpriteStore: ObservableObject {
 
     private func reloadFrames() {
         var f = SkinCatalog.skin(activeSkinId).frames
+        // Niche par défaut : tout skin (même importé) peut afficher / éditer sa maison.
+        if f["niche"] == nil { f["niche"] = CatSprites.niche }
         if let custom = loadCustom(for: activeSkinId) {
             f.merge(custom) { _, new in new }   // retouches éditeur par-dessus
         }
@@ -73,6 +75,23 @@ final class SpriteStore: ObservableObject {
 
     /// Palette de base (rôles historiques du chat) — toujours disponible.
     static let baseChars: [Character] = ["X", "g", "d", "w", "o", "h", "p", "r"]
+
+    /// Surcharges de couleurs à utiliser pour l'APERÇU d'un skin donné.
+    /// Le skin actif renvoie la palette en mémoire (reflète les retouches en cours) ;
+    /// les autres sont lus sur disque. Permet d'afficher chaque carte avec SA palette
+    /// au lieu de celle du skin actif.
+    func previewColors(for skinId: String) -> [String: String] {
+        skinId == activeSkinId ? customColors : Self.diskColors(for: skinId)
+    }
+
+    private static func diskColors(for skinId: String) -> [String: String] {
+        guard let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+                .appendingPathComponent("cliPet/palette_\(skinId).json"),
+              let data = try? Data(contentsOf: url),
+              let payload = try? JSONDecoder().decode(PaletteData.self, from: data)
+        else { return [:] }
+        return payload.customColors
+    }
 
     /// Couleur personnalisée pour un caractère (nil si non surchargé).
     func customColor(for ch: Character) -> Color? {
@@ -120,6 +139,19 @@ final class SpriteStore: ObservableObject {
     func clearColor(_ ch: Character) {
         guard customColors[String(ch)] != nil else { return }
         customColors[String(ch)] = nil
+        scheduleSave()
+    }
+
+    /// Épingle le jeu de couleurs courant (rôles de base) comme overrides propres au
+    /// skin actif : applique ces couleurs sur CE pet précis, sans créer de variante
+    /// réutilisable dans la grille des coats.
+    func applyBaseColorsToActiveSkin(body: Color, belly: Color, stripe: Color,
+                                     eye: Color, nose: Color) {
+        customColors["g"] = body.hexString
+        customColors["w"] = belly.hexString
+        customColors["d"] = stripe.hexString
+        customColors["o"] = eye.hexString
+        customColors["p"] = nose.hexString
         scheduleSave()
     }
 

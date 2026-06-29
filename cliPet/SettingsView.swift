@@ -12,6 +12,12 @@ struct SettingsView: View {
     @State private var skins: [Skin] = SkinCatalog.all()
     @State private var showSaveCoat = false
     @State private var newCoatName = ""
+    @State private var renamingSkinID: String?
+    @State private var renameText = ""
+    @State private var showNewPet = false
+    @State private var newPetName = ""
+    @State private var headerName = ""
+    @FocusState private var headerNameFocused: Bool
 
     enum Tab { case pet, behavior }
 
@@ -43,16 +49,43 @@ struct SettingsView: View {
 
     private var header: some View {
         VStack(spacing: 8) {
-            Text("🐾 cliPet")
-                .font(PixelTheme.font(16))
-                .tracking(2)
+            // Nom du pet actuel — éditable (renomme le skin actif).
+            HStack(spacing: 6) {
+                Image(systemName: "pawprint.fill")
+                    .font(.system(size: 12))
+                    .foregroundStyle(PixelTheme.accent)
+                TextField("", text: $headerName)
+                    .textFieldStyle(.plain)
+                    .font(PixelTheme.font(16))
+                    .tracking(2)
+                    .multilineTextAlignment(.center)
+                    .fixedSize()
+                    .foregroundStyle(PixelTheme.text)
+                    .focused($headerNameFocused)
+                    .onSubmit { commitHeaderRename() }
+                    .onChange(of: headerNameFocused) { focused in
+                        if !focused { commitHeaderRename() }
+                    }
+                Image(systemName: "pencil")
+                    .font(.system(size: 10))
+                    .foregroundStyle(PixelTheme.dim)
+            }
+            .onAppear { headerName = activeDisplayName }
+            .onChange(of: store.activeSkinId) { _ in headerName = activeDisplayName }
+            .onChange(of: settings.currentCoatName) { _ in
+                if !headerNameFocused { headerName = activeDisplayName }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .skinsChanged)) { _ in
+                if !headerNameFocused { headerName = activeDisplayName }
+            }
+
             TimelineView(.animation) { timeline in
                 let tick = Int(timeline.date.timeIntervalSinceReferenceDate * 30)
-                PixelCatView(
-                    state: .walk, facing: .right, tick: tick,
-                    bodyColor: settings.bodyColor, bellyColor: settings.bellyColor,
-                    stripeColor: settings.stripeColor, eyeColor: settings.eyeColor,
-                    noseColor: settings.noseColor
+                // Aperçu du pet réellement utilisé : skin actif + couleurs courantes.
+                PixelSpriteView(
+                    frame: activeSkin.frames[PixelCatView.frameName(for: .walk, tick: tick)]
+                        ?? activeSkin.frames["idle1"] ?? activeSkin.frames["idle"] ?? [],
+                    palette: skinPalette
                 )
                 .frame(width: 96, height: 96)
             }
@@ -61,6 +94,19 @@ struct SettingsView: View {
         .padding(.vertical, 14)
         .background(PixelTheme.panel)
         .overlay(Rectangle().fill(PixelTheme.border).frame(height: 2), alignment: .bottom)
+    }
+
+    private func commitHeaderRename() {
+        let newName = headerName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newName.isEmpty, newName != activeDisplayName else {
+            headerName = activeDisplayName
+            return
+        }
+        // Renomme le pet (skin). On purge la robe courante pour que le nom saisi
+        // s'affiche réellement (sinon le nom de robe masquerait le nouveau nom).
+        settings.currentCoatName = ""
+        SkinCatalog.renameSkin(activeSkin.id, to: newName)
+        skins = SkinCatalog.all()
     }
 
     private var tabBar: some View {
@@ -96,14 +142,18 @@ struct SettingsView: View {
             PixelSectionHeader(title: l10n.sectionCoats)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3),
                       spacing: 8) {
-                ForEach(PetCatalog.presets + settings.customCoats) { preset in
+                ForEach(PetCatalog.builtinCoats(for: store.activeSkinId)
+                        + settings.coats(for: store.activeSkinId)) { preset in
                     Button { applyCoat(preset) } label: {
-                        PetSwatch(preset: preset, selected: isSelected(preset))
+                        PetSwatch(preset: preset, selected: isSelected(preset),
+                                  frame: store.frame("idle1"))
                     }
                     .buttonStyle(.plain)
                     .contextMenu {
                         if preset.id.hasPrefix("user-") {
-                            Button(role: .destructive) { settings.removeCoat(preset) } label: {
+                            Button(role: .destructive) {
+                                settings.removeCoat(preset, skinId: store.activeSkinId)
+                            } label: {
                                 Label(l10n.deleteVariant, systemImage: "trash")
                             }
                         }
@@ -115,17 +165,33 @@ struct SettingsView: View {
             PixelSectionHeader(title: l10n.sectionCustomColors)
             ForEach(variableChars, id: \.self) { customColorRow($0) }
 
-            Button(l10n.saveVariant) { showSaveCoat = true }
-                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
-                .popover(isPresented: $showSaveCoat, arrowEdge: .bottom) { saveCoatPopover }
+            // Appliquer les couleurs courantes au pet sélectionné, sans créer de variante.
+            Button { applyToSelectedPet() } label: {
+                PixelButtonLabel(glyph: PixelGlyph.check, title: l10n.applyToPet)
+            }
+            .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.3)))
+
+            Button { showSaveCoat = true } label: {
+                PixelButtonLabel(glyph: PixelGlyph.floppy, title: l10n.saveVariant)
+            }
+            .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+            .popover(isPresented: $showSaveCoat, arrowEdge: .bottom) { saveCoatPopover }
+
+            // Éditer le pet actuel (dessin / couleurs).
+            Button { PetController.requestOpenEditor() } label: {
+                PixelButtonLabel(glyph: PixelGlyph.pencil, title: l10n.buttonOpenEditor)
+            }
+            .buttonStyle(PixelButtonStyle())
+
+            // Créer un tout nouveau pet (skin vierge), puis ouvrir l'éditeur dessus.
+            Button { newPetName = ""; showNewPet = true } label: {
+                PixelButtonLabel(glyph: PixelGlyph.plus, title: l10n.editorNewPet)
+            }
+            .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+            .popover(isPresented: $showNewPet, arrowEdge: .bottom) { newPetPopover }
 
             PixelSectionHeader(title: l10n.sectionSize)
             sliderRow(value: $settings.scale, range: 0.5...1.8, label: l10n.labelSize)
-
-            // 3) Éditeur de pet
-            Button(l10n.buttonOpenEditor) { PetController.requestOpenEditor() }
-                .buttonStyle(PixelButtonStyle())
-                .padding(.top, 6)
         }
     }
 
@@ -133,38 +199,198 @@ struct SettingsView: View {
 
     private var skinPalette: PixelPalette {
         PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
-                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
+                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor,
+                     customColors: store.customColors)
+    }
+
+    /// Palette d'aperçu propre à une carte : chaque skin avec SA palette, pas celle
+    /// du skin actif (évite que tous les aperçus prennent les couleurs du skin courant).
+    private func cardPalette(for skin: Skin) -> PixelPalette {
+        PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
+                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor,
+                     customColors: store.previewColors(for: skin.id))
     }
 
     private var skinPicker: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2),
-                  spacing: 10) {
-            ForEach(skins) { skin in
-                Button { store.setActiveSkin(skin.id) } label: {
+        VStack(spacing: 10) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 2),
+                      spacing: 10) {
+                ForEach(skins) { skin in
                     skinCard(skin)
                 }
-                .buttonStyle(.plain)
+            }
+            .onAppear { skins = SkinCatalog.all() }
+            .onReceive(NotificationCenter.default.publisher(for: .skinsChanged)) { _ in
+                skins = SkinCatalog.all()
+            }
+
+            // Éditer / Supprimer le skin sélectionné
+            HStack(spacing: 8) {
+                Button {
+                    renameText = activeSkin.name
+                    renamingSkinID = activeSkin.id
+                } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.pencil, title: l10n.skinEdit)
+                }
+                .buttonStyle(PixelButtonStyle())
+                .popover(isPresented: Binding(
+                    get: { renamingSkinID == activeSkin.id },
+                    set: { if !$0 { renamingSkinID = nil } }
+                ), arrowEdge: .top) {
+                    renamePopover(for: activeSkin)
+                }
+
+                Button { deleteSkin(activeSkin) } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.trash, title: l10n.skinDelete)
+                }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.35)))
+                .disabled(activeSkin.builtin)
+            }
+
+            // Import / Marketplace buttons
+            HStack(spacing: 8) {
+                Button(action: importPet) {
+                    PixelButtonLabel(glyph: PixelGlyph.plus, title: l10n.skinAddPet)
+                }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+
+                Button(action: { PetController.requestOpenMarketplace() }) {
+                    PixelButtonLabel(glyph: PixelGlyph.store, title: l10n.skinTabMarket)
+                }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.3)))
             }
         }
-        .onAppear { skins = SkinCatalog.all() }
+    }
+
+    /// Skin actuellement sélectionné (cible des actions Éditer / Supprimer).
+    private var activeSkin: Skin { SkinCatalog.skin(store.activeSkinId) }
+
+    /// Nom affiché en haut / sur la carte active : la robe (variante) courante si
+    /// définie, sinon le nom du skin. Les deux doivent rester synchronisés.
+    private var activeDisplayName: String {
+        settings.currentCoatName.isEmpty ? activeSkin.name : settings.currentCoatName
     }
 
     private func skinCard(_ skin: Skin) -> some View {
         let active = store.activeSkinId == skin.id
-        return VStack(spacing: 6) {
-            PixelSpriteView(frame: skin.frames["idle1"] ?? skin.frames["idle"] ?? [],
-                            palette: skinPalette)
-                .frame(width: 72, height: 72)
-            Text(skin.name).font(PixelTheme.font(10)).lineLimit(1)
-                .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
-            if active {
-                Text(l10n.skinActive).font(PixelTheme.font(8)).foregroundStyle(PixelTheme.accent2)
+        return Button {
+            guard store.activeSkinId != skin.id else { return }
+            // Le nom de robe courant appartient au skin précédent : on le purge
+            // pour que la carte affiche le vrai nom du nouveau skin.
+            settings.currentCoatName = ""
+            store.setActiveSkin(skin.id)
+        } label: {
+            VStack(spacing: 6) {
+                PixelSpriteView(frame: skin.frames["idle1"] ?? skin.frames["idle"] ?? [],
+                                palette: cardPalette(for: skin))
+                    .frame(width: 72, height: 72)
+                // Skin actif : affiche le nom du coat (robe) courant si défini ; sinon le nom du skin.
+                Text(active && !settings.currentCoatName.isEmpty ? settings.currentCoatName : skin.name)
+                    .font(PixelTheme.font(10)).lineLimit(1)
+                    .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
+                if active {
+                    Text(l10n.skinActive).font(PixelTheme.font(8)).foregroundStyle(PixelTheme.accent2)
+                } else {
+                    // placeholder pour garder la hauteur constante
+                    Text(" ").font(PixelTheme.font(8))
+                }
+            }
+            .padding(8)
+            .frame(maxWidth: .infinity)
+            .background(active ? PixelTheme.panelHi : PixelTheme.panel)
+            .overlay(Rectangle().strokeBorder(active ? PixelTheme.accent : PixelTheme.border, lineWidth: 2))
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button(l10n.skinExport) { exportPet(skin) }
+        }
+    }
+
+    private func deleteSkin(_ skin: Skin) {
+        let alert = NSAlert()
+        alert.messageText = l10n.skinDelete
+        alert.informativeText = l10n.skinDeleteConfirm(skin.name)
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: l10n.skinDelete)
+        alert.addButton(withTitle: l10n.cancel)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        if store.activeSkinId == skin.id {
+            store.setActiveSkin(SkinCatalog.builtins[0].id)
+        }
+        SkinCatalog.deleteSkin(skin.id)
+        skins = SkinCatalog.all()
+    }
+
+    /// Popover de renommage pixel-art (remplace l'ancienne NSAlert).
+    private func renamePopover(for skin: Skin) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(l10n.skinRename.replacingOccurrences(of: "…", with: ""))
+                .font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent)
+            HStack(spacing: 6) {
+                TextField(skin.name, text: $renameText)
+                    .textFieldStyle(.plain).font(PixelTheme.font(11, .regular))
+                    .foregroundStyle(PixelTheme.text)
+                    .padding(.horizontal, 8).padding(.vertical, 6)
+                    .background(PixelTheme.bg)
+                    .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                    .onSubmit { commitRename(skin) }
+                Button(action: { commitRename(skin) }) {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                                         ? PixelTheme.dim : PixelTheme.accent2)
+                }
+                .buttonStyle(.plain)
+                .disabled(renameText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             }
         }
-        .padding(8)
-        .frame(maxWidth: .infinity)
-        .background(active ? PixelTheme.panelHi : PixelTheme.panel)
-        .overlay(Rectangle().strokeBorder(active ? PixelTheme.accent : PixelTheme.border, lineWidth: 2))
+        .padding(12).frame(width: 220).background(PixelTheme.panel)
+    }
+
+    private func commitRename(_ skin: Skin) {
+        let newName = renameText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newName.isEmpty else { return }
+        SkinCatalog.renameSkin(skin.id, to: newName)
+        skins = SkinCatalog.all()
+        renamingSkinID = nil
+    }
+
+    // MARK: - Import / Export
+
+    private func importPet() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.allowedContentTypes = []
+        panel.begin { resp in
+            guard resp == .OK, let url = panel.url else { return }
+            do {
+                let pkg = try PetPackage.load(from: url)
+                pkg.install()
+                skins = SkinCatalog.all()
+                showImportAlert(l10n.skinImported, isError: false)
+            } catch {
+                showImportAlert((error as? LocalizedError)?.errorDescription ?? l10n.skinImportError, isError: true)
+            }
+        }
+    }
+
+    private func exportPet(_ skin: Skin) {
+        let pkg = PetPackage.forSkin(skin, settings: settings)
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = "\(skin.name).\(PetPackage.fileExtension)"
+        panel.begin { resp in
+            guard resp == .OK, let url = panel.url else { return }
+            try? pkg.encoded().write(to: url)
+        }
+    }
+
+    private func showImportAlert(_ text: String, isError: Bool) {
+        let alert = NSAlert()
+        alert.messageText = text
+        alert.alertStyle = isError ? .warning : .informational
+        alert.runModal()
     }
 
     // MARK: - Settings tab
@@ -316,9 +542,54 @@ struct SettingsView: View {
     }
 
     private func saveCoat() {
-        settings.saveCurrentAsCoat(name: newCoatName)
+        settings.saveCurrentAsCoat(name: newCoatName, skinId: store.activeSkinId)
         newCoatName = ""
         showSaveCoat = false
+    }
+
+    // MARK: - Nouveau pet
+
+    private var newPetPopover: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(l10n.editorNewPet)
+                .font(PixelTheme.font(11)).foregroundStyle(PixelTheme.accent)
+            HStack(spacing: 6) {
+                TextField(l10n.editorNewPetPlaceholder, text: $newPetName)
+                    .textFieldStyle(.plain).font(PixelTheme.font(11, .regular))
+                    .foregroundStyle(PixelTheme.text)
+                    .padding(.horizontal, 8).padding(.vertical, 6)
+                    .background(PixelTheme.bg)
+                    .overlay(Rectangle().strokeBorder(PixelTheme.border, lineWidth: 1))
+                    .onSubmit(createNewPet)
+            }
+            Button(l10n.editorCreate) { createNewPet() }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+                .disabled(newPetName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding(12).frame(width: 200).background(PixelTheme.panel)
+    }
+
+    /// Crée un skin utilisateur vierge (frames vides aux dimensions par défaut),
+    /// l'active, puis ouvre l'éditeur dessus.
+    private func createNewPet() {
+        let name = newPetName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty else { return }
+        let blank = CatSprites.all.mapValues { rows in
+            rows.map { String(repeating: ".", count: $0.count) }
+        }
+        PetInstaller.install(name: name, frames: blank, palette: MarketPalette(), activate: true)
+        skins = SkinCatalog.all()
+        newPetName = ""
+        showNewPet = false
+        PetController.requestOpenEditor()
+    }
+
+    /// Épingle les couleurs courantes sur le pet (skin) sélectionné, sans créer de
+    /// variante réutilisable : ces couleurs deviennent propres à ce pet.
+    private func applyToSelectedPet() {
+        store.applyBaseColorsToActiveSkin(
+            body: settings.bodyColor, belly: settings.bellyColor,
+            stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
     }
 
     // MARK: - Custom colors (rendu dynamique des couleurs nommées)

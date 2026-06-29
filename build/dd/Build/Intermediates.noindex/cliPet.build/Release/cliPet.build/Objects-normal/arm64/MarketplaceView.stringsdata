@@ -1,0 +1,24 @@
+{
+  "source": "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/MarketplaceView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "@%@",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 73
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 76
+        }
+      }
+    ]
+  },
+  "version": 1
+}

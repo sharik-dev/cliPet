@@ -10,12 +10,15 @@ struct SkinManagerView: View {
 
     @State private var skins: [Skin] = SkinCatalog.all()
     @State private var tab: SkinTab = .mine
+    var initialTab: SkinTab = .mine
 
     enum SkinTab { case mine, market }
 
-    private var palette: PixelPalette {
+    /// Palette d'aperçu propre à un skin (avec SA palette, pas celle du skin actif).
+    private func cardPalette(for skin: Skin) -> PixelPalette {
         PixelPalette(body: settings.bodyColor, belly: settings.bellyColor,
-                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor)
+                     stripe: settings.stripeColor, eye: settings.eyeColor, nose: settings.noseColor,
+                     customColors: store.previewColors(for: skin.id))
     }
 
     private var l10n: L10n { L10n.for_(L10n.Language(rawValue: settings.language) ?? .en) }
@@ -53,14 +56,17 @@ struct SkinManagerView: View {
                 }
                 footer
             } else {
-                MarketplaceView(l10n: l10n) { skins = SkinCatalog.all() }
+                MarketplaceView(l10n: l10n) { skins = SkinCatalog.all(); tab = .mine }
                     .environmentObject(settings)
             }
         }
         .frame(width: 440, height: 540)
         .background(PixelTheme.bg)
         .foregroundStyle(PixelTheme.text)
-        .onAppear { skins = SkinCatalog.all() }
+        .onAppear { skins = SkinCatalog.all(); tab = initialTab }
+        .onReceive(NotificationCenter.default.publisher(for: .skinsChanged)) { _ in
+            skins = SkinCatalog.all()
+        }
     }
 
     private var tabBar: some View {
@@ -81,47 +87,70 @@ struct SkinManagerView: View {
         .buttonStyle(.plain)
     }
 
+    /// Skin actuellement sélectionné (cible des actions Éditer / Supprimer).
+    private var activeSkin: Skin { SkinCatalog.skin(store.activeSkinId) }
+
     private func skinCard(_ skin: Skin) -> some View {
         let active = store.activeSkinId == skin.id
-        return ZStack(alignment: .topTrailing) {
-            VStack(spacing: 6) {
-                SkinIconView(palette: palette)
-                    .frame(width: 52, height: 52)
+        return VStack(spacing: 6) {
+            PixelSpriteView(frame: skin.frames["idle1"] ?? skin.frames["idle"] ?? [],
+                            palette: cardPalette(for: skin))
+                .frame(width: 64, height: 64)
 
-                Text(skin.name).font(PixelTheme.font(11)).lineLimit(1)
-                    .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
-                Text(skin.builtin ? l10n.skinBuiltin : l10n.skinCustom)
-                    .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
-                if active {
-                    Text(l10n.skinActive).font(PixelTheme.font(9)).foregroundStyle(PixelTheme.accent2)
-                }
+            Text(skin.name).font(PixelTheme.font(11)).lineLimit(1)
+                .foregroundStyle(active ? PixelTheme.text : PixelTheme.dim)
+            Text(skin.builtin ? l10n.skinBuiltin : l10n.skinCustom)
+                .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
+            if active {
+                Text(l10n.skinActive).font(PixelTheme.font(9)).foregroundStyle(PixelTheme.accent2)
             }
-            .padding(10)
-            .frame(maxWidth: .infinity)
-            .background(active ? PixelTheme.panelHi : PixelTheme.panel)
-            .overlay(Rectangle().strokeBorder(active ? PixelTheme.accent : PixelTheme.border, lineWidth: 2))
-            .contentShape(Rectangle())
-            .onTapGesture { store.setActiveSkin(skin.id) }
-
-            // Bouton renommer — toujours visible, coin haut droit
-            Button { showRenameAlert(for: skin) } label: {
-                Image(systemName: "pencil")
-                    .font(.system(size: 9, weight: .semibold))
-                    .foregroundStyle(PixelTheme.dim)
-                    .padding(6)
-            }
-            .buttonStyle(.plain)
-            .help(l10n.skinRename)
         }
+        .padding(10)
+        .frame(maxWidth: .infinity)
+        .background(active ? PixelTheme.panelHi : PixelTheme.panel)
+        .overlay(Rectangle().strokeBorder(active ? PixelTheme.accent : PixelTheme.border, lineWidth: 2))
+        .contentShape(Rectangle())
+        .onTapGesture { store.setActiveSkin(skin.id) }
+    }
+
+    private func deleteSkin(_ skin: Skin) {
+        let alert = NSAlert()
+        alert.messageText = l10n.skinDelete
+        alert.informativeText = l10n.skinDeleteConfirm(skin.name)
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: l10n.skinDelete)
+        alert.addButton(withTitle: l10n.cancel)
+        guard alert.runModal() == .alertFirstButtonReturn else { return }
+        if store.activeSkinId == skin.id {
+            store.setActiveSkin(SkinCatalog.builtins[0].id)
+        }
+        SkinCatalog.deleteSkin(skin.id)
+        skins = SkinCatalog.all()
     }
 
     private var footer: some View {
         VStack(spacing: 6) {
+            // Éditer / Supprimer le skin sélectionné
             HStack(spacing: 8) {
-                Button(l10n.skinAddPet) { importPet() }
-                    .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
-                Button(l10n.skinOpenFolder) { openSkinsFolder() }
-                    .buttonStyle(PixelButtonStyle())
+                Button { showRenameAlert(for: activeSkin) } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.pencil, title: l10n.skinEdit)
+                }
+                .buttonStyle(PixelButtonStyle())
+                Button { deleteSkin(activeSkin) } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.trash, title: l10n.skinDelete)
+                }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent.darkened(0.35)))
+                .disabled(activeSkin.builtin)
+            }
+            HStack(spacing: 8) {
+                Button { importPet() } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.plus, title: l10n.skinAddPet)
+                }
+                .buttonStyle(PixelButtonStyle(tint: PixelTheme.accent2.darkened(0.35)))
+                Button { openSkinsFolder() } label: {
+                    PixelButtonLabel(glyph: PixelGlyph.folder, title: l10n.skinOpenFolder)
+                }
+                .buttonStyle(PixelButtonStyle())
             }
             Text(l10n.skinDropHint)
                 .font(PixelTheme.font(8, .regular)).foregroundStyle(PixelTheme.dim)
@@ -192,42 +221,6 @@ struct SkinManagerView: View {
             guard !newName.isEmpty else { return }
             SkinCatalog.renameSkin(skin.id, to: newName)
             skins = SkinCatalog.all()
-        }
-    }
-}
-
-// MARK: - Icône pixel art de skin (face de chat 9×9)
-
-private struct SkinIconView: View {
-    let palette: PixelPalette
-
-    // 9 colonnes × 9 lignes : g=body, X=outline, o=eye, w=belly, p=nose, d=stripe, .=transparent
-    private static let pixels: [[Character]] = [
-        [".", "g", "X", ".", ".", ".", "X", "g", "."],
-        [".", "g", "g", "g", "g", "g", "g", "g", "."],
-        ["X", "g", "g", "g", "g", "g", "g", "g", "X"],
-        ["X", "g", "o", "g", "g", "g", "o", "g", "X"],
-        ["X", "g", "g", "g", "g", "g", "g", "g", "X"],
-        ["X", "w", "w", "d", "p", "d", "w", "w", "X"],
-        ["X", "g", "g", "g", "g", "g", "g", "g", "X"],
-        [".", "X", "g", "g", "g", "g", "g", "X", "."],
-        [".", ".", "X", "X", "X", "X", "X", ".", "."],
-    ]
-
-    var body: some View {
-        Canvas { ctx, size in
-            let cols = CGFloat(9)
-            let rows = CGFloat(9)
-            let pw = size.width / cols
-            let ph = size.height / rows
-            for (ry, row) in Self.pixels.enumerated() {
-                for (rx, ch) in row.enumerated() {
-                    guard ch != "." else { continue }
-                    guard let color = palette.color(for: ch) else { continue }
-                    let rect = CGRect(x: CGFloat(rx) * pw, y: CGFloat(ry) * ph, width: pw, height: ph)
-                    ctx.fill(Path(rect), with: .color(color))
-                }
-            }
         }
     }
 }

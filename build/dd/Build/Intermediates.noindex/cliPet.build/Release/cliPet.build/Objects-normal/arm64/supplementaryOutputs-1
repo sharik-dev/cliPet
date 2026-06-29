@@ -1,0 +1,12 @@
+{
+  "/Users/sharikmohamed/Documents/MyProject/cliPet/cliPet/cliPetApp.swift" : {
+    "abi-baseline-json" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet.abi.json",
+    "const-values" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.swiftconstvalues",
+    "dependencies" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.d",
+    "diagnostics" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-primary.dia",
+    "objc-header" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet-Swift.h",
+    "swiftdoc" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet.swiftdoc",
+    "swiftmodule" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet.swiftmodule",
+    "swiftsourceinfo" : "/Users/sharikmohamed/Documents/MyProject/cliPet/build/dd/Build/Intermediates.noindex/cliPet.build/Release/cliPet.build/Objects-normal/arm64/cliPet.swiftsourceinfo"
+  }
+}

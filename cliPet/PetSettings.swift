@@ -25,8 +25,13 @@ final class PetSettings: ObservableObject {
     // MARK: - Language
     @Published var language: String   { didSet { save() } }   // BCP-47 code, e.g. "en"
 
-    // MARK: - Variantes (coats) sauvegardées par l'utilisateur
-    @Published var customCoats: [PetPreset] = []   { didSet { save() } }
+    // MARK: - Variantes (coats) sauvegardées par l'utilisateur, liées au skin
+    /// Variantes par skin : un skin ne montre que ses propres robes. Un nouveau skin
+    /// démarre sans variante (les robes du Cœur gris restent dans le skin `coeur`).
+    @Published var coatsBySkin: [String: [PetPreset]] = [:]   { didSet { save() } }
+
+    /// Nom du coat (robe) actuellement appliqué — devient le nom affiché du pet.
+    @Published var currentCoatName: String = ""    { didSet { save() } }
 
     private var isLoading = false
 
@@ -46,7 +51,7 @@ final class PetSettings: ObservableObject {
         load()
     }
 
-    /// Applique un preset du catalogue.
+    /// Applique un preset du catalogue (couleurs + nom du coat).
     func apply(_ preset: PetPreset) {
         isLoading = true
         bodyColor = Color(hex: preset.body)
@@ -54,25 +59,32 @@ final class PetSettings: ObservableObject {
         stripeColor = Color(hex: preset.stripe)
         eyeColor = Color(hex: preset.eye)
         noseColor = Color(hex: preset.nose)
+        currentCoatName = preset.name
         isLoading = false
         save()
     }
 
-    /// Sauvegarde le jeu de couleurs courant comme nouvelle variante (coat).
+    /// Variantes enregistrées par l'utilisateur pour un skin donné.
+    func coats(for skinId: String) -> [PetPreset] {
+        coatsBySkin[skinId] ?? []
+    }
+
+    /// Sauvegarde le jeu de couleurs courant comme nouvelle variante (coat) du skin donné.
     @discardableResult
-    func saveCurrentAsCoat(name: String) -> PetPreset {
+    func saveCurrentAsCoat(name: String, skinId: String) -> PetPreset {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        let safeName = trimmed.isEmpty ? "Variant \(customCoats.count + 1)" : trimmed
+        let existing = coatsBySkin[skinId] ?? []
+        let safeName = trimmed.isEmpty ? "Variant \(existing.count + 1)" : trimmed
         let coat = PetPreset(
             id: "user-\(UUID().uuidString)", name: safeName,
             body: bodyColor.hexString, belly: bellyColor.hexString,
             stripe: stripeColor.hexString, eye: eyeColor.hexString, nose: noseColor.hexString)
-        customCoats.append(coat)
+        coatsBySkin[skinId] = existing + [coat]
         return coat
     }
 
-    func removeCoat(_ coat: PetPreset) {
-        customCoats.removeAll { $0.id == coat.id }
+    func removeCoat(_ coat: PetPreset, skinId: String) {
+        coatsBySkin[skinId]?.removeAll { $0.id == coat.id }
     }
 
     // MARK: - Persistance
@@ -84,16 +96,21 @@ final class PetSettings: ObservableObject {
         var toy: Bool
         var maxHistory: Int
         var language: String
-        var customCoats: [PetPreset]?
+        var customCoats: [PetPreset]?              // legacy (global) — migré vers coatsBySkin
+        var coatsBySkin: [String: [PetPreset]]?
+        var currentCoatName: String?
 
         init(body: String, belly: String, stripe: String, eye: String, nose: String,
              speed: Double, scale: Double, mischief: Bool, chase: Bool, toy: Bool,
-             maxHistory: Int, language: String, customCoats: [PetPreset]) {
+             maxHistory: Int, language: String, coatsBySkin: [String: [PetPreset]],
+             currentCoatName: String) {
             self.body = body; self.belly = belly; self.stripe = stripe
             self.eye = eye; self.nose = nose; self.speed = speed; self.scale = scale
             self.mischief = mischief; self.chase = chase; self.toy = toy
             self.maxHistory = maxHistory; self.language = language
-            self.customCoats = customCoats
+            self.customCoats = nil
+            self.coatsBySkin = coatsBySkin
+            self.currentCoatName = currentCoatName
         }
 
         init(from decoder: Decoder) throws {
@@ -110,7 +127,9 @@ final class PetSettings: ObservableObject {
             toy       = (try? c.decode(Bool.self, forKey: .toy)) ?? true
             maxHistory = try c.decode(Int.self,   forKey: .maxHistory)
             language  = (try? c.decode(String.self, forKey: .language)) ?? "en"
-            customCoats = (try? c.decode([PetPreset].self, forKey: .customCoats)) ?? []
+            customCoats = try? c.decode([PetPreset].self, forKey: .customCoats)
+            coatsBySkin = try? c.decode([String: [PetPreset]].self, forKey: .coatsBySkin)
+            currentCoatName = (try? c.decode(String.self, forKey: .currentCoatName)) ?? ""
         }
     }
 
@@ -123,7 +142,7 @@ final class PetSettings: ObservableObject {
             stripe: stripeColor.hexString, eye: eyeColor.hexString, nose: noseColor.hexString,
             speed: speed, scale: scale,
             mischief: mischiefEnabled, chase: chaseCursor, toy: toyEnabled, maxHistory: maxHistory,
-            language: language, customCoats: customCoats
+            language: language, coatsBySkin: coatsBySkin, currentCoatName: currentCoatName
         )
         if let data = try? JSONEncoder().encode(p) {
             UserDefaults.standard.set(data, forKey: Self.key)
@@ -147,7 +166,15 @@ final class PetSettings: ObservableObject {
         toyEnabled = p.toy
         maxHistory = p.maxHistory
         language = p.language
-        customCoats = p.customCoats ?? []
+        if let bySkin = p.coatsBySkin {
+            coatsBySkin = bySkin
+        } else if let legacy = p.customCoats, !legacy.isEmpty {
+            // Migration : les anciennes variantes globales appartenaient au Cœur gris.
+            coatsBySkin = ["coeur": legacy]
+        } else {
+            coatsBySkin = [:]
+        }
+        currentCoatName = p.currentCoatName ?? ""
         isLoading = false
     }
 
@@ -162,6 +189,7 @@ final class PetSettings: ObservableObject {
         speed = 1.0; scale = 0.5
         mischiefEnabled = true; chaseCursor = true; toyEnabled = true; maxHistory = 50
         language = "en"
+        currentCoatName = ""
         isLoading = false
         save()
     }

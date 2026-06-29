@@ -15,6 +15,7 @@ enum PetState: Equatable {
     case held      // soulevé par l'utilisateur
     case falling   // relâché, retombe vers le sol
     case land      // atterrissage (impact bref)
+    case travel    // marche dirigée vers une cible précise (niche), callback à l'arrivée
 }
 
 enum Facing { case left, right }
@@ -29,6 +30,8 @@ final class PetEngine: ObservableObject {
     @Published private(set) var animTick: Int = 0
     @Published private(set) var position: CGPoint = .zero
     @Published private(set) var spriteSize: CGFloat = 72
+    /// Largeur de la niche (maison) ; la hauteur en découle via le ratio du sprite.
+    @Published private(set) var nicheSize: CGFloat = 144
 
     // Jouet (pelote)
     @Published private(set) var toyVisible = false
@@ -37,6 +40,9 @@ final class PetEngine: ObservableObject {
     @Published private(set) var toySize: CGFloat = 56
 
     var isPaused = false
+    /// Gèle entièrement le pet (déplacement ET animation du sprite). Utilisé quand
+    /// le panneau presse-papiers est ouvert : le chat doit rester parfaitement immobile.
+    private(set) var isFrozen = false
 
     private weak var settings: PetSettings?
     private var timer: Timer?
@@ -44,6 +50,7 @@ final class PetEngine: ObservableObject {
     private let basePixelScale: CGFloat = 4
 
     private var targetX: CGFloat?
+    private var arrivalCallback: (() -> Void)?    // appelé à l'arrivée d'un `.travel`
     private var stateEnd: TimeInterval = 0
     private var hop: CGFloat = 0
     private var pounceStart: TimeInterval = 0
@@ -80,6 +87,8 @@ final class PetEngine: ObservableObject {
         let scale = settings?.scale ?? 1.0
         spriteSize = CGFloat(SpriteStore.shared.catSize) * basePixelScale * scale
         toySize = CGFloat(SpriteStore.shared.yarnSize) * basePixelScale * scale * 0.85
+        // Niche rendue à 2× l'échelle pixel pour rester comparable à la taille du pet.
+        nicheSize = CGFloat(CatSprites.nicheCols) * basePixelScale * 2 * scale
     }
 
     // MARK: - Interaction
@@ -109,9 +118,57 @@ final class PetEngine: ObservableObject {
 
     func setDraggedOrigin(_ origin: CGPoint) { position = origin }
 
+    /// Immobilise totalement le pet : pose neutre, plus aucun déplacement ni animation.
+    func freeze() {
+        isFrozen = true
+        isPaused = true
+        state = .idle
+        toyVisible = false
+    }
+
+    func unfreeze() {
+        isFrozen = false
+        isPaused = false
+    }
+
+    // MARK: - Déplacement dirigé (vers la niche)
+
+    /// Téléporte le pet à une abscisse donnée, posé au sol. Sert à le faire
+    /// réapparaître pile devant la porte de la niche avant de l'en faire sortir.
+    func placeAt(x: CGFloat) {
+        let area = Self.visibleFrame()
+        isFrozen = false
+        isPaused = false
+        position = CGPoint(x: clampX(x, area: area), y: groundY(area: area))
+    }
+
+    /// Fait marcher le pet jusqu'à `x` puis appelle `then` à l'arrivée.
+    /// Utilisé pour l'entrée / la sortie de la niche.
+    func walk(to x: CGFloat, then: @escaping () -> Void) {
+        let area = Self.visibleFrame()
+        isFrozen = false
+        isPaused = false
+        arrivalCallback = then
+        let tx = clampX(x, area: area)
+        targetX = tx
+        facing = tx >= position.x ? .right : .left
+        scheduleNext(.travel, duration: 12)   // garde-fou si la cible n'est jamais atteinte
+    }
+
+    /// Reprend le comportement autonome normal (après une sortie de niche).
+    func resumeNormal() {
+        arrivalCallback = nil
+        isPaused = false
+        isFrozen = false
+        scheduleNext(.idle, duration: 0.5)
+    }
+
     // MARK: - Boucle
 
     private func tick() {
+        // Gelé (presse-papiers ouvert) : on n'avance même pas l'animation du sprite,
+        // le chat reste parfaitement immobile. Le drag (`held`) reste animé, lui.
+        guard !isFrozen else { return }
         animTick &+= 1
         guard !isPaused else { return }
         let now = Date().timeIntervalSinceReferenceDate
@@ -173,6 +230,17 @@ final class PetEngine: ObservableObject {
 
         case .held:
             break   // la position suit le curseur (setDraggedOrigin) ; animTick anime le gigotement
+
+        case .travel:
+            stepTowardX(targetX, speed: runSpeed * 0.6, area: area)
+            position.y = floorY + abs(sin(Double(animTick) * 0.5)) * 4
+            if reachedX() || now >= stateEnd {
+                let cb = arrivalCallback
+                arrivalCallback = nil
+                state = .idle
+                stateEnd = now + 0.3
+                cb?()
+            }
         }
 
         // Le chat regarde toujours dans le sens de son déplacement réel
@@ -281,7 +349,7 @@ final class PetEngine: ObservableObject {
         case .chaseToy:
             setupChaseToy(area: area)
             scheduleNext(.chaseToy, duration: .random(in: 5.0...8.0))
-        case .held, .falling, .land: scheduleNext(.idle, duration: 1.0)
+        case .held, .falling, .land, .travel: scheduleNext(.idle, duration: 1.0)
         }
     }
 

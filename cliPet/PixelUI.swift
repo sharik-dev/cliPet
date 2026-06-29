@@ -50,6 +50,126 @@ struct PixelButtonStyle: ButtonStyle {
     }
 }
 
+/// Icône pixel-art monochrome : une grille de caractères où `#` = pixel plein.
+/// Rendue dans une couleur unique, alignée sur la grille (look 8-bit net).
+struct PixelIcon: View {
+    let rows: [String]
+    var color: Color = PixelTheme.text
+    var size: CGFloat = 14
+
+    var body: some View {
+        Canvas { ctx, canvas in
+            let h = rows.count
+            guard h > 0 else { return }
+            let w = rows.map { $0.count }.max() ?? 0
+            guard w > 0 else { return }
+            let cell = min(canvas.width / CGFloat(w), canvas.height / CGFloat(h))
+            let ox = (canvas.width - cell * CGFloat(w)) / 2
+            let oy = (canvas.height - cell * CGFloat(h)) / 2
+            for (gy, row) in rows.enumerated() {
+                for (gx, ch) in row.enumerated() where ch == "#" {
+                    let rect = CGRect(x: ox + CGFloat(gx) * cell, y: oy + CGFloat(gy) * cell,
+                                      width: cell + 0.5, height: cell + 0.5)
+                    ctx.fill(Path(rect), with: .color(color))
+                }
+            }
+        }
+        .frame(width: size, height: size)
+    }
+}
+
+/// Glyphes pixel-art réutilisables (7×7), pensés pour les boutons.
+enum PixelGlyph {
+    /// Coche (« appliquer »).
+    static let check = [
+        ".......",
+        "......#",
+        ".....##",
+        "#...##.",
+        "##.##..",
+        ".###...",
+        "..#....",
+    ]
+    /// Disquette (« sauvegarder »).
+    static let floppy = [
+        "#######",
+        "#..##.#",
+        "#..##.#",
+        "#######",
+        "#.....#",
+        "#.###.#",
+        "#######",
+    ]
+    /// Crayon (« éditer »).
+    static let pencil = [
+        ".....##",
+        "....###",
+        "...###.",
+        "..###..",
+        ".###...",
+        "###....",
+        "##.....",
+    ]
+    /// Poubelle (« supprimer »).
+    static let trash = [
+        "..###..",
+        "#######",
+        ".......",
+        ".#####.",
+        ".#.#.#.",
+        ".#.#.#.",
+        ".#####.",
+    ]
+    /// Plus (« ajouter »).
+    static let plus = [
+        "...#...",
+        "...#...",
+        "...#...",
+        "#######",
+        "...#...",
+        "...#...",
+        "...#...",
+    ]
+    /// Boutique (« marketplace »).
+    static let store = [
+        "#######",
+        "#.#.#.#",
+        "#######",
+        "#.....#",
+        "#.###.#",
+        "#.###.#",
+        "#.###.#",
+    ]
+    /// Dossier (« ouvrir le dossier »).
+    static let folder = [
+        "###....",
+        "#######",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        "#.....#",
+        "#######",
+    ]
+}
+
+/// Label de bouton pixel : icône (largeur fixe) + texte, centré comme un bloc.
+/// La largeur fixe de l'icône garantit l'alignement des trois boutons entre eux.
+struct PixelButtonLabel: View {
+    let glyph: [String]
+    let title: String
+    var body: some View {
+        HStack(spacing: 8) {
+            PixelIcon(rows: glyph, color: PixelTheme.text, size: 18)
+                .frame(width: 20)
+            Text(title)
+                .font(PixelTheme.font(12))
+                .tracking(1)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+    }
+}
+
 /// Petit titre de section façon retro.
 struct PixelSectionHeader: View {
     let title: String
@@ -67,15 +187,22 @@ struct PixelSectionHeader: View {
 struct PetSwatch: View {
     let preset: PetPreset
     let selected: Bool
+    /// Frame du skin actif, passée explicitement : sans cette dépendance, SwiftUI ne
+    /// voit changer ni `preset` ni `selected` au changement de skin et ne réévalue pas
+    /// le `body` → l'aperçu garde la silhouette de l'ancien skin (lecture cachée de
+    /// `SpriteStore.shared` non suivie par SwiftUI).
+    var frame: [String] = []
     var body: some View {
         VStack(spacing: 4) {
-            PixelCatView(
-                state: .idle, facing: .right, tick: 0,
-                bodyColor: Color(hex: preset.body),
-                bellyColor: Color(hex: preset.belly),
-                stripeColor: Color(hex: preset.stripe),
-                eyeColor: Color(hex: preset.eye),
-                noseColor: Color(hex: preset.nose)
+            PixelSpriteView(
+                frame: frame,
+                palette: PixelPalette(
+                    body: Color(hex: preset.body),
+                    belly: Color(hex: preset.belly),
+                    stripe: Color(hex: preset.stripe),
+                    eye: Color(hex: preset.eye),
+                    nose: Color(hex: preset.nose)
+                )
             )
             .frame(width: 56, height: 56)
             Text(preset.name)

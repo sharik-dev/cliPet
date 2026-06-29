@@ -620,6 +620,31 @@ enum CatSprites {
         "XXXXXXXXXXXX"
     ]
 
+    /// Niche (maison du pet) : décor affiché à droite quand on masque le pet.
+    /// Le pet s'y rend pour disparaître, et en ressort pour réapparaître.
+    /// Utilise la palette standard du pet (éditable dans l'éditeur de sprite) :
+    ///   X = contour / ouverture · g = toit (couleur du corps) · w = mur (ventre).
+    static let niche: [String] = [
+        "........XX........",
+        ".......XggX.......",
+        "......XggggX......",
+        ".....XggggggX.....",
+        "....XggggggggX....",
+        "...XggggggggggX...",
+        "..XggggggggggggX..",
+        ".XggggggggggggggX.",
+        "XXXXXXXXXXXXXXXXXX",
+        "XwwwwwwwwwwwwwwwwX",
+        "XwwwwwwwwwwwwwwwwX",
+        "XwwwwwXXXXXXwwwwwX",
+        "XwwwwwXXXXXXwwwwwX",
+        "XwwwwwXXXXXXwwwwwX",
+        "XwwwwwXXXXXXwwwwwX",
+        "XXXXXXXXXXXXXXXXXX"
+    ]
+    static let nicheCols = 18
+    static let nicheRows = 16
+
     static let walk: [[String]] = [walk1, walk2, walk3, walk4]
     static let yarn: [[String]] = [yarn1, yarn2, yarn3, yarn4]
 
@@ -642,7 +667,8 @@ enum CatSprites {
         "yarn1": yarn1,
         "yarn2": yarn2,
         "yarn3": yarn3,
-        "yarn4": yarn4
+        "yarn4": yarn4,
+        "niche": niche
     ]
-    static let order = ["idle1", "idle2", "idle3", "idle4", "walk1", "walk2", "walk3", "walk4", "sit", "sleep", "play", "held1", "held2", "fall", "land", "yarn1", "yarn2", "yarn3", "yarn4"]
+    static let order = ["idle1", "idle2", "idle3", "idle4", "walk1", "walk2", "walk3", "walk4", "sit", "sleep", "play", "held1", "held2", "fall", "land", "yarn1", "yarn2", "yarn3", "yarn4", "niche"]
 }

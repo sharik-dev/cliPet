@@ -1,40 +1,36 @@
 import AppKit
 
-// Sparkle pilote les mises à jour automatiques (notif + install en 1 clic).
-// L'import est conditionnel : tant que le package SPM n'est pas ajouté, un stub
-// garde le projet compilable. Dès que Sparkle est lié, le vrai updater s'active.
-
 #if canImport(Sparkle)
 import Sparkle
 
-/// Wrapper autour de `SPUStandardUpdaterController` : vérifs auto (selon l'Info.plist)
-/// + action manuelle « Rechercher des mises à jour… » depuis le menu.
 final class UpdaterController {
     static let shared = UpdaterController()
-    private let controller: SPUStandardUpdaterController
+
+    private let updater: SPUUpdater
+    // Driver kept alive as a strong reference (SPUUpdater holds it weakly)
+    private let driver = PixelUpdateDriver()
 
     private init() {
-        // startingUpdater: true → démarre le scheduler de vérifs automatiques.
-        controller = SPUStandardUpdaterController(startingUpdater: true,
-                                                  updaterDelegate: nil,
-                                                  userDriverDelegate: nil)
+        updater = SPUUpdater(
+            hostBundle: Bundle.main,
+            applicationBundle: Bundle.main,
+            userDriver: driver,
+            delegate: nil
+        )
+        try? updater.start()
     }
 
-    var canCheckForUpdates: Bool { controller.updater.canCheckForUpdates }
+    var canCheckForUpdates: Bool { updater.canCheckForUpdates }
+    func checkForUpdates() { updater.checkForUpdates() }
 
-    /// Vérif manuelle : affiche l'UI Sparkle (trouvé / à jour / erreur).
-    func checkForUpdates() { controller.updater.checkForUpdates() }
-
-    /// Opt-in aux vérifications automatiques (exposable dans les Réglages).
     var automaticallyChecksForUpdates: Bool {
-        get { controller.updater.automaticallyChecksForUpdates }
-        set { controller.updater.automaticallyChecksForUpdates = newValue }
+        get { updater.automaticallyChecksForUpdates }
+        set { updater.automaticallyChecksForUpdates = newValue }
     }
 }
 
 #else
 
-/// Stub actif tant que le package Sparkle n'est pas ajouté (garde le build vert).
 final class UpdaterController {
     static let shared = UpdaterController()
     private init() {}

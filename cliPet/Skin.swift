@@ -1,5 +1,11 @@
 import Foundation
 
+extension Notification.Name {
+    /// Émise quand la liste des skins change (install marketplace, import, renommage, suppression).
+    /// Les grilles de skins (Réglages + gestionnaire) s'y abonnent pour se rafraîchir.
+    static let skinsChanged = Notification.Name("cliPet.skinsChanged")
+}
+
 /// Un skin = un jeu complet de frames pixel-art pour le chat.
 struct Skin: Identifiable, Equatable {
     let id: String
@@ -50,6 +56,7 @@ enum SkinCatalog {
                     if let newData = try? JSONEncoder().encode(updated) {
                         try? newData.write(to: url)
                     }
+                    NotificationCenter.default.post(name: .skinsChanged, object: nil)
                     return
                 }
             }
@@ -57,6 +64,28 @@ enum SkinCatalog {
         var overrides = loadNameOverrides()
         overrides[id] = newName
         saveNameOverrides(overrides)
+        NotificationCenter.default.post(name: .skinsChanged, object: nil)
+    }
+
+    /// Supprime un skin utilisateur (fichier JSON + palette + retouches).
+    /// Les skins intégrés ne peuvent pas être supprimés.
+    static func deleteSkin(_ id: String) {
+        if let dir = skinsDirectory,
+           let urls = try? FileManager.default.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil) {
+            for url in urls where url.pathExtension == "json" {
+                if let data = try? Data(contentsOf: url),
+                   let sf = try? JSONDecoder().decode(SkinFile.self, from: data),
+                   sf.id == id {
+                    try? FileManager.default.removeItem(at: url)
+                }
+            }
+        }
+        if let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?
+            .appendingPathComponent("cliPet", isDirectory: true) {
+            try? FileManager.default.removeItem(at: base.appendingPathComponent("palette_\(id).json"))
+            try? FileManager.default.removeItem(at: base.appendingPathComponent("edits_\(id).json"))
+        }
+        NotificationCenter.default.post(name: .skinsChanged, object: nil)
     }
 
     // MARK: - Overrides de noms (skins intégrés)
