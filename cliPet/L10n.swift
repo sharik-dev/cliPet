@@ -70,6 +70,7 @@ struct L10n {
     let clipTitle: String
     let clipSearchPlaceholder: String
     let clipClearHelp: String
+    let clipHideHelp: String
     let clipEmpty: String
     let clipNoResults: String
     let historyTab: String
@@ -87,6 +88,7 @@ struct L10n {
     let sectionNamedColors: String
     let colorNamePlaceholder: String
     let addFolder: String
+    let applyToPet: String
     let saveVariant: String
     let deleteVariant: String
     let variantNamePlaceholder: String
@@ -98,10 +100,6 @@ struct L10n {
     let editorPreviewSit: String
     let editorSectionColors: String
     let editorAddColor: String
-    let editorSectionImport: String
-    let editorImportImage: String
-    let editorBgToleranceFmt: String   // %d = value
-    let editorBgToleranceHelp: String
     let editorSectionActions: String
     let editorUndo: String
     let editorRedo: String
@@ -114,6 +112,19 @@ struct L10n {
     let editorSelectAll: String
     let editorSelectNone: String
     let editorApplyFmt: String         // %d = count
+    let editorNewPet: String
+    let editorNewPetPlaceholder: String
+    let editorCreate: String
+    let editorCopyFrame: String
+    let editorPasteFrame: String
+    let editorPrevFrame: String
+    let editorNextFrame: String
+    let editorSectionTools: String
+    let editorToolPencil: String
+    let editorToolBucket: String
+    let editorToolRect: String
+    let editorToolTriangle: String
+    let editorToolCircle: String
 
     // Skin manager
     let skinManagerTitle: String
@@ -135,6 +146,7 @@ struct L10n {
     let menuCheckUpdates: String
     let menuQuit: String
     let menuLicense: String
+    let menuSupport: String
 
     // Licence / paywall
     let licenseTitle: String
@@ -169,10 +181,13 @@ struct L10n {
     let skinExport: String
     let skinImported: String
     let skinImportError: String
+    let skinEdit: String
+    let skinDelete: String
+    let skinDeleteConfirmFmt: String   // %@ = pet name
 
     func keepItems(_ n: Int) -> String { String(format: keepItemsFmt, n) }
+    func skinDeleteConfirm(_ name: String) -> String { String(format: skinDeleteConfirmFmt, name) }
     func licenseTrial(_ n: Int) -> String { String(format: licenseTrialFmt, n) }
-    func editorBgTolerance(_ n: Int) -> String { String(format: editorBgToleranceFmt, n) }
     func editorCopyTo(_ name: String) -> String { String(format: editorCopyToFmt, name) }
     func editorApply(_ n: Int) -> String { String(format: editorApplyFmt, n) }
 
@@ -195,8 +210,8 @@ struct L10n {
         case .en:
             return L10n(
                 tabMyCat: "MY PET", tabSettings: "SETTINGS",
-                sectionSkins: "Skin", buttonOpenEditor: "🎨 OPEN PET EDITOR",
-                sectionCoats: "Coats", sectionCustomColors: "Custom Colors",
+                sectionSkins: "Skin", buttonOpenEditor: "OPEN PET EDITOR",
+                sectionCoats: "Variants", sectionCustomColors: "Custom Colors",
                 sectionSize: "Size",
                 colorFur: "Fur", colorBelly: "Belly / paws",
                 colorStripes: "Stripes / outline", colorEyes: "Eyes", colorNose: "Nose / ears",
@@ -217,7 +232,7 @@ struct L10n {
                 launchLater: "Not now",
                 launchOpenSettings: "Open Login Items settings",
                 clipTitle: "CLIPBOARD", clipSearchPlaceholder: "search…",
-                clipClearHelp: "Clear", clipEmpty: "nothing copied yet",
+                clipClearHelp: "Clear", clipHideHelp: "Hide pet", clipEmpty: "nothing copied yet",
                 clipNoResults: "no results", historyTab: "History",
                 foldersTitle: "Folders", newFolderPlaceholder: "folder name",
                 folderEmpty: "nothing saved here yet", saveToFolder: "Save to folder",
@@ -229,14 +244,12 @@ struct L10n {
                 clearConfirm: "Clear", cancel: "Cancel",
                 sectionNamedColors: "Named colors", colorNamePlaceholder: "name…",
                 addFolder: "Add folder",
-                saveVariant: "💾 SAVE VARIANT", deleteVariant: "Delete variant",
+                applyToPet: "APPLY TO THIS PET",
+                saveVariant: "SAVE VARIANT", deleteVariant: "Delete variant",
                 variantNamePlaceholder: "variant name",
                 editorSectionFrame: "Frame", editorPreviewIdle: "idle",
                 editorPreviewWalk: "walk", editorPreviewSit: "sit",
                 editorSectionColors: "Colors", editorAddColor: "+ ADD COLOR",
-                editorSectionImport: "Image → sprite", editorImportImage: "🖼 IMPORT IMAGE",
-                editorBgToleranceFmt: "BG tolerance: %d",
-                editorBgToleranceHelp: "Detects the background (near-uniform zones connected to edges) and makes it transparent. ↑ tolerance = more background removed.",
                 editorSectionActions: "Actions",
                 editorUndo: "↶ UNDO", editorRedo: "↷ REDO",
                 editorAssociate: "🔗 APPLY TO…",
@@ -245,6 +258,13 @@ struct L10n {
                 editorEraser: "eraser",
                 editorCopyToFmt: "Copy \"%@\" to:", editorSelectAll: "All",
                 editorSelectNone: "None", editorApplyFmt: "APPLY (%d)",
+                editorNewPet: "NEW PET", editorNewPetPlaceholder: "pet name",
+                editorCreate: "CREATE",
+                editorCopyFrame: "⧉ COPY", editorPasteFrame: "⧉ PASTE",
+                editorPrevFrame: "Previous frame", editorNextFrame: "Next frame",
+                editorSectionTools: "Tools", editorToolPencil: "Pencil",
+                editorToolBucket: "Fill (bucket)", editorToolRect: "Rectangle",
+                editorToolTriangle: "Triangle", editorToolCircle: "Circle",
                 skinManagerTitle: "🎨 SKINS", skinRescan: "Rescan",
                 skinBuiltin: "built-in", skinCustom: "custom",
                 skinOpenFolder: "📁 OPEN SKINS FOLDER",
@@ -255,6 +275,7 @@ struct L10n {
                 menuClearHistory: "Clear history", menuSkinManager: "Skin manager…",
                 menuEditor: "Sprite editor…", menuCheckUpdates: "Check for Updates…", menuQuit: "Quit cliPet",
                 menuLicense: "Licence…",
+                menuSupport: "Contact support…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "%d days left in your free trial",
                 licenseTrialEnded: "Your free trial has ended",
@@ -276,13 +297,15 @@ struct L10n {
                 marketEmpty: "No pets yet. Be the first to share!",
                 marketError: "Something went wrong.", marketRetry: "Retry",
                 skinAddPet: "Add a pet…", skinExport: "Export pet…",
-                skinImported: "Pet imported ✓", skinImportError: "Could not import this pet."
+                skinImported: "Pet imported ✓", skinImportError: "Could not import this pet.",
+                skinEdit: "EDIT", skinDelete: "DELETE",
+                skinDeleteConfirmFmt: "Delete “%@”? This cannot be undone."
             )
         case .zh:
             return L10n(
                 tabMyCat: "我的宠物", tabSettings: "设置",
-                sectionSkins: "皮肤", buttonOpenEditor: "🎨 打开宠物编辑器",
-                sectionCoats: "外观", sectionCustomColors: "自定义颜色",
+                sectionSkins: "皮肤", buttonOpenEditor: "打开宠物编辑器",
+                sectionCoats: "变体", sectionCustomColors: "自定义颜色",
                 sectionSize: "大小",
                 colorFur: "毛色", colorBelly: "肚子 / 爪子",
                 colorStripes: "条纹 / 轮廓", colorEyes: "眼睛", colorNose: "鼻子 / 耳朵",
@@ -303,7 +326,7 @@ struct L10n {
                 launchLater: "暂不",
                 launchOpenSettings: "打开登录项设置",
                 clipTitle: "剪贴板", clipSearchPlaceholder: "搜索…",
-                clipClearHelp: "清空", clipEmpty: "还没有复制任何内容",
+                clipClearHelp: "清空", clipHideHelp: "隐藏宠物", clipEmpty: "还没有复制任何内容",
                 clipNoResults: "无结果", historyTab: "历史",
                 foldersTitle: "文件夹", newFolderPlaceholder: "文件夹名称",
                 folderEmpty: "这里还没有保存内容", saveToFolder: "保存到文件夹",
@@ -315,14 +338,12 @@ struct L10n {
                 clearConfirm: "清空", cancel: "取消",
                 sectionNamedColors: "命名颜色", colorNamePlaceholder: "名称…",
                 addFolder: "添加文件夹",
-                saveVariant: "💾 保存变体", deleteVariant: "删除变体",
+                applyToPet: "应用到此宠物",
+                saveVariant: "保存变体", deleteVariant: "删除变体",
                 variantNamePlaceholder: "变体名称",
                 editorSectionFrame: "帧", editorPreviewIdle: "静止",
                 editorPreviewWalk: "行走", editorPreviewSit: "坐下",
                 editorSectionColors: "颜色", editorAddColor: "+ 添加颜色",
-                editorSectionImport: "图像 → 精灵", editorImportImage: "🖼 导入图像",
-                editorBgToleranceFmt: "背景容差：%d",
-                editorBgToleranceHelp: "检测背景（连接到边缘的近似均匀区域）并将其变为透明。↑ 容差 = 去除更多背景。",
                 editorSectionActions: "操作",
                 editorUndo: "↶ 撤销", editorRedo: "↷ 重做",
                 editorAssociate: "🔗 应用到…",
@@ -331,6 +352,13 @@ struct L10n {
                 editorEraser: "橡皮",
                 editorCopyToFmt: "将「%@」复制到：", editorSelectAll: "全选",
                 editorSelectNone: "取消全选", editorApplyFmt: "应用（%d）",
+                editorNewPet: "新建宠物", editorNewPetPlaceholder: "宠物名称",
+                editorCreate: "创建",
+                editorCopyFrame: "⧉ 复制", editorPasteFrame: "⧉ 粘贴",
+                editorPrevFrame: "上一帧", editorNextFrame: "下一帧",
+                editorSectionTools: "工具", editorToolPencil: "铅笔",
+                editorToolBucket: "填充（油漆桶）", editorToolRect: "矩形",
+                editorToolTriangle: "三角形", editorToolCircle: "圆形",
                 skinManagerTitle: "🎨 皮肤", skinRescan: "重新扫描",
                 skinBuiltin: "内置", skinCustom: "自定义",
                 skinOpenFolder: "📁 打开皮肤文件夹",
@@ -341,6 +369,7 @@ struct L10n {
                 menuClearHistory: "清空历史", menuSkinManager: "皮肤管理器…",
                 menuEditor: "精灵编辑器…", menuCheckUpdates: "检查更新…", menuQuit: "退出 cliPet",
                 menuLicense: "许可证…",
+                menuSupport: "联系支持…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "免费试用还剩 %d 天",
                 licenseTrialEnded: "免费试用已结束",
@@ -362,13 +391,15 @@ struct L10n {
                 marketEmpty: "还没有宠物。来做第一个分享的人吧！",
                 marketError: "出错了。", marketRetry: "重试",
                 skinAddPet: "添加宠物…", skinExport: "导出宠物…",
-                skinImported: "宠物已导入 ✓", skinImportError: "无法导入此宠物。"
+                skinImported: "宠物已导入 ✓", skinImportError: "无法导入此宠物。",
+                skinEdit: "编辑", skinDelete: "删除",
+                skinDeleteConfirmFmt: "删除“%@”？此操作无法撤销。"
             )
         case .hi:
             return L10n(
                 tabMyCat: "मेरा पेट", tabSettings: "सेटिंग्स",
-                sectionSkins: "स्किन", buttonOpenEditor: "🎨 पेट एडिटर खोलें",
-                sectionCoats: "रंग-रूप", sectionCustomColors: "कस्टम रंग",
+                sectionSkins: "स्किन", buttonOpenEditor: "पेट एडिटर खोलें",
+                sectionCoats: "वैरिएंट", sectionCustomColors: "कस्टम रंग",
                 sectionSize: "आकार",
                 colorFur: "फर", colorBelly: "पेट / पंजे",
                 colorStripes: "धारियाँ / आउटलाइन", colorEyes: "आँखें", colorNose: "नाक / कान",
@@ -389,7 +420,7 @@ struct L10n {
                 launchLater: "अभी नहीं",
                 launchOpenSettings: "लॉगिन आइटम्स सेटिंग्स खोलें",
                 clipTitle: "क्लिपबोर्ड", clipSearchPlaceholder: "खोजें…",
-                clipClearHelp: "साफ़ करें", clipEmpty: "अभी तक कुछ कॉपी नहीं हुआ",
+                clipClearHelp: "साफ़ करें", clipHideHelp: "पेट छुपाएँ", clipEmpty: "अभी तक कुछ कॉपी नहीं हुआ",
                 clipNoResults: "कोई परिणाम नहीं", historyTab: "इतिहास",
                 foldersTitle: "फ़ोल्डर", newFolderPlaceholder: "फ़ोल्डर का नाम",
                 folderEmpty: "यहाँ अभी तक कुछ सहेजा नहीं गया", saveToFolder: "फ़ोल्डर में सहेजें",
@@ -401,14 +432,12 @@ struct L10n {
                 clearConfirm: "साफ़ करें", cancel: "रद्द करें",
                 sectionNamedColors: "नामित रंग", colorNamePlaceholder: "नाम…",
                 addFolder: "फ़ोल्डर जोड़ें",
-                saveVariant: "💾 वैरिएंट सहेजें", deleteVariant: "वैरिएंट हटाएँ",
+                applyToPet: "इस पेट पर लागू करें",
+                saveVariant: "वैरिएंट सहेजें", deleteVariant: "वैरिएंट हटाएँ",
                 variantNamePlaceholder: "वैरिएंट का नाम",
                 editorSectionFrame: "फ्रेम", editorPreviewIdle: "विश्राम",
                 editorPreviewWalk: "चलना", editorPreviewSit: "बैठना",
                 editorSectionColors: "रंग", editorAddColor: "+ रंग जोड़ें",
-                editorSectionImport: "छवि → स्प्राइट", editorImportImage: "🖼 छवि आयात करें",
-                editorBgToleranceFmt: "पृष्ठभूमि सहनशीलता: %d",
-                editorBgToleranceHelp: "पृष्ठभूमि (किनारों से जुड़े लगभग एकसमान क्षेत्र) का पता लगाता है और उसे पारदर्शी बनाता है। ↑ सहनशीलता = अधिक पृष्ठभूमि हटाई जाती है।",
                 editorSectionActions: "क्रियाएँ",
                 editorUndo: "↶ पूर्ववत", editorRedo: "↷ फिर करें",
                 editorAssociate: "🔗 लागू करें…",
@@ -417,6 +446,13 @@ struct L10n {
                 editorEraser: "रबड़",
                 editorCopyToFmt: "« %@ » को कॉपी करें:", editorSelectAll: "सभी",
                 editorSelectNone: "कोई नहीं", editorApplyFmt: "लागू करें (%d)",
+                editorNewPet: "नया पेट", editorNewPetPlaceholder: "पेट का नाम",
+                editorCreate: "बनाएँ",
+                editorCopyFrame: "⧉ कॉपी", editorPasteFrame: "⧉ पेस्ट",
+                editorPrevFrame: "पिछला फ्रेम", editorNextFrame: "अगला फ्रेम",
+                editorSectionTools: "टूल्स", editorToolPencil: "पेंसिल",
+                editorToolBucket: "भरें (बकेट)", editorToolRect: "आयत",
+                editorToolTriangle: "त्रिभुज", editorToolCircle: "वृत्त",
                 skinManagerTitle: "🎨 स्किन", skinRescan: "पुनः स्कैन",
                 skinBuiltin: "बिल्ट-इन", skinCustom: "कस्टम",
                 skinOpenFolder: "📁 स्किन फ़ोल्डर खोलें",
@@ -427,6 +463,7 @@ struct L10n {
                 menuClearHistory: "इतिहास साफ़ करें", menuSkinManager: "स्किन मैनेजर…",
                 menuEditor: "स्प्राइट एडिटर…", menuCheckUpdates: "अपडेट जाँचें…", menuQuit: "cliPet बंद करें",
                 menuLicense: "लाइसेंस…",
+                menuSupport: "सहायता से संपर्क करें…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "आपके मुफ़्त ट्रायल में %d दिन शेष",
                 licenseTrialEnded: "आपका मुफ़्त ट्रायल समाप्त हो गया",
@@ -448,13 +485,15 @@ struct L10n {
                 marketEmpty: "अभी कोई पेट नहीं। साझा करने वाले पहले बनें!",
                 marketError: "कुछ गलत हो गया।", marketRetry: "पुनः प्रयास करें",
                 skinAddPet: "पेट जोड़ें…", skinExport: "पेट निर्यात करें…",
-                skinImported: "पेट आयात किया गया ✓", skinImportError: "इस पेट को आयात नहीं किया जा सका।"
+                skinImported: "पेट आयात किया गया ✓", skinImportError: "इस पेट को आयात नहीं किया जा सका।",
+                skinEdit: "संपादित करें", skinDelete: "हटाएँ",
+                skinDeleteConfirmFmt: "“%@” हटाएँ? इसे पूर्ववत नहीं किया जा सकता।"
             )
         case .es:
             return L10n(
                 tabMyCat: "MI MASCOTA", tabSettings: "AJUSTES",
-                sectionSkins: "Skin", buttonOpenEditor: "🎨 ABRIR EDITOR DE MASCOTA",
-                sectionCoats: "Pelajes", sectionCustomColors: "Colores personalizados",
+                sectionSkins: "Skin", buttonOpenEditor: "ABRIR EDITOR DE MASCOTA",
+                sectionCoats: "Variantes", sectionCustomColors: "Colores personalizados",
                 sectionSize: "Tamaño",
                 colorFur: "Pelaje", colorBelly: "Vientre / patas",
                 colorStripes: "Rayas / contorno", colorEyes: "Ojos", colorNose: "Nariz / orejas",
@@ -475,7 +514,7 @@ struct L10n {
                 launchLater: "Ahora no",
                 launchOpenSettings: "Abrir Elementos de inicio",
                 clipTitle: "PORTAPAPELES", clipSearchPlaceholder: "buscar…",
-                clipClearHelp: "Vaciar", clipEmpty: "nada copiado todavía",
+                clipClearHelp: "Vaciar", clipHideHelp: "Ocultar mascota", clipEmpty: "nada copiado todavía",
                 clipNoResults: "sin resultados", historyTab: "Historial",
                 foldersTitle: "Carpetas", newFolderPlaceholder: "nombre de carpeta",
                 folderEmpty: "nada guardado aquí todavía", saveToFolder: "Guardar en carpeta",
@@ -487,14 +526,12 @@ struct L10n {
                 clearConfirm: "Borrar", cancel: "Cancelar",
                 sectionNamedColors: "Colores con nombre", colorNamePlaceholder: "nombre…",
                 addFolder: "Añadir carpeta",
-                saveVariant: "💾 GUARDAR VARIANTE", deleteVariant: "Eliminar variante",
+                applyToPet: "APLICAR A ESTA MASCOTA",
+                saveVariant: "GUARDAR VARIANTE", deleteVariant: "Eliminar variante",
                 variantNamePlaceholder: "nombre de variante",
                 editorSectionFrame: "Frame", editorPreviewIdle: "quieto",
                 editorPreviewWalk: "caminar", editorPreviewSit: "sentado",
                 editorSectionColors: "Colores", editorAddColor: "+ AÑADIR COLOR",
-                editorSectionImport: "Imagen → sprite", editorImportImage: "🖼 IMPORTAR IMAGEN",
-                editorBgToleranceFmt: "Tolerancia fondo: %d",
-                editorBgToleranceHelp: "Detecta el fondo (zonas casi uniformes conectadas a los bordes) y lo hace transparente. ↑ tolerancia = más fondo eliminado.",
                 editorSectionActions: "Acciones",
                 editorUndo: "↶ DESHACER", editorRedo: "↷ REHACER",
                 editorAssociate: "🔗 APLICAR A…",
@@ -503,6 +540,13 @@ struct L10n {
                 editorEraser: "goma",
                 editorCopyToFmt: "Copiar «%@» a:", editorSelectAll: "Todo",
                 editorSelectNone: "Ninguno", editorApplyFmt: "APLICAR (%d)",
+                editorNewPet: "NUEVA MASCOTA", editorNewPetPlaceholder: "nombre de mascota",
+                editorCreate: "CREAR",
+                editorCopyFrame: "⧉ COPIAR", editorPasteFrame: "⧉ PEGAR",
+                editorPrevFrame: "Frame anterior", editorNextFrame: "Frame siguiente",
+                editorSectionTools: "Herramientas", editorToolPencil: "Lápiz",
+                editorToolBucket: "Rellenar (cubo)", editorToolRect: "Rectángulo",
+                editorToolTriangle: "Triángulo", editorToolCircle: "Círculo",
                 skinManagerTitle: "🎨 SKINS", skinRescan: "Volver a escanear",
                 skinBuiltin: "integrado", skinCustom: "personalizado",
                 skinOpenFolder: "📁 ABRIR CARPETA DE SKINS",
@@ -513,6 +557,7 @@ struct L10n {
                 menuClearHistory: "Borrar historial", menuSkinManager: "Gestor de skins…",
                 menuEditor: "Editor de sprite…", menuCheckUpdates: "Buscar actualizaciones…", menuQuit: "Salir de cliPet",
                 menuLicense: "Licencia…",
+                menuSupport: "Contactar con soporte…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "Te quedan %d días de prueba gratuita",
                 licenseTrialEnded: "Tu prueba gratuita ha terminado",
@@ -534,13 +579,15 @@ struct L10n {
                 marketEmpty: "Aún no hay mascotas. ¡Sé el primero en compartir!",
                 marketError: "Algo salió mal.", marketRetry: "Reintentar",
                 skinAddPet: "Añadir mascota…", skinExport: "Exportar mascota…",
-                skinImported: "Mascota importada ✓", skinImportError: "No se pudo importar esta mascota."
+                skinImported: "Mascota importada ✓", skinImportError: "No se pudo importar esta mascota.",
+                skinEdit: "EDITAR", skinDelete: "ELIMINAR",
+                skinDeleteConfirmFmt: "¿Eliminar «%@»? Esto no se puede deshacer."
             )
         case .fr:
             return L10n(
                 tabMyCat: "MON PET", tabSettings: "RÉGLAGES",
-                sectionSkins: "Skin", buttonOpenEditor: "🎨 OUVRIR L'ÉDITEUR DE PET",
-                sectionCoats: "Robes", sectionCustomColors: "Couleurs perso",
+                sectionSkins: "Skin", buttonOpenEditor: "OUVRIR L'ÉDITEUR DE PET",
+                sectionCoats: "Variantes", sectionCustomColors: "Couleurs perso",
                 sectionSize: "Taille",
                 colorFur: "Pelage", colorBelly: "Ventre / pattes",
                 colorStripes: "Rayures / contour", colorEyes: "Yeux", colorNose: "Nez / oreilles",
@@ -561,7 +608,7 @@ struct L10n {
                 launchLater: "Plus tard",
                 launchOpenSettings: "Ouvrir les Éléments d'ouverture",
                 clipTitle: "PRESSE-PAPIERS", clipSearchPlaceholder: "rechercher…",
-                clipClearHelp: "Vider", clipEmpty: "rien copié pour l'instant",
+                clipClearHelp: "Vider", clipHideHelp: "Masquer le pet", clipEmpty: "rien copié pour l'instant",
                 clipNoResults: "aucun résultat", historyTab: "Historique",
                 foldersTitle: "Dossiers", newFolderPlaceholder: "nom du dossier",
                 folderEmpty: "rien de sauvegardé ici", saveToFolder: "Sauvegarder dans",
@@ -573,14 +620,12 @@ struct L10n {
                 clearConfirm: "Vider", cancel: "Annuler",
                 sectionNamedColors: "Couleurs nommées", colorNamePlaceholder: "nom…",
                 addFolder: "Ajouter le dossier",
-                saveVariant: "💾 SAUVEGARDER LA VARIANTE", deleteVariant: "Supprimer la variante",
+                applyToPet: "APPLIQUER À CE PET",
+                saveVariant: "SAUVEGARDER LA VARIANTE", deleteVariant: "Supprimer la variante",
                 variantNamePlaceholder: "nom de la variante",
                 editorSectionFrame: "Frame", editorPreviewIdle: "inactif",
                 editorPreviewWalk: "marche", editorPreviewSit: "assis",
                 editorSectionColors: "Couleurs", editorAddColor: "+ AJOUTER UNE COULEUR",
-                editorSectionImport: "Image → sprite", editorImportImage: "🖼 IMPORTER UNE IMAGE",
-                editorBgToleranceFmt: "Tolérance fond : %d",
-                editorBgToleranceHelp: "Détecte le fond (zones quasi-uniformes connectées aux bords) et le rend vide. ↑ tolérance = plus de fond effacé.",
                 editorSectionActions: "Actions",
                 editorUndo: "↶ ANNULER", editorRedo: "↷ RÉTABLIR",
                 editorAssociate: "🔗 ASSOCIER…",
@@ -589,6 +634,13 @@ struct L10n {
                 editorEraser: "gomme",
                 editorCopyToFmt: "Copier « %@ » vers :", editorSelectAll: "Tout",
                 editorSelectNone: "Aucun", editorApplyFmt: "ASSOCIER (%d)",
+                editorNewPet: "NOUVEAU PET", editorNewPetPlaceholder: "nom du pet",
+                editorCreate: "CRÉER",
+                editorCopyFrame: "⧉ COPIER", editorPasteFrame: "⧉ COLLER",
+                editorPrevFrame: "Frame précédente", editorNextFrame: "Frame suivante",
+                editorSectionTools: "Outils", editorToolPencil: "Crayon",
+                editorToolBucket: "Remplir (seau)", editorToolRect: "Rectangle",
+                editorToolTriangle: "Triangle", editorToolCircle: "Cercle",
                 skinManagerTitle: "🎨 SKINS", skinRescan: "Rescanner",
                 skinBuiltin: "intégré", skinCustom: "perso",
                 skinOpenFolder: "📁 OUVRIR LE DOSSIER DES SKINS",
@@ -599,6 +651,7 @@ struct L10n {
                 menuClearHistory: "Vider l'historique", menuSkinManager: "Gestionnaire de skins…",
                 menuEditor: "Éditeur de sprite…", menuCheckUpdates: "Rechercher des mises à jour…", menuQuit: "Quitter cliPet",
                 menuLicense: "Licence…",
+                menuSupport: "Contacter le support…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "Il vous reste %d jours d'essai gratuit",
                 licenseTrialEnded: "Votre essai gratuit est terminé",
@@ -620,13 +673,15 @@ struct L10n {
                 marketEmpty: "Aucun pet pour l'instant. Soyez le premier à partager !",
                 marketError: "Une erreur est survenue.", marketRetry: "Réessayer",
                 skinAddPet: "Ajouter un pet…", skinExport: "Exporter le pet…",
-                skinImported: "Pet importé ✓", skinImportError: "Impossible d'importer ce pet."
+                skinImported: "Pet importé ✓", skinImportError: "Impossible d'importer ce pet.",
+                skinEdit: "RENOMMER", skinDelete: "SUPPRIMER",
+                skinDeleteConfirmFmt: "Supprimer « %@ » ? Action irréversible."
             )
         case .ar:
             return L10n(
                 tabMyCat: "حيواني", tabSettings: "الإعدادات",
-                sectionSkins: "المظهر العام", buttonOpenEditor: "🎨 فتح محرر الحيوان",
-                sectionCoats: "المظهر", sectionCustomColors: "ألوان مخصصة",
+                sectionSkins: "المظهر العام", buttonOpenEditor: "فتح محرر الحيوان",
+                sectionCoats: "المتغيّرات", sectionCustomColors: "ألوان مخصصة",
                 sectionSize: "الحجم",
                 colorFur: "الفراء", colorBelly: "البطن / المخالب",
                 colorStripes: "الخطوط / المحيط", colorEyes: "العيون", colorNose: "الأنف / الأذنان",
@@ -647,7 +702,7 @@ struct L10n {
                 launchLater: "ليس الآن",
                 launchOpenSettings: "فتح إعدادات عناصر تسجيل الدخول",
                 clipTitle: "الحافظة", clipSearchPlaceholder: "بحث…",
-                clipClearHelp: "مسح", clipEmpty: "لم يتم نسخ أي شيء بعد",
+                clipClearHelp: "مسح", clipHideHelp: "إخفاء الحيوان", clipEmpty: "لم يتم نسخ أي شيء بعد",
                 clipNoResults: "لا نتائج", historyTab: "السجل",
                 foldersTitle: "المجلدات", newFolderPlaceholder: "اسم المجلد",
                 folderEmpty: "لا شيء محفوظ هنا بعد", saveToFolder: "حفظ في مجلد",
@@ -659,14 +714,12 @@ struct L10n {
                 clearConfirm: "مسح", cancel: "إلغاء",
                 sectionNamedColors: "ألوان مُسمّاة", colorNamePlaceholder: "الاسم…",
                 addFolder: "إضافة مجلد",
-                saveVariant: "💾 حفظ المتغيّر", deleteVariant: "حذف المتغيّر",
+                applyToPet: "تطبيق على هذا الحيوان",
+                saveVariant: "حفظ المتغيّر", deleteVariant: "حذف المتغيّر",
                 variantNamePlaceholder: "اسم المتغيّر",
                 editorSectionFrame: "إطار", editorPreviewIdle: "ساكن",
                 editorPreviewWalk: "يمشي", editorPreviewSit: "جالس",
                 editorSectionColors: "الألوان", editorAddColor: "+ إضافة لون",
-                editorSectionImport: "صورة ← سبرايت", editorImportImage: "🖼 استيراد صورة",
-                editorBgToleranceFmt: "تحمّل الخلفية: %d",
-                editorBgToleranceHelp: "يكتشف الخلفية (مناطق شبه موحدة متصلة بالحواف) ويجعلها شفافة. ↑ التحمّل = إزالة المزيد من الخلفية.",
                 editorSectionActions: "الإجراءات",
                 editorUndo: "↶ تراجع", editorRedo: "↷ إعادة",
                 editorAssociate: "🔗 تطبيق على…",
@@ -675,6 +728,13 @@ struct L10n {
                 editorEraser: "ممحاة",
                 editorCopyToFmt: "نسخ \"%@\" إلى:", editorSelectAll: "الكل",
                 editorSelectNone: "لا شيء", editorApplyFmt: "تطبيق (%d)",
+                editorNewPet: "حيوان جديد", editorNewPetPlaceholder: "اسم الحيوان",
+                editorCreate: "إنشاء",
+                editorCopyFrame: "⧉ نسخ", editorPasteFrame: "⧉ لصق",
+                editorPrevFrame: "الإطار السابق", editorNextFrame: "الإطار التالي",
+                editorSectionTools: "الأدوات", editorToolPencil: "قلم الرصاص",
+                editorToolBucket: "تعبئة (دلو)", editorToolRect: "مستطيل",
+                editorToolTriangle: "مثلث", editorToolCircle: "دائرة",
                 skinManagerTitle: "🎨 السمات", skinRescan: "إعادة الفحص",
                 skinBuiltin: "مدمج", skinCustom: "مخصص",
                 skinOpenFolder: "📁 فتح مجلد السمات",
@@ -685,6 +745,7 @@ struct L10n {
                 menuClearHistory: "مسح السجل", menuSkinManager: "مدير السمات…",
                 menuEditor: "محرر السبرايت…", menuCheckUpdates: "التحقق من التحديثات…", menuQuit: "إنهاء cliPet",
                 menuLicense: "الترخيص…",
+                menuSupport: "التواصل مع الدعم…",
                 licenseTitle: "cliPet Pro",
                 licenseTrialFmt: "تبقى %d يومًا من الفترة التجريبية المجانية",
                 licenseTrialEnded: "انتهت فترتك التجريبية المجانية",
@@ -706,7 +767,9 @@ struct L10n {
                 marketEmpty: "لا توجد حيوانات بعد. كن أول من يشارك!",
                 marketError: "حدث خطأ ما.", marketRetry: "إعادة المحاولة",
                 skinAddPet: "إضافة حيوان…", skinExport: "تصدير الحيوان…",
-                skinImported: "تم استيراد الحيوان ✓", skinImportError: "تعذّر استيراد هذا الحيوان."
+                skinImported: "تم استيراد الحيوان ✓", skinImportError: "تعذّر استيراد هذا الحيوان.",
+                skinEdit: "تعديل", skinDelete: "حذف",
+                skinDeleteConfirmFmt: "حذف «%@»؟ لا يمكن التراجع عن هذا."
             )
         }
     }

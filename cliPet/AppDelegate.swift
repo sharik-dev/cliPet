@@ -4,7 +4,7 @@ import Combine
 
 /// Point d'orchestration de l'app (mode agent, sans fenêtre principale).
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     let settings = PetSettings()
     private(set) lazy var clipboard = ClipboardManager(settings: settings)
     private(set) lazy var engine = PetEngine(settings: settings)
@@ -82,9 +82,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func lockBehindPaywall() {
         Analytics.track("app_paywall_shown")
-        petController?.setPetHidden(true)
+        petController?.setPetHidden(true, animated: false)
         petController?.showLicenseWindow(license: license, locked: true) { [weak self] in
-            self?.petController?.setPetHidden(false)
+            self?.petController?.setPetHidden(false, animated: false)
         }
     }
 
@@ -126,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                                     action: #selector(toggleHidePet), keyEquivalent: "h")
         hideItem.target = self
         hidePetItem = hideItem
+        menu.delegate = self   // resync du libellé Masquer/Afficher à chaque ouverture
         menu.addItem(.separator())
         menu.addItem(withTitle: l10n.menuSettings,
                      action: #selector(openSettings), keyEquivalent: ",")
@@ -139,6 +140,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             .target = self
         menu.addItem(withTitle: l10n.menuLicense,
                      action: #selector(openLicense), keyEquivalent: "")
+            .target = self
+        menu.addItem(withTitle: l10n.menuSupport,
+                     action: #selector(openSupport), keyEquivalent: "")
             .target = self
         menu.addItem(.separator())
         menu.addItem(withTitle: l10n.menuQuit,
@@ -154,6 +158,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func quit() { NSApp.terminate(nil) }
     @objc private func openSettings() { petController?.openSettings() }
     @objc private func checkForUpdates() { UpdaterController.shared.checkForUpdates() }
+
+    /// Ouvre le client mail de l'utilisateur, pré-rempli vers le support cliPet.
+    @objc private func openSupport() {
+        let subject = "cliPet — Support"
+        let encoded = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? subject
+        if let url = URL(string: "mailto:sharikmohamed9@gmail.com?subject=\(encoded)") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    /// Avant l'affichage du menu : resynchronise le libellé Masquer/Afficher
+    /// (l'état peut avoir changé hors menu, ex. bouton « masquer » du presse-papiers).
+    func menuNeedsUpdate(_ menu: NSMenu) {
+        let hidden = petController?.isPetHidden ?? false
+        let l10n = L10n.for_(L10n.Language(rawValue: settings.language) ?? .en)
+        hidePetItem?.title = hidden ? l10n.menuShowPet : l10n.menuHidePet
+    }
 
     @objc private func toggleHidePet() {
         petController?.togglePetVisible()

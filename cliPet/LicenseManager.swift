@@ -15,19 +15,19 @@ import Combine
 // ============================================================================
 
 enum LicenseConfig {
-    /// Gumroad : "product_id" du produit (Settings → Advanced → product_id),
-    /// ou le permalink. Laisser vide tant que le produit n'existe pas.
-    static let gumroadProductId = ""
+    /// Gumroad : permalink du produit (le bout après gumroad.com/l/…).
+    /// Produit cliPet → https://sharikmohamed.gumroad.com/l/enjxma
+    static let gumroadProductId = "enjxma"
 
     /// LemonSqueezy : facultatif, sert juste à rejeter une clé d'un autre produit.
     static let lemonStoreId = ""
     static let lemonProductId = ""
 
     /// Durée de l'essai gratuit (en jours) avant que le paywall ne s'active.
-    static let trialDays = 3
+    static let trialDays = 7
 
-    /// Page d'achat publique (Gumroad). À remplacer par ton vrai lien produit.
-    static let buyURL = "https://clipet.sharik.fr/buy"
+    /// Page d'achat publique (Gumroad).
+    static let buyURL = "https://sharikmohamed.gumroad.com/l/enjxma"
 
     // MARK: - Prix (indicatif — Gumroad/LemonSqueezy encaissent dans la vraie devise)
 
@@ -131,7 +131,8 @@ struct GumroadProvider: LicenseProvider {
         req.httpMethod = "POST"
         req.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         // increment_uses_count=false : ne pas gonfler le compteur à chaque vérif.
-        let body = "product_id=\(LicenseConfig.gumroadProductId)&license_key=\(key)&increment_uses_count=false"
+        // product_permalink : Gumroad accepte le permalink pour identifier le produit.
+        let body = "product_permalink=\(LicenseConfig.gumroadProductId)&license_key=\(key)&increment_uses_count=false"
         req.httpBody = body.data(using: .utf8)
 
         let (data, resp) = try await dataTask(req)
