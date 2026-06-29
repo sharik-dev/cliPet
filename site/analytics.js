@@ -23,6 +23,16 @@
     } catch (e) {}
   }
 
+  // 0) Téléchargement réel : on passe l'anonId au endpoint /api/download
+  //    (qui logge puis redirige vers le .dmg) pour compter les downloads distincts.
+  try {
+    document.querySelectorAll('a[href*="/api/download"]').forEach(function (a) {
+      var u = new URL(a.getAttribute("href"), location.origin);
+      if (anonId) u.searchParams.set("aid", anonId);
+      a.setAttribute("href", u.pathname + u.search);
+    });
+  } catch (e) {}
+
   // 1) Visite
   track("site_visit", { path: location.pathname, ref: document.referrer || null });
 

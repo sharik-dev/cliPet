@@ -65,6 +65,7 @@ const SITE_FUNNEL = [
   { event: 'site_visit',          label: 'Visit' },
   { event: 'site_pricing_view',   label: 'Viewed pricing' },
   { event: 'site_download_click', label: 'Clicked download' },
+  { event: 'site_download',       label: 'Downloaded' },
 ];
 const APP_FUNNEL = [
   { event: 'app_first_launch',  label: 'First launch' },
@@ -235,6 +236,21 @@ app.post('/api/events', (req, res) => {
   catch { res.status(400).json({ error: 'bad payload' }); }
 });
 
+// Téléchargement réel du binaire : on enregistre l'event puis on redirige
+// vers le fichier statique (servi par nginx). C'est le compteur fiable de
+// téléchargements (≠ site_download_click qui n'est qu'un clic sur le CTA).
+app.get('/api/download', (req, res) => {
+  const file = (req.query.file === 'zip') ? 'cliPet.zip' : 'cliPet.dmg';
+  // On redirige TOUJOURS ; le log est rate-limité pour éviter le spam.
+  if (rateLimit('dl:' + ipOf(req), 60, 3600_000)) {
+    const aid = req.query.aid ? String(req.query.aid).slice(0, 64) : null;
+    try {
+      insertEvent.run('site_download', 'site', aid, JSON.stringify({ file }), new Date().toISOString());
+    } catch (e) { /* ne jamais bloquer le téléchargement */ }
+  }
+  res.redirect(302, '/download/' + file);
+});
+
 // ----- Admin (protégé par nginx auth_request → SSO) -----
 
 function funnelCounts(steps, since) {
@@ -272,10 +288,15 @@ app.get('/api/admin/analytics/overview', (req, res) => {
   const pageViews = db.prepare(
     `SELECT COUNT(*) AS c FROM events WHERE name='site_visit' AND created_at>=?`
   ).get(since).c;
-  // Téléchargements = visiteurs distincts ayant cliqué un CTA de download.
+  // Clics sur un CTA de download (intention).
   const downloadClicks = db.prepare(
     `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
        WHERE name='site_download_click' AND created_at>=?`
+  ).get(since).c;
+  // Téléchargements réels du .dmg (passage par /api/download).
+  const downloads = db.prepare(
+    `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
+       WHERE name='site_download' AND created_at>=?`
   ).get(since).c;
   // Installs réels = premiers lancements distincts de l'app.
   const appInstalls = db.prepare(
@@ -292,9 +313,10 @@ app.get('/api/admin/analytics/overview', (req, res) => {
     siteVisitors,
     pageViews,
     downloadClicks,
+    downloads,
     appInstalls,
     purchases,
-    convVisitDownload: pct(downloadClicks, siteVisitors),   // visite → téléchargement (site)
+    convVisitDownload: pct(downloads, siteVisitors),         // visite → téléchargement réel (site)
     convInstallPurchase: pct(purchases, appInstalls),        // install → achat (app)
   };
 
