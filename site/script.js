@@ -227,7 +227,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "nav.features": "Fonctionnalités", "nav.pricing": "Tarif", "nav.faq": "FAQ", "nav.download": "Télécharger",
       "hero.h1": "Un chat pixel qui<br><span class=\"dyn\" id=\"dynWord\">vit sur ton Mac</span>",
       "hero.lead": "Il se balade en bas de ton écran, dort, et <strong>chasse ton curseur</strong>. Natif, ultra-léger, 100&nbsp;% local.",
-      "hero.cta1": "Télécharger gratuitement", "hero.cta2": "Voir ce qu'il sait faire",
+      "hero.cta1": "Obtenir cliPet", "hero.cta2": "Voir ce qu'il sait faire",
       "stage.title": "cliPet — en direct sur ton bureau",
       "menu.file": "Fichier", "menu.edit": "Édition", "menu.window": "Fenêtre", "menu.help": "Aide",
       "notch.status": "ronronne · humeur au top", "notch.online": "en ligne",
@@ -249,13 +249,13 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "f9.t": "Priorité vie privée", "f9.d": "Aucun cloud, aucun compte, aucune donnée perso. Ton presse-papier ne quitte jamais ton Mac — seulement des stats d'usage anonymes.",
       "pricing.eyebrow": "Tarif", "pricing.h2": "Adopte-le aujourd'hui",
       "pricing.sub": "Un seul achat, à toi pour toujours. Mises à jour comprises.",
-      "price.value": "Gratuit", "price.sub": "pendant le lancement — bientôt payant",
+      "price.value": "4,99 €", "price.sub": "Achat unique · mises à jour à vie",
       "check1": "Le compagnon pixel complet (marche, sommeil, chasse)",
       "check2": "Gestionnaire de presse-papier intégré",
       "check3": "Skins &amp; éditeur de sprites",
       "check4": "Historique riche — textes, images, fichiers &amp; couleurs",
       "check5": "Natif Swift — moins de 50&nbsp;Mo de RAM",
-      "price.btn": "Télécharger pour macOS", "price.note": "Un souci ? <a href=\"#\">Écris-nous</a>",
+      "price.btn1": "Acheter sur Gumroad", "price.btn2": "Acheter sur Lemon Squeezy", "price.note": "Un souci ? <a href=\"mailto:sharikmohamed9@gmail.com?subject=cliPet%20Support\">Écris-nous</a>",
       "faq.eyebrow": "FAQ", "faq.h2": "Questions fréquentes",
       "q1": "cliPet ralentit-il mon Mac ?", "a1": "Non. C'est une app native Swift qui consomme moins de 50&nbsp;Mo de RAM et un CPU négligeable. Pas d'Electron, pas de navigateur caché.",
       "q2": "Mes données partent-elles quelque part ?", "a2": "Ton contenu reste sur ton Mac : aucun cloud, aucun compte, et l'historique du presse-papier ne quitte jamais ta machine. La seule chose que cliPet envoie, ce sont des stats d'usage anonymes et non personnelles (par ex. quels écrans tu ouvres) pour nous aider à l'améliorer.",
@@ -274,7 +274,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "nav.features": "Funciones", "nav.pricing": "Precio", "nav.faq": "FAQ", "nav.download": "Descargar",
       "hero.h1": "Un gato pixel que<br><span class=\"dyn\" id=\"dynWord\">vive en tu Mac</span>",
       "hero.lead": "Pasea por la parte baja de tu pantalla, duerme y <strong>persigue tu cursor</strong>. Nativo, ligerísimo, 100&nbsp;% local.",
-      "hero.cta1": "Descargar gratis", "hero.cta2": "Mira lo que sabe hacer",
+      "hero.cta1": "Obtener cliPet", "hero.cta2": "Mira lo que sabe hacer",
       "stage.title": "cliPet — en directo en tu escritorio",
       "menu.file": "Archivo", "menu.edit": "Edición", "menu.window": "Ventana", "menu.help": "Ayuda",
       "notch.status": "ronronea · de buen humor", "notch.online": "en línea",
@@ -296,13 +296,13 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "f9.t": "Privacidad primero", "f9.d": "Sin nube, sin cuenta, sin datos personales. Tu portapapeles nunca sale de tu Mac — solo estadísticas de uso anónimas.",
       "pricing.eyebrow": "Precio", "pricing.h2": "Adóptalo hoy",
       "pricing.sub": "Una sola compra, tuyo para siempre. Actualizaciones incluidas.",
-      "price.value": "Gratis", "price.sub": "durante el lanzamiento — pronto de pago",
+      "price.value": "4,99 €", "price.sub": "Pago único · actualizaciones de por vida",
       "check1": "El compañero pixel completo (pasear, dormir, perseguir)",
       "check2": "Gestor de portapapeles integrado",
       "check3": "Skins y editor de sprites",
       "check4": "Historial rico — textos, imágenes, archivos &amp; colores",
       "check5": "Swift nativo — menos de 50&nbsp;MB de RAM",
-      "price.btn": "Descargar para macOS", "price.note": "¿Algún problema? <a href=\"#\">Escríbenos</a>",
+      "price.btn1": "Comprar en Gumroad", "price.btn2": "Comprar en Lemon Squeezy", "price.note": "¿Algún problema? <a href=\"mailto:sharikmohamed9@gmail.com?subject=cliPet%20Support\">Escríbenos</a>",
       "faq.eyebrow": "FAQ", "faq.h2": "Preguntas frecuentes",
       "q1": "¿cliPet ralentiza mi Mac?", "a1": "No. Es una app nativa en Swift que usa menos de 50&nbsp;MB de RAM y una CPU insignificante. Sin Electron, sin navegador oculto.",
       "q2": "¿Mis datos van a algún sitio?", "a2": "Tu contenido se queda en tu Mac: sin nube, sin cuenta, y el historial del portapapeles nunca sale de tu equipo. Lo único que cliPet envía son estadísticas de uso anónimas y no personales (como qué pantallas abres) para poder mejorarlo.",
@@ -321,7 +321,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "nav.features": "Funktionen", "nav.pricing": "Preis", "nav.faq": "FAQ", "nav.download": "Laden",
       "hero.h1": "Deine Pixel-Katze<br><span class=\"dyn\" id=\"dynWord\">lebt auf deinem Mac</span>",
       "hero.lead": "Sie spaziert am unteren Bildschirmrand, schläft und <strong>jagt deinem Cursor nach</strong>. Nativ, federleicht, 100&nbsp;% lokal.",
-      "hero.cta1": "Kostenlos laden", "hero.cta2": "Sieh, was sie kann",
+      "hero.cta1": "cliPet holen", "hero.cta2": "Sieh, was sie kann",
       "stage.title": "cliPet — live auf deinem Schreibtisch",
       "menu.file": "Ablage", "menu.edit": "Bearbeiten", "menu.window": "Fenster", "menu.help": "Hilfe",
       "notch.status": "schnurrt · beste Laune", "notch.online": "online",
@@ -343,13 +343,13 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "f9.t": "Datenschutz zuerst", "f9.d": "Keine Cloud, kein Konto, keine personenbezogenen Daten. Deine Zwischenablage verlässt nie deinen Mac — nur anonyme Nutzungsstatistiken.",
       "pricing.eyebrow": "Preis", "pricing.h2": "Adoptiere sie heute",
       "pricing.sub": "Einmal kaufen, für immer deins. Updates inklusive.",
-      "price.value": "Gratis", "price.sub": "während des Launches — bald kostenpflichtig",
+      "price.value": "4,99 €", "price.sub": "Einmalkauf · lebenslange Updates",
       "check1": "Der komplette Pixel-Begleiter (laufen, schlafen, jagen)",
       "check2": "Integrierter Zwischenablage-Verlauf",
       "check3": "Skins &amp; Sprite-Editor",
       "check4": "Reichhaltiger Verlauf — Texte, Bilder, Dateien &amp; Farben",
       "check5": "Nativ in Swift — unter 50&nbsp;MB RAM",
-      "price.btn": "Für macOS laden", "price.note": "Ein Problem? <a href=\"#\">Schreib uns</a>",
+      "price.btn1": "Bei Gumroad kaufen", "price.btn2": "Bei Lemon Squeezy kaufen", "price.note": "Ein Problem? <a href=\"mailto:sharikmohamed9@gmail.com?subject=cliPet%20Support\">Schreib uns</a>",
       "faq.eyebrow": "FAQ", "faq.h2": "Häufige Fragen",
       "q1": "Verlangsamt cliPet meinen Mac?", "a1": "Nein. Eine native Swift-App mit unter 50&nbsp;MB RAM und vernachlässigbarer CPU-Last. Kein Electron, kein verstecktes Browserfenster.",
       "q2": "Gehen meine Daten irgendwohin?", "a2": "Deine Inhalte bleiben auf deinem Mac: keine Cloud, kein Konto, und der Verlauf der Zwischenablage verlässt nie dein Gerät. Das Einzige, was cliPet sendet, sind anonyme, nicht personenbezogene Nutzungsstatistiken (z. B. welche Bildschirme du öffnest), um es zu verbessern.",
@@ -368,7 +368,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "nav.features": "Funzioni", "nav.pricing": "Prezzo", "nav.faq": "FAQ", "nav.download": "Scarica",
       "hero.h1": "Un gatto pixel che<br><span class=\"dyn\" id=\"dynWord\">vive sul tuo Mac</span>",
       "hero.lead": "Passeggia in fondo allo schermo, dorme e <strong>insegue il cursore</strong>. Nativo, leggerissimo, 100&nbsp;% locale.",
-      "hero.cta1": "Scarica gratis", "hero.cta2": "Guarda cosa sa fare",
+      "hero.cta1": "Ottieni cliPet", "hero.cta2": "Guarda cosa sa fare",
       "stage.title": "cliPet — dal vivo sulla tua scrivania",
       "menu.file": "File", "menu.edit": "Modifica", "menu.window": "Finestra", "menu.help": "Aiuto",
       "notch.status": "fa le fusa · umore al top", "notch.online": "online",
@@ -390,13 +390,13 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "f9.t": "Privacy al primo posto", "f9.d": "Niente cloud, niente account, nessun dato personale. I tuoi appunti non lasciano mai il Mac — solo statistiche d'uso anonime.",
       "pricing.eyebrow": "Prezzo", "pricing.h2": "Adottalo oggi",
       "pricing.sub": "Un solo acquisto, tuo per sempre. Aggiornamenti inclusi.",
-      "price.value": "Gratis", "price.sub": "durante il lancio — presto a pagamento",
+      "price.value": "4,99 €", "price.sub": "Acquisto unico · aggiornamenti a vita",
       "check1": "Il compagno pixel completo (cammina, dorme, insegue)",
       "check2": "Gestore appunti integrato",
       "check3": "Skin ed editor di sprite",
       "check4": "Cronologia ricca — testi, immagini, file &amp; colori",
       "check5": "Swift nativo — meno di 50&nbsp;MB di RAM",
-      "price.btn": "Scarica per macOS", "price.note": "Un problema? <a href=\"#\">Scrivici</a>",
+      "price.btn1": "Acquista su Gumroad", "price.btn2": "Acquista su Lemon Squeezy", "price.note": "Un problema? <a href=\"mailto:sharikmohamed9@gmail.com?subject=cliPet%20Support\">Scrivici</a>",
       "faq.eyebrow": "FAQ", "faq.h2": "Domande frequenti",
       "q1": "cliPet rallenta il mio Mac?", "a1": "No. È un'app nativa in Swift che usa meno di 50&nbsp;MB di RAM e una CPU trascurabile. Niente Electron, nessun browser nascosto.",
       "q2": "I miei dati vanno da qualche parte?", "a2": "I tuoi contenuti restano sul Mac: niente cloud, niente account, e la cronologia degli appunti non lascia mai il tuo dispositivo. L'unica cosa che cliPet invia sono statistiche d'uso anonime e non personali (ad es. quali schermate apri) per poterlo migliorare.",
@@ -415,7 +415,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "nav.features": "Funções", "nav.pricing": "Preço", "nav.faq": "FAQ", "nav.download": "Baixar",
       "hero.h1": "Um gato pixel que<br><span class=\"dyn\" id=\"dynWord\">vive no seu Mac</span>",
       "hero.lead": "Ele passeia na base da sua tela, dorme e <strong>persegue seu cursor</strong>. Nativo, leve como pluma, 100&nbsp;% local.",
-      "hero.cta1": "Baixar grátis", "hero.cta2": "Veja o que ele faz",
+      "hero.cta1": "Obter o cliPet", "hero.cta2": "Veja o que ele faz",
       "stage.title": "cliPet — ao vivo na sua área de trabalho",
       "menu.file": "Arquivo", "menu.edit": "Editar", "menu.window": "Janela", "menu.help": "Ajuda",
       "notch.status": "ronronando · de bom humor", "notch.online": "online",
@@ -437,13 +437,13 @@ var SPRITES = {"idle":["..........................XX.....","....................
       "f9.t": "Privacidade primeiro", "f9.d": "Sem nuvem, sem conta, sem dados pessoais. A sua área de transferência nunca sai do Mac — apenas estatísticas de uso anônimas.",
       "pricing.eyebrow": "Preço", "pricing.h2": "Adote hoje",
       "pricing.sub": "Uma compra só, seu para sempre. Atualizações incluídas.",
-      "price.value": "Grátis", "price.sub": "durante o lançamento — em breve pago",
+      "price.value": "4,99 €", "price.sub": "Compra única · atualizações vitalícias",
       "check1": "O companheiro pixel completo (andar, dormir, perseguir)",
       "check2": "Gerenciador de área de transferência integrado",
       "check3": "Skins e editor de sprites",
       "check4": "Histórico rico — textos, imagens, arquivos &amp; cores",
       "check5": "Swift nativo — menos de 50&nbsp;MB de RAM",
-      "price.btn": "Baixar para macOS", "price.note": "Algum problema? <a href=\"#\">Fale conosco</a>",
+      "price.btn1": "Comprar na Gumroad", "price.btn2": "Comprar na Lemon Squeezy", "price.note": "Algum problema? <a href=\"mailto:sharikmohamed9@gmail.com?subject=cliPet%20Support\">Fale conosco</a>",
       "faq.eyebrow": "FAQ", "faq.h2": "Perguntas frequentes",
       "q1": "O cliPet deixa meu Mac lento?", "a1": "Não. É um app nativo em Swift que usa menos de 50&nbsp;MB de RAM e CPU insignificante. Sem Electron, sem navegador escondido.",
       "q2": "Meus dados vão para algum lugar?", "a2": "O seu conteúdo fica no seu Mac: sem nuvem, sem conta, e o histórico da área de transferência nunca sai da sua máquina. A única coisa que o cliPet envia são estatísticas de uso anônimas e não pessoais (como quais telas você abre) para podermos melhorá-lo.",
@@ -507,6 +507,36 @@ var SPRITES = {"idle":["..........................XX.....","....................
     EN["doc.desc"] = meta ? meta.content : "";
     I18N.en = EN;
 
+    // ============ Prix localisé — base 4,99 €, converti selon la device ============
+    // Prix arrondis « façon store » (pas de conversion FX brute), calés sur ~4,99 €.
+    var PRICES = {
+      USD: "$4.99", EUR: "4,99 €", GBP: "£4.49", CHF: "CHF 4.90",
+      CAD: "CA$6.99", AUD: "A$7.99", JPY: "¥700", CNY: "¥35",
+      INR: "₹399", BRL: "R$24,90", MXN: "$99", RUB: "499 ₽",
+      KRW: "₩6,500", SAR: "ر.س 18.99", AED: "د.إ 18.99"
+    };
+    // Région (depuis la locale) → devise.
+    var REGION_CCY = {
+      US: "USD", GB: "GBP", CH: "CHF", CA: "CAD", AU: "AUD", NZ: "AUD",
+      JP: "JPY", CN: "CNY", TW: "CNY", HK: "CNY", IN: "INR", BR: "BRL",
+      MX: "MXN", RU: "RUB", KR: "KRW", SA: "SAR", AE: "AED"
+    };
+    var EUROZONE = "FR DE ES IT PT NL BE AT IE FI GR LU SK SI LT LV EE CY MT";
+    function userPrice() {
+      var loc = (navigator.language || navigator.userLanguage || "en-US");
+      var region = (loc.split("-")[1] || "").toUpperCase();
+      var ccy = REGION_CCY[region];
+      if (!ccy) {
+        if (EUROZONE.indexOf(region) >= 0) ccy = "EUR";
+        else ccy = (loc.slice(0, 2).toLowerCase() === "en") ? "USD" : "EUR";
+      }
+      return PRICES[ccy] || PRICES.USD;
+    }
+    function applyPrice() {
+      var p = userPrice();
+      document.querySelectorAll("[data-price]").forEach(function (el) { el.textContent = p; });
+    }
+
     function setLang(lang) {
       if (!I18N[lang]) lang = "en";
       var dict = I18N[lang];
@@ -515,6 +545,7 @@ var SPRITES = {"idle":["..........................XX.....","....................
         var k = el.getAttribute("data-i18n");
         if (dict[k] != null) el.innerHTML = dict[k];
       });
+      applyPrice();   // garde le prix localisé (jamais « gratuit »)
       if (dict["doc.title"]) document.title = dict["doc.title"];
       if (meta && dict["doc.desc"]) meta.content = dict["doc.desc"];
       try { localStorage.setItem("clipet-lang", lang); } catch (e) {}
