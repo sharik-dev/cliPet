@@ -262,9 +262,46 @@ app.get('/api/admin/analytics/overview', (req, res) => {
     `SELECT COUNT(*) AS events, COUNT(DISTINCT anon_id) AS visitors FROM events WHERE created_at>=?`
   ).get(since);
 
+  // ---- KPIs produit (site + app) ----
+  // Visiteurs distincts du site (anon_id stable, source=site).
+  const siteVisitors = db.prepare(
+    `SELECT COUNT(DISTINCT anon_id) AS c FROM events
+       WHERE source='site' AND anon_id IS NOT NULL AND created_at>=?`
+  ).get(since).c;
+  // Pages vues = total des visites (pas dédupliqué).
+  const pageViews = db.prepare(
+    `SELECT COUNT(*) AS c FROM events WHERE name='site_visit' AND created_at>=?`
+  ).get(since).c;
+  // Téléchargements = visiteurs distincts ayant cliqué un CTA de download.
+  const downloadClicks = db.prepare(
+    `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
+       WHERE name='site_download_click' AND created_at>=?`
+  ).get(since).c;
+  // Installs réels = premiers lancements distincts de l'app.
+  const appInstalls = db.prepare(
+    `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
+       WHERE name='app_first_launch' AND created_at>=?`
+  ).get(since).c;
+  // Achats = licences activées distinctes.
+  const purchases = db.prepare(
+    `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
+       WHERE name='app_activated' AND created_at>=?`
+  ).get(since).c;
+  const pct = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 10 : 0);
+  const kpis = {
+    siteVisitors,
+    pageViews,
+    downloadClicks,
+    appInstalls,
+    purchases,
+    convVisitDownload: pct(downloadClicks, siteVisitors),   // visite → téléchargement (site)
+    convInstallPurchase: pct(purchases, appInstalls),        // install → achat (app)
+  };
+
   res.json({
     days,
     totals,
+    kpis,
     funnels: {
       site: funnelCounts(SITE_FUNNEL, since),
       app:  funnelCounts(APP_FUNNEL, since),
