@@ -23,6 +23,12 @@ const Database = require('better-sqlite3');
 const crypto = require('crypto');
 const path = require('path');
 
+// Géolocalisation par IP (base embarquée, hors-ligne, sans PII stockée :
+// on ne garde que le code pays ISO, jamais l'IP). Optionnel : si le module
+// n'est pas installé, on dégrade proprement (country=null).
+let geoip = null;
+try { geoip = require('geoip-lite'); } catch (e) { /* optionnel */ }
+
 const PORT = process.env.PORT || 8090;
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'marketplace.db');
 
@@ -59,6 +65,8 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_events_name ON events(name, created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_events_created ON events(created_at DESC);
 `);
+// Migration : colonne pays (ISO-3166-1 alpha-2) ajoutée à l'ingestion.
+try { db.exec(`ALTER TABLE events ADD COLUMN country TEXT`); } catch (e) { /* déjà présente */ }
 
 // Étapes du tunnel de vente (compte de visiteurs anonymes distincts par étape).
 const SITE_FUNNEL = [
@@ -88,6 +96,37 @@ function rateLimit(key, max, windowMs) {
   return rec.n <= max;
 }
 const ipOf = (req) => req.headers['x-real-ip'] || req.ip || 'unknown';
+
+// Pays d'origine d'une requête (code ISO) — résolu à l'ingestion depuis l'IP,
+// jamais l'IP elle-même. Renvoie null si indéterminé.
+function countryOf(req) {
+  if (!geoip) return null;
+  const raw = req.headers['x-real-ip'] || req.headers['x-forwarded-for'] || req.ip || '';
+  const ip = String(raw).split(',')[0].trim();
+  if (!ip) return null;
+  const g = geoip.lookup(ip);
+  return (g && g.country) ? g.country : null;
+}
+
+// Regroupe un referrer brut en source de trafic lisible.
+function classifyRef(ref) {
+  if (!ref) return 'Direct';
+  let h;
+  try { h = new URL(ref).hostname.replace(/^www\./, '').toLowerCase(); }
+  catch (e) { return 'Direct'; }
+  if (/google\./.test(h))                 return 'Google';
+  if (/bing\./.test(h))                   return 'Bing';
+  if (/duckduckgo/.test(h))               return 'DuckDuckGo';
+  if (/(^|\.)(t\.co|twitter\.com|x\.com)$/.test(h) || /twitter|x\.com/.test(h)) return 'X / Twitter';
+  if (/reddit/.test(h))                   return 'Reddit';
+  if (/(facebook|instagram|fb\.)/.test(h)) return 'Meta';
+  if (/(youtube|youtu\.be)/.test(h))      return 'YouTube';
+  if (/(linkedin|lnkd)/.test(h))          return 'LinkedIn';
+  if (/(news\.ycombinator|ycombinator)/.test(h)) return 'Hacker News';
+  if (/github/.test(h))                   return 'GitHub';
+  if (/producthunt/.test(h))              return 'Product Hunt';
+  return h;
+}
 
 // --- Validation d'un pet soumis ---
 function validatePet(body) {
@@ -215,12 +254,13 @@ app.post('/api/admin/pets/:id/restore', (req, res) => {
 
 // Ingestion publique (site + app). Accepte un event ou un lot {events:[...]}.
 const insertEvent = db.prepare(
-  `INSERT INTO events (name, source, anon_id, props, created_at) VALUES (?, ?, ?, ?, ?)`
+  `INSERT INTO events (name, source, anon_id, props, country, created_at) VALUES (?, ?, ?, ?, ?, ?)`
 );
 app.post('/api/events', (req, res) => {
   if (!rateLimit('ev:' + ipOf(req), 600, 3600_000))
     return res.status(429).json({ error: 'rate limited' });
   const now = new Date().toISOString();
+  const country = countryOf(req);
   const batch = Array.isArray(req.body && req.body.events) ? req.body.events : [req.body];
   const tx = db.transaction((items) => {
     for (const e of items) {
@@ -229,7 +269,7 @@ app.post('/api/events', (req, res) => {
       const source = (e.source === 'site' || e.source === 'app') ? e.source : 'app';
       const anon = e.anonId ? String(e.anonId).slice(0, 64) : null;
       const props = e.props ? JSON.stringify(e.props).slice(0, 2000) : null;
-      insertEvent.run(name, source, anon, props, now);
+      insertEvent.run(name, source, anon, props, country, now);
     }
   });
   try { tx(batch); res.json({ ok: true }); }
@@ -245,7 +285,7 @@ app.get('/api/download', (req, res) => {
   if (rateLimit('dl:' + ipOf(req), 60, 3600_000)) {
     const aid = req.query.aid ? String(req.query.aid).slice(0, 64) : null;
     try {
-      insertEvent.run('site_download', 'site', aid, JSON.stringify({ file }), new Date().toISOString());
+      insertEvent.run('site_download', 'site', aid, JSON.stringify({ file }), countryOf(req), new Date().toISOString());
     } catch (e) { /* ne jamais bloquer le téléchargement */ }
   }
   res.redirect(302, '/download/' + file);
@@ -269,10 +309,22 @@ app.get('/api/admin/analytics/overview', (req, res) => {
        GROUP BY name ORDER BY count DESC LIMIT 50`
   ).all(since);
 
-  const daily = db.prepare(
-    `SELECT substr(created_at,1,10) AS date, COUNT(*) AS count FROM events
-       WHERE created_at>=? GROUP BY date ORDER BY date`
+  // Évolution quotidienne du site : pages vues (toutes les visites) +
+  // visiteurs uniques (anon_id distincts). Les jours sans donnée sont
+  // remplis à 0 pour une courbe continue.
+  const dailyRaw = db.prepare(
+    `SELECT substr(created_at,1,10) AS date,
+            SUM(CASE WHEN name='site_visit' THEN 1 ELSE 0 END) AS pageviews,
+            COUNT(DISTINCT CASE WHEN name='site_visit' THEN anon_id END) AS visitors
+       FROM events WHERE created_at>=? GROUP BY date`
   ).all(since);
+  const dailyMap = Object.fromEntries(dailyRaw.map(r => [r.date, r]));
+  const daily = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const dt = new Date(Date.now() - i * 86400_000).toISOString().slice(0, 10);
+    const r = dailyMap[dt];
+    daily.push({ date: dt, pageviews: r ? r.pageviews : 0, visitors: r ? r.visitors : 0 });
+  }
 
   const totals = db.prepare(
     `SELECT COUNT(*) AS events, COUNT(DISTINCT anon_id) AS visitors FROM events WHERE created_at>=?`
@@ -308,6 +360,19 @@ app.get('/api/admin/analytics/overview', (req, res) => {
     `SELECT COUNT(DISTINCT COALESCE(anon_id, id)) AS c FROM events
        WHERE name='app_activated' AND created_at>=?`
   ).get(since).c;
+  // Temps moyen passé sur le site (en secondes). Mesuré côté site via
+  // l'event `site_leave` (props.dwell). On filtre les valeurs aberrantes.
+  const dwellRow = db.prepare(
+    `SELECT AVG(d) AS avg, COUNT(*) AS n FROM (
+       SELECT CAST(json_extract(props,'$.dwell') AS REAL) AS d
+         FROM events
+        WHERE name='site_leave' AND created_at>=?
+          AND json_extract(props,'$.dwell') IS NOT NULL
+     ) WHERE d > 0 AND d < 7200`
+  ).get(since);
+  const avgDwellSec = (dwellRow && dwellRow.avg) ? Math.round(dwellRow.avg) : 0;
+  const dwellSamples = (dwellRow && dwellRow.n) ? dwellRow.n : 0;
+
   const pct = (a, b) => (b > 0 ? Math.round((a / b) * 1000) / 10 : 0);
   const kpis = {
     siteVisitors,
@@ -316,20 +381,47 @@ app.get('/api/admin/analytics/overview', (req, res) => {
     downloads,
     appInstalls,
     purchases,
+    avgDwellSec,                                             // temps moyen sur le site (s)
     convVisitDownload: pct(downloads, siteVisitors),         // visite → téléchargement réel (site)
     convInstallPurchase: pct(purchases, appInstalls),        // install → achat (app)
   };
+
+  // ---- Provenance des visiteurs (sources de trafic) ----
+  const refRows = db.prepare(
+    `SELECT json_extract(props,'$.ref') AS ref, COUNT(*) AS c
+       FROM events WHERE name='site_visit' AND created_at>=? GROUP BY ref`
+  ).all(since);
+  const refAgg = {};
+  for (const r of refRows) {
+    const src = classifyRef(r.ref);
+    refAgg[src] = (refAgg[src] || 0) + r.c;
+  }
+  const referrers = Object.entries(refAgg)
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+
+  // ---- Pays des visiteurs (uniques par pays) ----
+  const countries = db.prepare(
+    `SELECT COALESCE(NULLIF(country,''),'??') AS country, COUNT(DISTINCT anon_id) AS visitors
+       FROM events
+      WHERE source='site' AND anon_id IS NOT NULL AND created_at>=?
+      GROUP BY country ORDER BY visitors DESC LIMIT 12`
+  ).all(since);
 
   res.json({
     days,
     totals,
     kpis,
+    dwell: { avgSec: avgDwellSec, samples: dwellSamples },
     funnels: {
       site: funnelCounts(SITE_FUNNEL, since),
       app:  funnelCounts(APP_FUNNEL, since),
     },
     events,
     daily,
+    referrers,
+    countries,
   });
 });
 

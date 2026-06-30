@@ -57,6 +57,24 @@
     .lang { display:flex; gap:6px; }
     .lang button { background:var(--panel); border:1px solid var(--border); color:var(--dim); font:inherit; font-size:12px; padding:4px 10px; border-radius:4px; cursor:pointer; }
     .lang button.on { color:var(--accent2); border-color:var(--accent2); }
+    /* — Note explicative (clarifie pages vues vs visiteurs, etc.) — */
+    .note { font-size:11px; color:var(--dim); margin:-8px 0 18px; line-height:1.5; }
+    .note b { color:var(--text); font-weight:600; }
+    /* — Graphique d'évolution — */
+    .chart-card { background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:16px 18px; margin-bottom:24px; }
+    .chart-head { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+    .chart-head h3 { font-size:13px; letter-spacing:1px; color:var(--text); }
+    .legend { display:flex; gap:16px; font-size:11px; color:var(--dim); }
+    .legend span { display:inline-flex; align-items:center; gap:6px; }
+    .legend i { width:12px; height:3px; border-radius:2px; display:inline-block; }
+    /* — Listes en barres (provenance, pays) — */
+    .cols2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:8px; }
+    @media (max-width:720px){ .cols2{ grid-template-columns:1fr; } }
+    .brow { display:grid; grid-template-columns:120px 1fr 44px; align-items:center; gap:10px; margin-bottom:7px; font-size:12px; }
+    .brow .bl { color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .brow .bv { color:var(--dim); text-align:right; }
+    .bbar { height:16px; background:#0a0c0f; border:1px solid var(--border); border-radius:4px; overflow:hidden; }
+    .bbar > span { display:block; height:100%; background:linear-gradient(90deg,var(--accent2),#2d6e6e); }
   </style>
 </head>
 <body>
@@ -87,7 +105,12 @@
             visitors:"Visitors", eventsKpi:"Events", last:"last %n days", ofPrev:"of previous",
             kSiteVisitors:"Site visitors", kPageViews:"Page views", kDownloads:"Downloads",
             kInstalls:"App installs", kPurchases:"Purchases",
-            kConvDl:"Visit → download", kConvBuy:"Install → purchase" },
+            kConvDl:"Visit → download", kConvBuy:"Install → purchase", kDwell:"Avg. time on site",
+            chartTitle:"Visitors over time", legVisitors:"Unique visitors", legPageviews:"Page views",
+            provTitle:"Traffic sources", countryTitle:"Top countries", direct:"Direct",
+            noData:"No data for this period yet.",
+            noteKpi:"<b>Page views</b> counts every visit; <b>Site visitors</b> counts unique people — so page views are always ≥ visitors.",
+            noteFunnel:"Funnel steps count <b>unique visitors</b> reaching each step. “Top events” below count <b>every occurrence</b> — that's why the numbers differ." },
       fr: { title:"Modération cliPet", tabAnalytics:"Analytics", tabLive:"En ligne", tabRemoved:"Retirés", tabReports:"Signalements",
             remove:"Retirer", restore:"Republier", downloads:"téléch.", reports:"signal.",
             empty:"Rien ici.", loaded:"%n pet(s)", loadedR:"%n signalement(s)",
@@ -95,10 +118,15 @@
             visitors:"Visiteurs", eventsKpi:"Événements", last:"%n derniers jours", ofPrev:"du précédent",
             kSiteVisitors:"Visiteurs site", kPageViews:"Pages vues", kDownloads:"Téléchargements",
             kInstalls:"Installations", kPurchases:"Achats",
-            kConvDl:"Visite → téléch.", kConvBuy:"Install → achat" },
+            kConvDl:"Visite → téléch.", kConvBuy:"Install → achat", kDwell:"Temps moyen sur le site",
+            chartTitle:"Visiteurs dans le temps", legVisitors:"Visiteurs uniques", legPageviews:"Pages vues",
+            provTitle:"Sources de trafic", countryTitle:"Pays principaux", direct:"Direct",
+            noData:"Pas encore de données sur cette période.",
+            noteKpi:"<b>Pages vues</b> compte chaque visite ; <b>Visiteurs site</b> compte les personnes uniques — les pages vues sont donc toujours ≥ aux visiteurs.",
+            noteFunnel:"Le tunnel compte les <b>visiteurs uniques</b> atteignant chaque étape. Les « Événements » ci-dessous comptent <b>chaque occurrence</b> — d'où l'écart entre les chiffres." },
     };
     let lang = localStorage.getItem("clipet.mod.lang") || (navigator.language.startsWith("fr") ? "fr" : "en");
-    let tab = "live";
+    let tab = "analytics";   // onglet par défaut = celui marqué .on dans le HTML
     const T = k => I18N[lang][k];
 
     // Couleurs par défaut des chars de base (miroir de l'app) pour le rendu preview.
@@ -202,6 +230,71 @@
       return `<div class="funnel"><h3>${T(titleKey)}</h3>${rows}</div>`;
     }
 
+    // Durée lisible : 92 → "1m 32s", 45 → "45s".
+    function fmtDwell(sec) {
+      sec = Math.max(0, Math.round(sec || 0));
+      if (sec < 60) return sec + "s";
+      const m = Math.floor(sec / 60), s = sec % 60;
+      return s ? `${m}m ${s}s` : `${m}m`;
+    }
+
+    // Code pays ISO → drapeau emoji + nom localisé (suit la langue active).
+    let _regionNames = null, _regionLang = null;
+    function regions() {
+      if (_regionLang !== lang) {
+        try { _regionNames = new Intl.DisplayNames([lang], { type: "region" }); } catch (e) { _regionNames = null; }
+        _regionLang = lang;
+      }
+      return _regionNames;
+    }
+    function flagEmoji(cc) {
+      if (!cc || cc.length !== 2 || cc === "??") return "🏳️";
+      return cc.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+    }
+    function countryName(cc) {
+      if (!cc || cc === "??") return "—";
+      const r = regions();
+      try { return r ? r.of(cc.toUpperCase()) || cc : cc; } catch (e) { return cc; }
+    }
+
+    // Liste horizontale en barres (provenance, pays).
+    function barList(rows) {
+      if (!rows.length) return `<p class="empty">${T("noData")}</p>`;
+      const max = Math.max(1, ...rows.map(r => r.value));
+      return rows.map(r =>
+        `<div class="brow"><span class="bl">${r.label}</span>` +
+        `<div class="bbar"><span style="width:${Math.round(r.value / max * 100)}%"></span></div>` +
+        `<span class="bv">${r.value}</span></div>`).join("");
+    }
+
+    // Courbe d'évolution (SVG pur) : pages vues + visiteurs uniques par jour.
+    function lineChart(daily) {
+      const n = (daily || []).length;
+      if (!n) return `<p class="empty">${T("noData")}</p>`;
+      const W = 720, H = 220, pad = { l: 34, r: 14, t: 14, b: 26 };
+      const iw = W - pad.l - pad.r, ih = H - pad.t - pad.b;
+      const maxV = Math.max(1, ...daily.map(d => Math.max(d.pageviews, d.visitors)));
+      const px = i => pad.l + (n === 1 ? iw / 2 : (i / (n - 1)) * iw);
+      const py = v => pad.t + ih - (v / maxV) * ih;
+      const series = (key, color) => {
+        const pts = daily.map((d, i) => `${px(i).toFixed(1)},${py(d[key]).toFixed(1)}`).join(" ");
+        const dots = daily.map((d, i) => d[key] > 0
+          ? `<circle cx="${px(i).toFixed(1)}" cy="${py(d[key]).toFixed(1)}" r="2.1" fill="${color}"/>` : "").join("");
+        return `<polyline fill="none" stroke="${color}" stroke-width="2" points="${pts}"/>${dots}`;
+      };
+      let grid = "";
+      for (let g = 0; g <= 3; g++) {
+        const gy = pad.t + (ih / 3) * g, val = Math.round(maxV * (1 - g / 3));
+        grid += `<line x1="${pad.l}" y1="${gy.toFixed(1)}" x2="${W - pad.r}" y2="${gy.toFixed(1)}" stroke="#262b32" stroke-width="1"/>` +
+                `<text x="${pad.l - 6}" y="${(gy + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#8a929c">${val}</text>`;
+      }
+      const ticks = [...new Set([0, Math.floor((n - 1) / 2), n - 1])];
+      const xl = ticks.map(i =>
+        `<text x="${px(i).toFixed(1)}" y="${H - 8}" text-anchor="middle" font-size="9" fill="#8a929c">${daily[i].date.slice(5)}</text>`).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">${grid}` +
+             series("pageviews", "#5a7d9a") + series("visitors", "#4aa3a3") + xl + `</svg>`;
+    }
+
     async function loadAnalytics(content, meta) {
       const d = await api("/api/admin/analytics/overview?days=30");
       meta.textContent = T("last").replace("%n", d.days);
@@ -211,14 +304,35 @@
       let html = `<div class="kpis">` +
         kpi(k.siteVisitors||0, "kSiteVisitors") +
         kpi(k.pageViews||0, "kPageViews") +
+        kpi(fmtDwell(k.avgDwellSec), "kDwell") +
         kpi(k.downloads||0, "kDownloads") +
         kpi(k.appInstalls||0, "kInstalls") +
         kpi(k.purchases||0, "kPurchases") +
         kpi((k.convVisitDownload||0) + "%", "kConvDl") +
         kpi((k.convInstallPurchase||0) + "%", "kConvBuy") +
         `</div>`;
+      html += `<p class="note">${T("noteKpi")}</p>`;
+
+      // Courbe d'évolution
+      html += `<div class="chart-card"><div class="chart-head"><h3>${T("chartTitle")}</h3>` +
+        `<div class="legend">` +
+        `<span><i style="background:#4aa3a3"></i>${T("legVisitors")}</span>` +
+        `<span><i style="background:#5a7d9a"></i>${T("legPageviews")}</span></div></div>` +
+        lineChart(d.daily) + `</div>`;
+
+      // Provenance + pays côte à côte
+      const refRows = (d.referrers || []).map(r => ({
+        label: esc(r.source === "Direct" ? T("direct") : r.source), value: r.count }));
+      const ctyRows = (d.countries || []).map(c => ({
+        label: `${flagEmoji(c.country)} ${esc(countryName(c.country))}`, value: c.visitors }));
+      html += `<div class="cols2">` +
+        `<div><div class="sec-h">${T("provTitle")}</div>${barList(refRows)}</div>` +
+        `<div><div class="sec-h">${T("countryTitle")}</div>${barList(ctyRows)}</div>` +
+        `</div>`;
+
       html += `<div class="funnels">` + funnelHTML("funnelSite", d.funnels.site) +
               funnelHTML("funnelApp", d.funnels.app) + `</div>`;
+      html += `<p class="note">${T("noteFunnel")}</p>`;
       html += `<div class="sec-h">${T("topEvents")}</div><div class="evlist">`;
       (d.events||[]).forEach(e => {
         html += `<div class="ev"><span class="n">${esc(e.name)}</span><span class="c">${e.count}</span></div>`;

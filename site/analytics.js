@@ -56,4 +56,32 @@
       track("site_download_click", { label: label });
     }
   }, true);
+
+  // 4) Temps passé sur le site : on mesure la durée active (hors onglet en
+  //    arrière-plan) et on l'envoie une seule fois au départ de la page.
+  var start = Date.now();
+  var active = 0;          // ms cumulés où l'onglet était visible
+  var lastVisible = (document.visibilityState === "visible") ? start : null;
+  var sent = false;
+
+  function accumulate() {
+    if (lastVisible !== null) { active += Date.now() - lastVisible; lastVisible = null; }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") { lastVisible = Date.now(); }
+    else { accumulate(); }
+  });
+
+  function sendDwell() {
+    if (sent) return;
+    sent = true;
+    accumulate();
+    var dwell = Math.round(active / 1000);            // secondes
+    if (dwell > 0 && dwell < 7200) track("site_leave", { dwell: dwell, path: location.pathname });
+  }
+  // pagehide couvre la fermeture / navigation ; visibilitychange→hidden couvre mobile.
+  window.addEventListener("pagehide", sendDwell);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") sendDwell();
+  });
 })();
